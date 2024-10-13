@@ -79,5 +79,19 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
    override fun visitPd(ctx: logoParser.PdContext?): Int {
        Turtle.isDown = true
        return 0
+   }
+
+    override fun visitHome(ctx: logoParser.HomeContext?): Int {
+        Turtle.setAcctualPosition(500F, 500F)
+        return 0
     }
+
+    override fun visitSetxy(ctx: logoParser.SetxyContext?): Int {
+        val X = ctx!!.expression(0).text.toFloat()
+        val Y = ctx.expression(1).text.toFloat()
+        Turtle.setAcctualPosition(X,Y)
+        return 0
+    }
+
+   
 }
