@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Logo Interpreter Beta</string>
+    <string name="app_name">LOGO IDE (beta)</string>
+    <string name="title_activity_start_screen">StartScreen</string>
 </resources>
