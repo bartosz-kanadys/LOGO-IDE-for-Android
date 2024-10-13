@@ -5,7 +5,6 @@ import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import org.antlr.v4.runtime.tree.ParseTreeWalker
 
 class LogoInterpreter {
 
@@ -13,24 +12,30 @@ class LogoInterpreter {
 
     //"fd 100 rt 90 penup fd 100 rt 90 pendown fd 100 rt 90 penup fd 100";
 
+//    private var walker =  ParseTreeWalker()
+//    private var listener = MyLogoListener()
 
-    var walker =  ParseTreeWalker()
-    var listener = ForwardMethodListener()
+    fun start(input: String) {
+        // Tworzenie lexer'a
+        val lexer = logoLexer(
+            CharStreams.fromString(input)
+        )
 
-    fun start(text: String) {
-        var context: String = text
-        var lexer = logoLexer(CharStreams.fromString(context))
+        // Tokenizacja
+        val tokens = CommonTokenStream(lexer)
 
-        // create a buffer of tokens pulled from the lexer
-        var tokens = CommonTokenStream(lexer)
-        // create a parser that feeds off the tokens buffer
-        var parser = logoParser(tokens)
+        // Parsowanie
+        val parser = logoParser(tokens)
 
-        var tree = parser.prog() // begin parsing at init rule
+        // Startujemy od reguły głównej (prog)
+        val tree = parser.prog()
 
+        val myVisitor = MyLogoVisitor()
+        myVisitor.visit(tree)
+        bitmap = myVisitor.image
 
-        walker.walk(listener, tree)
-        bitmap = listener.image
+//        walker.walk(listener, tree)
+//        bitmap = listener.image
     }
 
 }

@@ -138,6 +138,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitProg(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitProg(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ProgContext prog() throws RecognitionException {
@@ -177,7 +182,7 @@ public class logoParser extends Parser {
 				setState(82); 
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
-			} while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER );
+			} while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER );
 			setState(85);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
@@ -231,6 +236,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitLine(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitLine(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -410,6 +420,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitCmd(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitCmd(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -593,6 +608,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitProcedureInvocation(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitProcedureInvocation(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ProcedureInvocationContext procedureInvocation() throws RecognitionException {
@@ -663,6 +683,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitProcedureDeclaration(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitProcedureDeclaration(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -763,6 +788,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitParameterDeclarations(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitParameterDeclarations(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ParameterDeclarationsContext parameterDeclarations() throws RecognitionException {
@@ -779,7 +809,7 @@ public class logoParser extends Parser {
 			setState(159);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,13,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -824,6 +854,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitFunc_(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitFunc_(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final Func_Context func_() throws RecognitionException {
@@ -866,6 +901,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitRepeat_(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitRepeat_(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -913,6 +953,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitBlock(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitBlock(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -974,6 +1019,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitIfe(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitIfe(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final IfeContext ife() throws RecognitionException {
@@ -1024,6 +1074,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitComparison(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitComparison(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ComparisonContext comparison() throws RecognitionException {
@@ -1064,6 +1119,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitComparisonOperator(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitComparisonOperator(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1115,6 +1175,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitMake(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitMake(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MakeContext make() throws RecognitionException {
@@ -1161,6 +1226,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitPrint_(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitPrint_(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1227,6 +1297,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitQuotedstring(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitQuotedstring(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1303,6 +1378,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitName(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitName(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NameContext name() throws RecognitionException {
@@ -1346,6 +1426,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitValue(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitValue(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1412,6 +1497,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitSignExpression(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitSignExpression(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1501,6 +1591,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitMultiplyingExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitMultiplyingExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final MultiplyingExpressionContext multiplyingExpression() throws RecognitionException {
@@ -1516,7 +1611,7 @@ public class logoParser extends Parser {
 			setState(228);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,21,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1572,6 +1667,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitExpression(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitExpression(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final ExpressionContext expression() throws RecognitionException {
@@ -1587,7 +1687,7 @@ public class logoParser extends Parser {
 			setState(236);
 			_errHandler.sync(this);
 			_alt = getInterpreter().adaptivePredict(_input,22,_ctx);
-			while ( _alt!=2 && _alt!= ATN.INVALID_ALT_NUMBER ) {
+			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					{
 					{
@@ -1640,6 +1740,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitDeref(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitDeref(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final DerefContext deref() throws RecognitionException {
@@ -1681,6 +1786,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitFd(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitFd(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1733,6 +1843,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitBk(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitBk(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final BkContext bk() throws RecognitionException {
@@ -1783,6 +1898,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitRt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitRt(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1835,6 +1955,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitLt(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitLt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final LtContext lt() throws RecognitionException {
@@ -1883,6 +2008,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitCs(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitCs(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final CsContext cs() throws RecognitionException {
@@ -1928,6 +2058,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitPu(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitPu(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -1975,6 +2110,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitPd(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitPd(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final PdContext pd() throws RecognitionException {
@@ -2020,6 +2160,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitHt(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitHt(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2067,6 +2212,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitSt(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitSt(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StContext st() throws RecognitionException {
@@ -2113,6 +2263,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitHome(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitHome(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final HomeContext home() throws RecognitionException {
@@ -2150,6 +2305,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitStop(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitStop(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final StopContext stop() throws RecognitionException {
@@ -2186,6 +2346,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitLabel(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitLabel(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2230,6 +2395,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitSetxy(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitSetxy(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final SetxyContext setxy() throws RecognitionException {
@@ -2273,6 +2443,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitRandom(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitRandom(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2324,6 +2499,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitFore(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitFore(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
@@ -2377,6 +2557,11 @@ public class logoParser extends Parser {
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitNumber(this);
 		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitNumber(this);
+			else return visitor.visitChildren(this);
+		}
 	}
 
 	public final NumberContext number() throws RecognitionException {
@@ -2414,6 +2599,11 @@ public class logoParser extends Parser {
 		@Override
 		public void exitRule(ParseTreeListener listener) {
 			if ( listener instanceof logoListener ) ((logoListener)listener).exitComment(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof logoVisitor ) return ((logoVisitor<? extends T>)visitor).visitComment(this);
+			else return visitor.visitChildren(this);
 		}
 	}
 
