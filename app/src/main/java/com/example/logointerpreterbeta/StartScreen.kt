@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,30 +41,33 @@ class StartScreen : ComponentActivity() {
             LogoInterpreterBetaTheme {
                 Column(
                     Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
+                        .fillMaxWidth().fillMaxHeight().padding(40.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Image(
                         painterResource(id = R.drawable.logo),
                         contentDescription = "logo",
                         contentScale = ContentScale.FillWidth,
-                        modifier = Modifier.size(250.dp)
+                        modifier = Modifier
+                            .size(250.dp)
+                        //.padding(top = 40.dp)
                     )
                     Text(
-                        text = stringResource(R.string.app_name),
+                        text = "LOGO IDE",
                         fontSize = 34.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-
-                    MenuButton("Kontynuuj ostatni projekt")
-                    MenuButton("Nowy projekt")
-                    MenuButton("Otwórz projekt")
-                    MenuButton("Poradniki")
-                    MenuButton("Biblioteki")
-                    MenuButton("Ustawienia")
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        item { MenuButton("Kontynuuj ostatni projekt") }
+                        item{ MenuButton("Nowy projekt") }
+                        item { MenuButton("Otwórz projekt") }
+                        item { MenuButton("Poradniki") }
+                        item { MenuButton("Biblioteki") }
+                        item { MenuButton("Ustawienia") }
+                    }
                 }
             }
         }
@@ -98,9 +102,8 @@ fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
         Column(
             Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth().fillMaxHeight().padding(40.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             Image(
                 painterResource(id = R.drawable.logo),
@@ -108,7 +111,7 @@ fun GreetingPreview2() {
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier
                     .size(250.dp)
-                    .padding(top = 20.dp)
+                    //.padding(top = 40.dp)
             )
             Text(
                 text = "LOGO IDE",
@@ -116,13 +119,17 @@ fun GreetingPreview2() {
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                item { MenuButton("Kontynuuj ostatni projekt") }
+                item{ MenuButton("Nowy projekt") }
+                item { MenuButton("Otwórz projekt") }
+                item { MenuButton("Poradniki") }
+                item { MenuButton("Biblioteki") }
+                item { MenuButton("Ustawienia") }
+            }
 
-            MenuButton("Kontynuuj ostatni projekt")
-            MenuButton("Nowy projekt")
-            MenuButton("Otwórz projekt")
-            MenuButton("Poradniki")
-            MenuButton("Biblioteki")
-            MenuButton("Ustawienia")
         }
 
     }
