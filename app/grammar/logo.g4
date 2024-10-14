@@ -131,7 +131,7 @@ repeat_
 //    ;
 
 block
-    : '[' (cmd WS*)* ']'
+    : '[' (cmd (WS | EOL)*)* ']'
     ;
 
 ife
