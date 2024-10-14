@@ -65,6 +65,43 @@ cmd
     | ife
     | stop
     | fore
+    | arc
+    | setpensize
+    | setpencolor
+    | fill
+    | setscreencolor
+    ;
+
+//do poprawy
+setscreencolor
+    : 'scc' expression
+    | 'SCC' expression
+    | 'setscreencolor' expression
+    | 'SETSCREENCOLOR' expression
+    ;
+
+fill
+    : 'fill'
+    | 'FILL'
+    ;
+
+setpencolor
+    : 'spc' expression
+    | 'SPC' expression
+    | 'setpencolor' expression
+    | 'SETPENCOLOR' expression
+    ;
+
+setpensize
+    : 'sps' expression
+    | 'SPS' expression
+    | 'setpensize' expression
+    | 'SETPENSIZE' expression
+    ;
+
+arc
+    : 'arc' expression expression
+    | 'ARC' expression expression
     ;
 
 procedureInvocation
@@ -73,6 +110,7 @@ procedureInvocation
 
 procedureDeclaration
     : 'to' name parameterDeclarations* EOL? (line? EOL)+ 'end'
+    | 'TO' name parameterDeclarations* EOL? (line? EOL)+ 'END'
     ;
 
 parameterDeclarations
@@ -85,14 +123,20 @@ func_
 
 repeat_
     : 'repeat' number block
+    | 'REPEAT' number block
     ;
 
+//block
+//    : '[' cmd+ ']'
+//    ;
+
 block
-    : '[' cmd+ ']'
+    : '[' (cmd WS*)* ']'
     ;
 
 ife
     : 'if' comparison block
+    | 'IF' comparison block
     ;
 
 comparison
@@ -107,10 +151,12 @@ comparisonOperator
 
 make
     : 'make' STRINGLITERAL value
+    | 'MAKE' STRINGLITERAL value
     ;
 
 print_
     : 'print' (value | quotedstring)
+    | 'PRINT' (value | quotedstring)
     ;
 
 quotedstring
@@ -144,68 +190,84 @@ deref
     ;
 
 fd
-    : ('fd' | 'forward') expression
+    : ('fd' | 'forward' | 'FD' | 'FORWARD') expression
     ;
 
 bk
-    : ('bk' | 'backward') expression
+    : ('bk' | 'backward' | 'BK' | 'BACKWARD') expression
     ;
 
 rt
-    : ('rt' | 'right') expression
+    : ('rt' | 'right' | 'RT' | 'RIGHT') expression
     ;
 
 lt
-    : ('lt' | 'left') expression
+    : ('lt' | 'left' | 'LT' | 'LEFT') expression
     ;
 
 cs
     : 'cs'
     | 'clearscreen'
+    | 'CS'
+    | 'CLEARSCREEN'
     ;
 
 pu
     : 'pu'
     | 'penup'
+    | 'PU'
+    | 'PENUP'
     ;
 
 pd
     : 'pd'
     | 'pendown'
+    | 'PD'
+    | 'PENDOWN'
     ;
 
 ht
     : 'ht'
     | 'hideturtle'
+    | 'HT'
+    | 'HIDETURTLE'
     ;
 
 st
     : 'st'
     | 'showturtle'
+    | 'ST'
+    | 'SHOWTURTLE'
     ;
 
 home
     : 'home'
+    | 'HOME'
     ;
 
 stop
     : 'stop'
+    | 'STOP'
     ;
 
 label
     : 'label'
+    | 'LABEL'
     ;
 
 setxy
     : 'setxy' expression expression
+    | 'SETXY' expression expression
     ;
 
 random
     : 'random' expression
+    | 'RANDOM' expression
     ;
 
 fore
     : 'for' '[' name expression expression expression ']' block
+    | 'FOR' '[' name expression expression expression ']' block
     ;
 
 number
@@ -237,5 +299,5 @@ EOL
     ;
 
 WS
-    : [ \t\r\n] -> skip
+    : [ \t\r\n]+ -> skip
     ;
