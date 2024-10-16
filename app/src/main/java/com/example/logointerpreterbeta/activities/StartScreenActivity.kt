@@ -36,7 +36,7 @@ import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
-class StartScreen : ComponentActivity() {
+class StartScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -75,9 +75,9 @@ class StartScreen : ComponentActivity() {
                             item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
                             item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
                             item { MenuButton("Otwórz projekt",MainAppActivity::class.java) }
-                            item { MenuButton("Poradniki",MainAppActivity::class.java) }
-                            item { MenuButton("Biblioteki",MainAppActivity::class.java) }
-                            item { MenuButton("Ustawienia",MainAppActivity::class.java) }
+                            item { MenuButton("Poradniki",TutorialsActivity::class.java) }
+                            item { MenuButton("Biblioteki",LibraryActivity::class.java) }
+                            item { MenuButton("Ustawienia",SettingsActivity::class.java) }
                         }
 
                     }
