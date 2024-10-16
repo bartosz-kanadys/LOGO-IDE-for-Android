@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.activities
 
 import android.content.Context
 import android.content.Intent
@@ -8,7 +8,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,13 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
@@ -74,12 +72,12 @@ class StartScreen : ComponentActivity() {
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                             modifier = Modifier.fillMaxHeight()
                         ) {
-                            item { MenuButton("Kontynuuj ostatni projekt") }
-                            item { MenuButton("Nowy projekt") }
-                            item { MenuButton("Otwórz projekt") }
-                            item { MenuButton("Poradniki") }
-                            item { MenuButton("Biblioteki") }
-                            item { MenuButton("Ustawienia") }
+                            item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
+                            item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
+                            item { MenuButton("Otwórz projekt",MainAppActivity::class.java) }
+                            item { MenuButton("Poradniki",MainAppActivity::class.java) }
+                            item { MenuButton("Biblioteki",MainAppActivity::class.java) }
+                            item { MenuButton("Ustawienia",MainAppActivity::class.java) }
                         }
 
                     }
@@ -90,10 +88,10 @@ class StartScreen : ComponentActivity() {
 }
 
 @Composable
-fun MenuButton(text: String, modifier: Modifier = Modifier, context: Context = LocalContext.current) {
+fun MenuButton(text: String, activity: Class<*>,modifier: Modifier = Modifier, context: Context = LocalContext.current) {
     Button(
         onClick = {
-            context.startActivity(Intent(context,MainAppActivity::class.java))
+            context.startActivity(Intent(context, activity))
         },
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(Color(red = 182, green = 255, blue = 161)),
@@ -146,12 +144,12 @@ fun GreetingPreview2() {
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                     modifier = Modifier.fillMaxHeight()
                 ) {
-                    item { MenuButton("Kontynuuj ostatni projekt") }
-                    item { MenuButton("Nowy projekt") }
-                    item { MenuButton("Otwórz projekt") }
-                    item { MenuButton("Poradniki") }
-                    item { MenuButton("Biblioteki") }
-                    item { MenuButton("Ustawienia") }
+                    item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
+                    item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
+                    item { MenuButton("Otwórz projekt",MainAppActivity::class.java) }
+                    item { MenuButton("Poradniki",MainAppActivity::class.java) }
+                    item { MenuButton("Biblioteki",MainAppActivity::class.java) }
+                    item { MenuButton("Ustawienia",MainAppActivity::class.java) }
                 }
 
             }

@@ -1,11 +1,10 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.activities
 
 import android.graphics.Bitmap
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,6 +28,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.LogoInterpreter
+import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 
@@ -57,7 +58,7 @@ class MainAppActivity: ComponentActivity() {
                             shape = RectangleShape,
                             colors = ButtonDefaults.buttonColors(Color(red = 19, green = 128, blue = 16)),
                             onClick = {
-                                Turtle.setAcctualPosition(500F,500F)
+                                Turtle.setAcctualPosition(500F, 500F)
                                 Turtle.direction = 0
                                 logo.start(codeState)
                                 img = logo.bitmap!!
