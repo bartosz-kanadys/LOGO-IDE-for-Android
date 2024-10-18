@@ -40,10 +40,11 @@ prog
     ;
 
 line
-    : cmd+ comment?
+    : (cmd (WS | EOL)* )+ comment?
     | comment
     | print_ comment?
     | procedureDeclaration
+    | WS
     ;
 
 cmd
@@ -70,12 +71,19 @@ cmd
     | setpencolor
     | fill
     | setscreencolor
+    | settextsize
     ;
 
-//do poprawy
+settextsize
+    : 'sts' expression
+    | 'STS' expression
+    | 'setpensize' expression
+    | 'SETPENSIZE' expression
+    ;
+
 setscreencolor
-    : 'scc' expression
-    | 'SCC' expression
+    : 'ssc' expression
+    | 'SSC' expression
     | 'setscreencolor' expression
     | 'SETSCREENCOLOR' expression
     ;
@@ -126,12 +134,8 @@ repeat_
     | 'REPEAT' number block
     ;
 
-//block
-//    : '[' cmd+ ']'
-//    ;
-
 block
-    : '[' (cmd (WS | EOL)*)* ']'
+    : '[' ((WS | EOL)* cmd (WS | EOL)*)* ']'
     ;
 
 ife
@@ -160,8 +164,10 @@ print_
     ;
 
 quotedstring
-    : '[' (quotedstring | ~ ']')* ']'
-    ;
+       : '"'(STRING | NUMBER)
+       | '['STRING']'
+       ;
+
 
 name
     : STRING
@@ -251,8 +257,8 @@ stop
     ;
 
 label
-    : 'label'
-    | 'LABEL'
+    : 'label' quotedstring
+    | 'LABEL' quotedstring
     ;
 
 setxy

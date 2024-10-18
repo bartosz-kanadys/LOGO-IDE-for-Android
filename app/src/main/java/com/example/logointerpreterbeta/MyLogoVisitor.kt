@@ -15,11 +15,16 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     private val canvas = Canvas(image)
     private var paint = Paint()
 
+    //mapa na zmienne
+    private val variables: MutableMap<String, Any> = HashMap()
+
     init {
         // Ustawienia malowania (kolor, grubość linii)
         paint.color = Color.BLACK
         paint.strokeWidth = 5f
         paint.style = Paint.Style.STROKE
+        paint.textSize = 50f
+        paint.isAntiAlias = true
     }
 
     override fun visitFd(ctx: logoParser.FdContext?): Int {
@@ -143,28 +148,114 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitExpression(ctx: logoParser.ExpressionContext?): Int {
-        return visitChildren(ctx) // Przekazuje do dzieci, żeby w pełni odwiedzić drzewo wyrażeń
+        //liczba po lewej
+        var result = visit(ctx!!.multiplyingExpression(0))
+
+        // Jeśli jest więcej operatorów + lub -, iteruj przez nie
+        for (i in 1 until ctx.multiplyingExpression().size) {
+            val right = visit(ctx.multiplyingExpression(i))
+
+            if (ctx.getChild(2 * i - 1).text == "+") {
+                result += right
+            } else if (ctx.getChild(2 * i - 1).text == "-") {
+                result -= right
+            }
+        }
+
+        return result
     }
 
+    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Int {
+        var result = visit(ctx!!.signExpression(0))
+
+        // Jeśli jest więcej operatorów * lub /, iteruj przez nie
+        for (i in 1 until ctx.signExpression().size) {
+            val right = visit(ctx.signExpression(i))
+
+            if (ctx.getChild(2 * i - 1).text == "*") {
+                result *= right
+            } else if (ctx.getChild(2 * i - 1).text == "/") {
+                result /= right
+            }
+        }
+
+        return result
+    }
+
+
     override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Int {
-        if (ctx!!.func_() != null) {
-            return visit(ctx.func_())
+        // Sprawdź, czy jest operator - lub + (np. -5)
+        var sign = 1
+        for (operator in ctx!!.children) {
+            if (operator.text == "-") {
+                sign *= -1
+            }
         }
 
+        // Jeśli wyrażenie jest liczbą
         if (ctx.number() != null) {
-            return ctx.number().text.toInt() // Zwraca liczbę
+            return sign * ctx.number().text.toInt()
         }
 
+        // Jeśli wyrażenie jest funkcją (np. random)
+        if (ctx.func_() != null) {
+            return sign * visit(ctx.func_())
+        }
+
+        // Jeśli jest to zmienna
         if (ctx.deref() != null) {
-            return visit(ctx.deref()) // Zwraca wartość zmiennej
+            return sign * visit(ctx.deref())
         }
 
-        return 0 // Domyślna wartość, gdy nic nie pasuje
+        return 0
     }
 
     override fun visitRandom(ctx: logoParser.RandomContext?): Int {
         val maxValue = visit(ctx!!.expression())!!
         return (0..maxValue-1).random()
     }
-   
+
+    override fun visitMake(ctx: logoParser.MakeContext?): Int {
+        val variableName = ctx!!.STRINGLITERAL().text.substring(1)
+        val value = visit(ctx.value())
+
+        variables[variableName] = value
+
+        return 0
+    }
+
+    override fun visitDeref(ctx: logoParser.DerefContext?): Int {
+        val variableName = ctx!!.name().text
+
+        val value = variables[variableName]
+
+        if (value is Int) {
+            return value
+        }
+
+        // Możesz dodać tutaj obsługę innych typów, np. stringów
+        throw RuntimeException("Nieprawidłowa zmienna lub typ: $variableName")
+    }
+
+    override fun visitLabel(ctx: logoParser.LabelContext?): Int {
+        val text = ctx!!.quotedstring().text
+        val labelText = if (text.startsWith("[")) {
+            text.substring(1, text.length - 1)
+        } else {
+            text.substring(1, text.length)
+        }
+
+        canvas.drawText(labelText, Turtle.Xposition, Turtle.Yposition, paint)
+
+        return 0
+    }
+
+    override fun visitSettextsize(ctx: logoParser.SettextsizeContext?): Int {
+        val size = ctx!!.expression().text.toFloat()
+        paint.textSize = size
+        return 0
+    }
+
+
+
 }

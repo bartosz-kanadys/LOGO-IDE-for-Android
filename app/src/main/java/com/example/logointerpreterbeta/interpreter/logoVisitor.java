@@ -28,6 +28,12 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCmd(logoParser.CmdContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link logoParser#settextsize}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSettextsize(logoParser.SettextsizeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link logoParser#setscreencolor}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

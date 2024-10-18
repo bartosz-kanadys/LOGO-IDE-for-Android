@@ -38,6 +38,13 @@ public class logoBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements l
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitSettextsize(logoParser.SettextsizeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitSetscreencolor(logoParser.SetscreencolorContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
