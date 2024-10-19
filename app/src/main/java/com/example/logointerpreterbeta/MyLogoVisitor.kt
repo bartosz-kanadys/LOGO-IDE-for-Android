@@ -229,12 +229,25 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return 0
     }
 
+    override fun visitValue(ctx: logoParser.ValueContext?): Any {
+        if (ctx!!.STRINGLITERAL() != null) {
+            return ctx.STRINGLITERAL().text.toString().substring(1)
+        }
+        if (ctx.expression() != null) {
+            return visit(ctx.expression())
+        }
+        if (ctx.deref() != null) {
+            return visit(ctx.deref())
+        }
+
+        return 0
+    }
+
     override fun visitDeref(ctx: logoParser.DerefContext?): Any {
         val variableName = ctx!!.name().text
-        Log.i("gg",variableName)
 
         val value = variables[variableName]
-
+        Log.i("gg",variables.toString())
         return value!!
 
 //        if (value.toString().toIntOrNull() is Int) {
@@ -245,7 +258,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     override fun visitLabel(ctx: logoParser.LabelContext?): Int {
         var text = ""
         if (ctx!!.deref() != null) {
-            val value = variables[ctx.deref().name().text]
+            val value = visit(ctx.deref())
             text = value.toString()
         }
         if (ctx.STRINGLITERAL() != null) {
