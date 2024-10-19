@@ -72,7 +72,23 @@ cmd
     | fill
     | setscreencolor
     | settextsize
+    | sety
+    | setx
+    | setcornerrounding
     ;
+
+setcornerrounding
+    : 'setcornerrounding' ('0'|'1')
+    | 'SETCORNERROUNDING' ('0'|'1');
+
+
+setx
+    : 'setx' expression
+    | 'SETX' expression;
+
+sety
+    : 'sety' expression
+    | 'SETY' expression;
 
 settextsize
     : 'sts' expression
@@ -151,6 +167,9 @@ comparisonOperator
     : '<'
     | '>'
     | '='
+    | '<='
+    | '>='
+    | '<>'
     ;
 
 make
@@ -164,8 +183,7 @@ print_
     ;
 
 quotedstring
-       : '"'(STRING | NUMBER)
-       | '['STRING']'
+       : ' "'(STRING | NUMBER)
        ;
 
 
