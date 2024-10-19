@@ -15,8 +15,8 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     private val canvas = Canvas(image)
     private var paint = Paint()
 
-    //mapa na zmienne
-    private val variables: MutableMap<String, Any> = HashMap()
+    private var variables: MutableMap<String, Any> = HashMap()
+    private var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
 
     init {
         // Ustawienia malowania (kolor, grubość linii)
@@ -253,6 +253,45 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         return 0
     }
 
+    override fun visitProcedureDeclaration(ctx: logoParser.ProcedureDeclarationContext?): Int {
+        val procedureName = ctx!!.name().text
+        // przechowuj procedure w mapie
+        procedures[procedureName] = ctx
+        return 0
+    }
 
+    override fun visitProcedureInvocation(ctx: logoParser.ProcedureInvocationContext?): Int {
+        val procedureName = ctx!!.name().text
+
+        // sprawdz czy procedura istnieje
+        if (procedures.containsKey(procedureName)) {
+            val procedureCtx = procedures[procedureName]
+
+            // obsluga parametrow procedury
+            val parameterDeclarations = procedureCtx!!.parameterDeclarations()
+            val arguments = ctx.expression()
+
+            if (parameterDeclarations.size != arguments.size) {
+                throw RuntimeException("Liczba argumentów nie pasuje do liczby parametrów.")
+            }
+
+            // przypisz argumenty do zmiennych lokalnych
+            for (i in parameterDeclarations.indices) {
+                val paramName = parameterDeclarations[i].name().text
+                val argumentValue = visit(arguments[i])
+                variables[paramName] = argumentValue
+            }
+
+            // wykonaj każdą linie ciala procedury
+            for (line in procedureCtx.line()) {
+                visit(line)
+            }
+
+        } else {
+            throw RuntimeException("Nieznana procedura: $procedureName")
+        }
+
+        return 0
+    }
 
 }
