@@ -178,13 +178,13 @@ make
     ;
 
 print_
-    : 'print' (value | quotedstring)
-    | 'PRINT' (value | quotedstring)
+    : 'print' (value | STRINGLITERAL)
+    | 'PRINT' (value | STRINGLITERAL)
     ;
 
-quotedstring
-       : ' "'(STRING | NUMBER)
-       ;
+//quotedstring
+//    : '"'(STRING | NUMBER)
+//    ;
 
 
 name
@@ -275,8 +275,8 @@ stop
     ;
 
 label
-    : 'label' quotedstring
-    | 'LABEL' quotedstring
+    : 'label' STRINGLITERAL
+    | 'LABEL' STRINGLITERAL
     ;
 
 setxy
@@ -303,7 +303,7 @@ comment
     ;
 
 STRINGLITERAL
-    : '"' STRING
+    : '"' (STRING | NUMBER)
     ;
 
 STRING

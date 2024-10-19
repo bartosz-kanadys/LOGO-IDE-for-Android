@@ -28,6 +28,24 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCmd(logoParser.CmdContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link logoParser#setcornerrounding}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetcornerrounding(logoParser.SetcornerroundingContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#setx}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetx(logoParser.SetxContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#sety}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSety(logoParser.SetyContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link logoParser#settextsize}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -129,12 +147,6 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitPrint_(logoParser.Print_Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#quotedstring}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitQuotedstring(logoParser.QuotedstringContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link logoParser#name}.
 	 * @param ctx the parse tree
