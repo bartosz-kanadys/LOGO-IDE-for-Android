@@ -241,15 +241,9 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitLabel(ctx: logoParser.LabelContext?): Int {
-        val text = ctx!!.quotedstring().text
-        val labelText = if (text.startsWith("[")) {
-            text.substring(1, text.length - 1)
-        } else {
-            text.substring(1, text.length)
-        }
-
+        val text = ctx!!.STRINGLITERAL().text
+        val labelText = text.substring(1, text.length)
         canvas.drawText(labelText, Turtle.Xposition, Turtle.Yposition, paint)
-
         return 0
     }
 
