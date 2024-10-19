@@ -143,7 +143,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         return 0
     }
 
-    override fun visitSetscreencolor(ctx: logoParser.SetscreencolorContext?): Int {
+    override fun visitSetbg(ctx: logoParser.SetbgContext?): Int {
         val intColor = visit(ctx!!.expression())
         val color = penColors[intColor]
         canvas.drawColor(color)
