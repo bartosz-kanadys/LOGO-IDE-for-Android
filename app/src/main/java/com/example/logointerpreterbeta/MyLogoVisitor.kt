@@ -11,7 +11,7 @@ import com.example.logointerpreterbeta.interpreter.logoParser
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor : logoBaseVisitor<Int>() {
+class MyLogoVisitor : logoBaseVisitor<Any>() {
     val image: Bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
     private val canvas = Canvas(image)
     private var paint = Paint()
@@ -29,7 +29,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitFd(ctx: logoParser.FdContext?): Int {
-        val distance = visit(ctx!!.expression())
+        val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
         val angleRadians = Math.toRadians((Turtle.direction - 90).toDouble())
 
@@ -48,7 +48,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitBk(ctx: logoParser.BkContext?): Int {
-        val distance = visit(ctx!!.expression())
+        val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
         val angleRadians = Math.toRadians((Turtle.direction - 90 - 180).toDouble())
 
@@ -64,8 +64,8 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitArc(ctx: logoParser.ArcContext?): Int {
-        val angle = visit(ctx!!.expression(0))!!.toFloat()
-        val distance = visit(ctx.expression(1))
+        val angle = visit(ctx!!.expression(0))!!.toString().toFloat()
+        val distance = visit(ctx.expression(1)).toString().toFloat()
 
         val rectF = RectF(
             Turtle.Xposition-distance,
@@ -79,13 +79,13 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitRt(ctx: logoParser.RtContext?): Int{
-        val angle =visit(ctx!!.expression())
+        val angle =visit(ctx!!.expression()).toString().toInt()
         Turtle.direction += angle
         return 0
     }
 
     override fun visitLt(ctx: logoParser.LtContext?): Int{
-        val angle = visit(ctx!!.expression())
+        val angle = visit(ctx!!.expression()).toString().toInt()
         Turtle.direction -= angle
         return 0
     }
@@ -132,7 +132,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?): Int {
-        val intColor = visit(ctx!!.expression())
+        val intColor = visit(ctx!!.expression()).toString().toInt()
         val color = penColors[intColor]
         paint.setColor(color)
         Turtle.penColor = color
@@ -140,26 +140,26 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitSetpensize(ctx: logoParser.SetpensizeContext?): Int {
-        val size = visit(ctx!!.expression())
+        val size = visit(ctx!!.expression()).toString().toInt()
         paint.strokeWidth = size.toFloat()
         Turtle.penSize = size
         return 0
     }
 
     override fun visitSetbg(ctx: logoParser.SetbgContext?): Int {
-        val intColor = visit(ctx!!.expression())
+        val intColor = visit(ctx!!.expression()).toString().toInt()
         val color = penColors[intColor]
         canvas.drawColor(color)
         return 0
     }
 
-    override fun visitExpression(ctx: logoParser.ExpressionContext?): Int {
+    override fun visitExpression(ctx: logoParser.ExpressionContext?): Float {
         //liczba po lewej
-        var result = visit(ctx!!.multiplyingExpression(0))
+        var result = visit(ctx!!.multiplyingExpression(0)).toString().toFloat()
 
         // Jeśli jest więcej operatorów + lub -, iteruj przez nie
         for (i in 1 until ctx.multiplyingExpression().size) {
-            val right = visit(ctx.multiplyingExpression(i))
+            val right = visit(ctx.multiplyingExpression(i)).toString().toFloat()
 
             if (ctx.getChild(2 * i - 1).text == "+") {
                 result += right
@@ -171,12 +171,12 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         return result
     }
 
-    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Int {
-        var result = visit(ctx!!.signExpression(0))
+    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Float {
+        var result = visit(ctx!!.signExpression(0)).toString().toFloat()
 
         // Jeśli jest więcej operatorów * lub /, iteruj przez nie
         for (i in 1 until ctx.signExpression().size) {
-            val right = visit(ctx.signExpression(i))
+            val right = visit(ctx.signExpression(i)).toString().toFloat()
 
             if (ctx.getChild(2 * i - 1).text == "*") {
                 result *= right
@@ -189,7 +189,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
 
-    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Int {
+    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Float{
         // Sprawdź, czy jest operator - lub + (np. -5)
         var sign = 1
         for (operator in ctx!!.children) {
@@ -200,61 +200,46 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
 
         // Jeśli wyrażenie jest liczbą
         if (ctx.number() != null) {
-            return sign * ctx.number().text.toInt()
+            return sign * ctx.number().text.toFloat()
         }
 
         // Jeśli wyrażenie jest funkcją (np. random)
         if (ctx.func_() != null) {
-            return sign * visit(ctx.func_())
+            return sign * visit(ctx.func_()).toString().toFloat()
         }
 
         // Jeśli jest to zmienna
         if (ctx.deref() != null) {
-            return sign * visit(ctx.deref())
+            return sign * visit(ctx.deref()).toString().toFloat()
         }
-
-        return 0
+        return 0f
     }
 
     override fun visitRandom(ctx: logoParser.RandomContext?): Int{
-        val maxValue = visit(ctx!!.expression())!!
+        val maxValue = visit(ctx!!.expression())!!.toString().toInt()
         return (0..maxValue-1).random()
     }
 
     override fun visitMake(ctx: logoParser.MakeContext?): Int {
-        val variableName = ctx!!.STRINGLITERAL(0).text.toString().substring(1)
-        var value: Any = 0
-
-        if (ctx.STRINGLITERAL(1) != null) {
-            value = value.toString().substring(1)
-        }
-        if (ctx.expression() != null) {
-            value = visit(ctx.expression())
-        }
-        if (ctx.deref() != null) {
-            value = visit(ctx.deref())
-        }
+        val variableName = ctx!!.STRINGLITERAL().text.toString().substring(1)
+        var value = visit(ctx.value())
 
         variables[variableName] = value
 
         return 0
     }
 
-    override fun visitDeref(ctx: logoParser.DerefContext?): Int {
+    override fun visitDeref(ctx: logoParser.DerefContext?): Any {
         val variableName = ctx!!.name().text
+        Log.i("gg",variableName)
 
         val value = variables[variableName]
 
-        if (value.toString().toIntOrNull() is Int) {
-            return value.toString().toInt()
-        } else return 0
+        return value!!
 
 //        if (value.toString().toIntOrNull() is Int) {
 //            return value.toString().toInt()
 //        } else return 0
-
-        // Możesz dodać tutaj obsługę innych typów, np. stringów
-        //throw RuntimeException("Nieprawidłowa zmienna lub typ: $variableName")
     }
 
     override fun visitLabel(ctx: logoParser.LabelContext?): Int {
@@ -262,7 +247,6 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         if (ctx!!.deref() != null) {
             val value = variables[ctx.deref().name().text]
             text = value.toString()
-            Log.i("ddd", ctx.deref().name().text)
         }
         if (ctx.STRINGLITERAL() != null) {
             text = ctx.STRINGLITERAL().text
@@ -336,8 +320,8 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     }
 
     override fun visitComparison(ctx: logoParser.ComparisonContext?): Int {
-        val leftValue = visit(ctx!!.expression(0))
-        val rightValue = visit(ctx.expression(1))
+        val leftValue = visit(ctx!!.expression(0)).toString().toFloat()
+        val rightValue = visit(ctx.expression(1)).toString().toFloat()
 
         return when (val operator = ctx.comparisonOperator().text) {
             "<"  -> if (leftValue < rightValue) 1 else 0
