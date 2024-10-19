@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
+import android.util.Log
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
 import kotlin.math.cos
@@ -119,12 +120,14 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
         val repeatCount = ctx!!.number().text.toInt()
         val commandsBlock = ctx.block().children
-
-        for (i in 1..repeatCount) {
-            for (command in commandsBlock) {
-                visit(command)
+        try {
+            for (i in 1..repeatCount) {
+                for (command in commandsBlock) {
+                    visit(command)
+                }
             }
-        }
+        }catch (e: StopException) {return 0}
+
         return 0
     }
 
@@ -213,14 +216,24 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         return 0
     }
 
-    override fun visitRandom(ctx: logoParser.RandomContext?): Int {
+    override fun visitRandom(ctx: logoParser.RandomContext?): Int{
         val maxValue = visit(ctx!!.expression())!!
         return (0..maxValue-1).random()
     }
 
     override fun visitMake(ctx: logoParser.MakeContext?): Int {
-        val variableName = ctx!!.STRINGLITERAL().text.substring(1)
-        val value = visit(ctx.value())
+        val variableName = ctx!!.STRINGLITERAL(0).text.toString().substring(1)
+        var value: Any = 0
+
+        if (ctx.STRINGLITERAL(1) != null) {
+            value = value.toString().substring(1)
+        }
+        if (ctx.expression() != null) {
+            value = visit(ctx.expression())
+        }
+        if (ctx.deref() != null) {
+            value = visit(ctx.deref())
+        }
 
         variables[variableName] = value
 
@@ -232,18 +245,30 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
 
         val value = variables[variableName]
 
-        if (value is Int) {
-            return value
-        }
+        if (value.toString().toIntOrNull() is Int) {
+            return value.toString().toInt()
+        } else return 0
+
+//        if (value.toString().toIntOrNull() is Int) {
+//            return value.toString().toInt()
+//        } else return 0
 
         // Możesz dodać tutaj obsługę innych typów, np. stringów
-        throw RuntimeException("Nieprawidłowa zmienna lub typ: $variableName")
+        //throw RuntimeException("Nieprawidłowa zmienna lub typ: $variableName")
     }
 
     override fun visitLabel(ctx: logoParser.LabelContext?): Int {
-        val text = ctx!!.STRINGLITERAL().text
-        val labelText = text.substring(1, text.length)
-        canvas.drawText(labelText, Turtle.Xposition, Turtle.Yposition, paint)
+        var text = ""
+        if (ctx!!.deref() != null) {
+            val value = variables[ctx.deref().name().text]
+            text = value.toString()
+            Log.i("ddd", ctx.deref().name().text)
+        }
+        if (ctx.STRINGLITERAL() != null) {
+            text = ctx.STRINGLITERAL().text
+            text = text.substring(1, text.length)
+        }
+        canvas.drawText(text, Turtle.Xposition, Turtle.Yposition, paint)
         return 0
     }
 
@@ -253,6 +278,7 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         return 0
     }
 
+    //Procedury
     override fun visitProcedureDeclaration(ctx: logoParser.ProcedureDeclarationContext?): Int {
         val procedureName = ctx!!.name().text
         // przechowuj procedure w mapie
@@ -282,10 +308,12 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
                 variables[paramName] = argumentValue
             }
 
-            // wykonaj każdą linie ciala procedury
-            for (line in procedureCtx.line()) {
-                visit(line)
-            }
+            try {
+                // wykonaj każdą linie ciala procedury
+                for (line in procedureCtx.line()) {
+                    visit(line)
+                }
+            } catch (e: StopException) {return 0}
 
         } else {
             throw RuntimeException("Nieznana procedura: $procedureName")
@@ -293,5 +321,42 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
 
         return 0
     }
+
+    //IF
+    override fun visitIfe(ctx: logoParser.IfeContext?): Int {
+        // sprawdź porownanie
+        val comparisonResult = visit(ctx!!.comparison())
+
+        // jesli wynik porownania jest prawdziwy wykonaj blok
+        if (comparisonResult != 0) {
+            visit(ctx.block())
+        }
+
+        return 0
+    }
+
+    override fun visitComparison(ctx: logoParser.ComparisonContext?): Int {
+        val leftValue = visit(ctx!!.expression(0))
+        val rightValue = visit(ctx.expression(1))
+
+        return when (val operator = ctx.comparisonOperator().text) {
+            "<"  -> if (leftValue < rightValue) 1 else 0
+            ">"  -> if (leftValue > rightValue) 1 else 0
+            "="  -> if (leftValue == rightValue) 1 else 0
+            "<=" -> if (leftValue <= rightValue) 1 else 0
+            ">=" -> if (leftValue >= rightValue) 1 else 0
+            "<>" -> if (leftValue != rightValue) 1 else 0
+            else -> throw RuntimeException("Nieznany operator porównania: $operator")
+        }
+    }
+
+    //STOP
+    override fun visitStop(ctx: logoParser.StopContext?): Int {
+        throw StopException("STOP")
+    }
+
+
+
+
 
 }
