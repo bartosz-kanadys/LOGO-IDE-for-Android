@@ -32,13 +32,16 @@ class MyLogoVisitor : logoBaseVisitor<Int>() {
         // Konwersja kąta na radiany
         val angleRadians = Math.toRadians((Turtle.direction - 90).toDouble())
 
-        // Obliczenie końcowych współrzędnych linii
-        val endX = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
-        val endY = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
+        // Obliczenie końcowych współrzędnych linii do narysowania z poprawką na wypełnianie rogów
+        val endXtoDraw = (Turtle.Xposition + (distance+paint.strokeWidth/2) * cos(angleRadians)).toFloat()
+        val endYtoDraw = (Turtle.Yposition + (distance+paint.strokeWidth/2) * sin(angleRadians)).toFloat()
+        // obliczanie koncowych pozycji dla zolwia
+        val endXTurtlePosition = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
+        val endYTurtlePosition = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
         if (Turtle.isDown) {
-            canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endX, endY, paint)
+            canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endXtoDraw, endYtoDraw, paint)
         }
-        Turtle.setAcctualPosition(endX, endY)
+        Turtle.setAcctualPosition(endXTurtlePosition, endYTurtlePosition)
 
         return 0
     }
