@@ -70,7 +70,7 @@ cmd
     | setpensize
     | setpencolor
     | fill
-    | setscreencolor
+    | setbg
     | settextsize
     | sety
     | setx
@@ -79,7 +79,10 @@ cmd
 
 setcornerrounding
     : 'setcornerrounding' ('0'|'1')
-    | 'SETCORNERROUNDING' ('0'|'1');
+    | 'SETCORNERROUNDING' ('0'|'1')
+    | 'setcr' ('0'|'1')
+    | 'SETCR' ('0'|'1')
+    ;
 
 
 setx
@@ -91,17 +94,17 @@ sety
     | 'SETY' expression;
 
 settextsize
-    : 'sts' expression
-    | 'STS' expression
+    : 'setts' expression
+    | 'SETTS' expression
     | 'setpensize' expression
     | 'SETPENSIZE' expression
     ;
 
-setscreencolor
-    : 'ssc' expression
-    | 'SSC' expression
-    | 'setscreencolor' expression
-    | 'SETSCREENCOLOR' expression
+setbg
+    : 'setbg' expression
+    | 'SETBG' expression
+    | 'setbackground' expression
+    | 'SETBACKGROUND' expression
     ;
 
 fill
@@ -110,15 +113,15 @@ fill
     ;
 
 setpencolor
-    : 'spc' expression
-    | 'SPC' expression
+    : 'setpc' expression
+    | 'SETPC' expression
     | 'setpencolor' expression
     | 'SETPENCOLOR' expression
     ;
 
 setpensize
-    : 'sps' expression
-    | 'SPS' expression
+    : 'setps' expression
+    | 'SETPS' expression
     | 'setpensize' expression
     | 'SETPENSIZE' expression
     ;
@@ -160,7 +163,7 @@ ife
     ;
 
 comparison
-    : expression comparisonOperator expression
+    : (NUMBER | expression) comparisonOperator (NUMBER | expression)
     ;
 
 comparisonOperator
@@ -275,13 +278,15 @@ stop
     ;
 
 label
-    : 'label' STRINGLITERAL
-    | 'LABEL' STRINGLITERAL
+    : 'label' (STRINGLITERAL | deref)
+    | 'LABEL' (STRINGLITERAL | deref)
     ;
 
 setxy
     : 'setxy' expression expression
     | 'SETXY' expression expression
+    | 'setpos' expression expression
+    | 'SETPOS' expression expression
     ;
 
 random
