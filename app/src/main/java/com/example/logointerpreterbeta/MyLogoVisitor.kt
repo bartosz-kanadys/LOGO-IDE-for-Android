@@ -153,13 +153,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return 0
     }
 
-    override fun visitExpression(ctx: logoParser.ExpressionContext?): Float {
+    override fun visitExpression(ctx: logoParser.ExpressionContext?): Int {
         //liczba po lewej
-        var result = visit(ctx!!.multiplyingExpression(0)).toString().toFloat()
+        var result = visit(ctx!!.multiplyingExpression(0)).toString().toInt()
 
         // Jeśli jest więcej operatorów + lub -, iteruj przez nie
         for (i in 1 until ctx.multiplyingExpression().size) {
-            val right = visit(ctx.multiplyingExpression(i)).toString().toFloat()
+            val right = visit(ctx.multiplyingExpression(i)).toString().toInt()
 
             if (ctx.getChild(2 * i - 1).text == "+") {
                 result += right
@@ -171,12 +171,12 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return result
     }
 
-    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Float {
-        var result = visit(ctx!!.signExpression(0)).toString().toFloat()
+    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Int {
+        var result = visit(ctx!!.signExpression(0)).toString().toInt()
 
         // Jeśli jest więcej operatorów * lub /, iteruj przez nie
         for (i in 1 until ctx.signExpression().size) {
-            val right = visit(ctx.signExpression(i)).toString().toFloat()
+            val right = visit(ctx.signExpression(i)).toString().toInt()
 
             if (ctx.getChild(2 * i - 1).text == "*") {
                 result *= right
@@ -189,7 +189,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
 
-    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Float{
+    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Int {
         // Sprawdź, czy jest operator - lub + (np. -5)
         var sign = 1
         for (operator in ctx!!.children) {
@@ -200,19 +200,19 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
 
         // Jeśli wyrażenie jest liczbą
         if (ctx.number() != null) {
-            return sign * ctx.number().text.toFloat()
+            return sign * ctx.number().text.toInt()
         }
 
         // Jeśli wyrażenie jest funkcją (np. random)
         if (ctx.func_() != null) {
-            return sign * visit(ctx.func_()).toString().toFloat()
+            return sign * visit(ctx.func_()).toString().toInt()
         }
 
         // Jeśli jest to zmienna
         if (ctx.deref() != null) {
-            return sign * visit(ctx.deref()).toString().toFloat()
+            return sign * visit(ctx.deref()).toString().toInt()
         }
-        return 0f
+        return 0
     }
 
     override fun visitRandom(ctx: logoParser.RandomContext?): Int{
