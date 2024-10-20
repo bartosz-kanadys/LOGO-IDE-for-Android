@@ -163,7 +163,7 @@ ife
     ;
 
 comparison
-    : (NUMBER | expression) comparisonOperator (NUMBER | expression)
+    : expression comparisonOperator expression
     ;
 
 comparisonOperator
@@ -221,7 +221,7 @@ fd
     ;
 
 bk
-    : ('bk' | 'backward' | 'BK' | 'BACKWARD') expression
+    : ('bk' | 'backward' | 'BK' | 'BACKWARD' | 'back' | 'BACK') expression
     ;
 
 rt
@@ -301,11 +301,22 @@ fore
 
 number
     : NUMBER
+    | FLOAT
+    | '0'
+    | '1'
     ;
 
 comment
     : COMMENT
     ;
+
+NUMBER
+    : [0-9]+
+    ;
+
+FLOAT
+    : [0-9]+ '.' [0-9]+;
+
 
 STRINGLITERAL
     : '"' (STRING | NUMBER)
@@ -313,10 +324,6 @@ STRINGLITERAL
 
 STRING
     : [a-zA-Z] [a-zA-Z0-9_]*
-    ;
-
-NUMBER
-    : [0-9]+
     ;
 
 COMMENT
