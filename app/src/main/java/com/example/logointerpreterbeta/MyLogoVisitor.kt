@@ -111,8 +111,10 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?): Int {
-        val x = ctx!!.expression(0).text.toFloat()
-        val y = ctx.expression(1).text.toFloat()
+        var x = ctx!!.expression(0).text.toFloat()
+        var y = ctx.expression(1).text.toFloat()
+        y = if (y<0) 500-y else 500+y
+        x = if (x<0) 500+x else 500-x
         Turtle.setAcctualPosition(x,y)
         return 0
     }
