@@ -79,13 +79,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitRt(ctx: logoParser.RtContext?): Int{
-        val angle =visit(ctx!!.expression()).toString().toInt()
+        val angle =visit(ctx!!.expression()).toString().toFloat()
         Turtle.direction += angle
         return 0
     }
 
     override fun visitLt(ctx: logoParser.LtContext?): Int{
-        val angle = visit(ctx!!.expression()).toString().toInt()
+        val angle = visit(ctx!!.expression()).toString().toFloat()
         Turtle.direction -= angle
         return 0
     }
@@ -118,7 +118,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
-        val repeatCount = ctx!!.number().text.toInt()
+        val repeatCount = ctx!!.number().text.toFloat().toInt()
         val commandsBlock = ctx.block().children
         try {
             for (i in 1..repeatCount) {
@@ -132,7 +132,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?): Int {
-        val intColor = visit(ctx!!.expression()).toString().toInt()
+        val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
         val color = penColors[intColor]
         paint.setColor(color)
         Turtle.penColor = color
@@ -140,26 +140,26 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitSetpensize(ctx: logoParser.SetpensizeContext?): Int {
-        val size = visit(ctx!!.expression()).toString().toInt()
+        val size = visit(ctx!!.expression()).toString().toFloat().toInt()
         paint.strokeWidth = size.toFloat()
         Turtle.penSize = size
         return 0
     }
 
     override fun visitSetbg(ctx: logoParser.SetbgContext?): Int {
-        val intColor = visit(ctx!!.expression()).toString().toInt()
+        val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
         val color = penColors[intColor]
         canvas.drawColor(color)
         return 0
     }
 
-    override fun visitExpression(ctx: logoParser.ExpressionContext?): Int {
+    override fun visitExpression(ctx: logoParser.ExpressionContext?): Float {
         //liczba po lewej
-        var result = visit(ctx!!.multiplyingExpression(0)).toString().toInt()
+        var result = visit(ctx!!.multiplyingExpression(0)).toString().toFloat()
 
         // Jeśli jest więcej operatorów + lub -, iteruj przez nie
         for (i in 1 until ctx.multiplyingExpression().size) {
-            val right = visit(ctx.multiplyingExpression(i)).toString().toInt()
+            val right = visit(ctx.multiplyingExpression(i)).toString().toFloat()
 
             if (ctx.getChild(2 * i - 1).text == "+") {
                 result += right
@@ -171,12 +171,12 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return result
     }
 
-    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Int {
-        var result = visit(ctx!!.signExpression(0)).toString().toInt()
+    override fun visitMultiplyingExpression(ctx: logoParser.MultiplyingExpressionContext?): Float {
+        var result = visit(ctx!!.signExpression(0)).toString().toFloat()
 
         // Jeśli jest więcej operatorów * lub /, iteruj przez nie
         for (i in 1 until ctx.signExpression().size) {
-            val right = visit(ctx.signExpression(i)).toString().toInt()
+            val right = visit(ctx.signExpression(i)).toString().toFloat()
 
             if (ctx.getChild(2 * i - 1).text == "*") {
                 result *= right
@@ -189,7 +189,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
 
-    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Int {
+    override fun visitSignExpression(ctx: logoParser.SignExpressionContext?): Float {
         // Sprawdź, czy jest operator - lub + (np. -5)
         var sign = 1
         for (operator in ctx!!.children) {
@@ -200,23 +200,31 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
 
         // Jeśli wyrażenie jest liczbą
         if (ctx.number() != null) {
-            return sign * ctx.number().text.toInt()
+            return sign * ctx.number().text.toFloat()
         }
 
         // Jeśli wyrażenie jest funkcją (np. random)
         if (ctx.func_() != null) {
-            return sign * visit(ctx.func_()).toString().toInt()
+            return sign * visit(ctx.func_()).toString().toFloat()
         }
 
         // Jeśli jest to zmienna
         if (ctx.deref() != null) {
-            return sign * visit(ctx.deref()).toString().toInt()
+            return sign * visit(ctx.deref()).toString().toFloat()
         }
-        return 0
+        return 0f
+    }
+
+    override fun visitNumber(ctx: logoParser.NumberContext?): Float{
+        return if (ctx!!.FLOAT() != null) {
+            ctx.FLOAT().text.toFloat()
+        } else {
+            ctx.NUMBER().text.toFloat()
+        }
     }
 
     override fun visitRandom(ctx: logoParser.RandomContext?): Int{
-        val maxValue = visit(ctx!!.expression())!!.toString().toInt()
+        val maxValue = visit(ctx!!.expression())!!.toString().toFloat().toInt()
         return (0..maxValue-1).random()
     }
 
@@ -335,11 +343,11 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitComparison(ctx: logoParser.ComparisonContext?): Int {
-        var leftValue = 0
-        var rightValue = 0
+        var leftValue = 0f
+        var rightValue = 0f
 
-        if (ctx!!.expression(0) != null)  leftValue = visit(ctx.expression(0)).toString().toInt()
-        if (ctx.expression(1) != null) rightValue = visit(ctx.expression(1)).toString().toInt()
+        if (ctx!!.expression(0) != null)  leftValue = visit(ctx.expression(0)).toString().toFloat()
+        if (ctx.expression(1) != null) rightValue = visit(ctx.expression(1)).toString().toFloat()
 
         return when (val operator = ctx.comparisonOperator().text!!) {
             "<"  -> if (leftValue < rightValue) 1 else 0

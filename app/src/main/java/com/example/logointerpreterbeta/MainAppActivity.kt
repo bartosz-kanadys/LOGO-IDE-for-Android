@@ -58,7 +58,7 @@ class MainAppActivity: ComponentActivity() {
                             colors = ButtonDefaults.buttonColors(Color(red = 19, green = 128, blue = 16)),
                             onClick = {
                                 Turtle.setAcctualPosition(500F,500F)
-                                Turtle.direction = 0
+                                Turtle.direction = 0f
                                 logo.start(codeState)
                                 img = logo.bitmap!!
                             },
