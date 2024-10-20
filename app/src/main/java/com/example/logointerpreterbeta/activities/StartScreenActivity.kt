@@ -74,7 +74,7 @@ class StartScreenActivity : ComponentActivity() {
                         ) {
                             item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
                             item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
-                            item { MenuButton("Otwórz projekt",MainAppActivity::class.java) }
+                            item { MenuButton("Otwórz projekt",ProjectsActivity::class.java) }
                             item { MenuButton("Poradniki",TutorialsActivity::class.java) }
                             item { MenuButton("Biblioteki",LibraryActivity::class.java) }
                             item { MenuButton("Ustawienia",SettingsActivity::class.java) }
