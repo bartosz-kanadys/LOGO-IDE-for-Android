@@ -249,10 +249,6 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         val value = variables[variableName]
         Log.i("gg",variables.toString())
         return value!!
-
-//        if (value.toString().toIntOrNull() is Int) {
-//            return value.toString().toInt()
-//        } else return 0
     }
 
     override fun visitLabel(ctx: logoParser.LabelContext?): Int {
@@ -286,11 +282,11 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     override fun visitProcedureInvocation(ctx: logoParser.ProcedureInvocationContext?): Int {
         val procedureName = ctx!!.name().text
 
-        // sprawdz czy procedura istnieje
+        // Sprawdz czy procedura istnieje
         if (procedures.containsKey(procedureName)) {
             val procedureCtx = procedures[procedureName]
 
-            // obsluga parametrow procedury
+            // Obsluga parametrow procedury
             val parameterDeclarations = procedureCtx!!.parameterDeclarations()
             val arguments = ctx.expression()
 
@@ -298,7 +294,8 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
                 throw RuntimeException("Liczba argumentów nie pasuje do liczby parametrów.")
             }
 
-            // przypisz argumenty do zmiennych lokalnych
+            // Przypisz argumenty do zmiennych lokalnych
+            val previousVariables = HashMap(variables) // Zapisz poprzednie zmienne
             for (i in parameterDeclarations.indices) {
                 val paramName = parameterDeclarations[i].name().text
                 val argumentValue = visit(arguments[i])
@@ -306,18 +303,23 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
             }
 
             try {
-                // wykonaj każdą linie ciala procedury
+                // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
                     visit(line)
                 }
-            } catch (e: StopException) {return 0}
-
+            } catch (e: StopException) {
+                return 0
+            } finally {
+                variables = previousVariables // Przywróć poprzednie zmienne po zakończeniu procedury
+            }
         } else {
             throw RuntimeException("Nieznana procedura: $procedureName")
         }
 
         return 0
     }
+
+
 
     //IF
     override fun visitIfe(ctx: logoParser.IfeContext?): Int {
@@ -333,10 +335,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     }
 
     override fun visitComparison(ctx: logoParser.ComparisonContext?): Int {
-        val leftValue = visit(ctx!!.expression(0)).toString().toFloat()
-        val rightValue = visit(ctx.expression(1)).toString().toFloat()
+        var leftValue = 0
+        var rightValue = 0
 
-        return when (val operator = ctx.comparisonOperator().text) {
+        if (ctx!!.expression(0) != null)  leftValue = visit(ctx.expression(0)).toString().toInt()
+        if (ctx.expression(1) != null) rightValue = visit(ctx.expression(1)).toString().toInt()
+
+        return when (val operator = ctx.comparisonOperator().text!!) {
             "<"  -> if (leftValue < rightValue) 1 else 0
             ">"  -> if (leftValue > rightValue) 1 else 0
             "="  -> if (leftValue == rightValue) 1 else 0
@@ -346,6 +351,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
             else -> throw RuntimeException("Nieznany operator porównania: $operator")
         }
     }
+
 
     //STOP
     override fun visitStop(ctx: logoParser.StopContext?): Int {
