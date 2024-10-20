@@ -28,7 +28,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         paint.isAntiAlias = true
     }
 
-    override fun visitFd(ctx: logoParser.FdContext?): Int {
+    override fun visitFd(ctx: logoParser.FdContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
         val angleRadians = Math.toRadians((Turtle.direction - 90).toDouble())
@@ -39,15 +39,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         // obliczanie koncowych pozycji dla zolwia
         val endXTurtlePosition = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
         val endYTurtlePosition = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
-        if (Turtle.isDown) {
-            canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endXtoDraw, endYtoDraw, paint)
-        }
-        Turtle.setAcctualPosition(endXTurtlePosition, endYTurtlePosition)
 
-        return 0
+        if (Turtle.isDown) canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endXtoDraw, endYtoDraw, paint)
+
+        Turtle.setAcctualPosition(endXTurtlePosition, endYTurtlePosition)
     }
 
-    override fun visitBk(ctx: logoParser.BkContext?): Int {
+    override fun visitBk(ctx: logoParser.BkContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
         val angleRadians = Math.toRadians((Turtle.direction - 90 - 180).toDouble())
@@ -55,15 +53,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         // Obliczenie końcowych współrzędnych linii
         val endX = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
         val endY = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
-        if (Turtle.isDown) {
-            canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endX, endY, paint)
-        }
-        Turtle.setAcctualPosition(endX, endY)
 
-        return 0
+        if (Turtle.isDown) canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endX, endY, paint)
+
+        Turtle.setAcctualPosition(endX, endY)
     }
 
-    override fun visitArc(ctx: logoParser.ArcContext?): Int {
+    override fun visitArc(ctx: logoParser.ArcContext?) {
         val angle = visit(ctx!!.expression(0))!!.toString().toFloat()
         val distance = visit(ctx.expression(1)).toString().toFloat()
 
@@ -73,50 +69,39 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
             Turtle.Xposition+distance,
             Turtle.Yposition+distance
         )
-
         canvas.drawArc(rectF,270f+Turtle.direction, angle,false,paint)
-        return 0
     }
 
-    override fun visitRt(ctx: logoParser.RtContext?): Int{
-        val angle =visit(ctx!!.expression()).toString().toFloat()
-        Turtle.direction += angle
-        return 0
+    override fun visitRt(ctx: logoParser.RtContext?) {
+        Turtle.direction += visit(ctx!!.expression()).toString().toFloat()
     }
 
-    override fun visitLt(ctx: logoParser.LtContext?): Int{
-        val angle = visit(ctx!!.expression()).toString().toFloat()
-        Turtle.direction -= angle
-        return 0
+    override fun visitLt(ctx: logoParser.LtContext?) {
+        Turtle.direction -= visit(ctx!!.expression()).toString().toFloat()
     }
 
-    override fun visitCs(ctx: logoParser.CsContext?): Int {
+    override fun visitCs(ctx: logoParser.CsContext?) {
         canvas.drawColor(Color.WHITE)
-        return 0
     }
 
-   override fun visitPu(ctx: logoParser.PuContext?): Int {
+   override fun visitPu(ctx: logoParser.PuContext?) {
        Turtle.isDown = false
-       return 0
    }
 
-   override fun visitPd(ctx: logoParser.PdContext?): Int {
+   override fun visitPd(ctx: logoParser.PdContext?) {
        Turtle.isDown = true
-       return 0
    }
 
-    override fun visitHome(ctx: logoParser.HomeContext?): Int {
+    override fun visitHome(ctx: logoParser.HomeContext?){
         Turtle.setAcctualPosition(500F, 500F)
-        return 0
     }
 
-    override fun visitSetxy(ctx: logoParser.SetxyContext?): Int {
+    override fun visitSetxy(ctx: logoParser.SetxyContext?) {
         var x = ctx!!.expression(0).text.toFloat()
         var y = ctx.expression(1).text.toFloat()
         y = if (y<0) 500-y else 500+y
         x = if (x<0) 500+x else 500-x
         Turtle.setAcctualPosition(x,y)
-        return 0
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
@@ -133,26 +118,22 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return 0
     }
 
-    override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?): Int {
+    override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?) {
         val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
         val color = penColors[intColor]
         paint.setColor(color)
         Turtle.penColor = color
-        return 0
     }
 
-    override fun visitSetpensize(ctx: logoParser.SetpensizeContext?): Int {
+    override fun visitSetpensize(ctx: logoParser.SetpensizeContext?) {
         val size = visit(ctx!!.expression()).toString().toFloat().toInt()
         paint.strokeWidth = size.toFloat()
         Turtle.penSize = size
-        return 0
     }
 
-    override fun visitSetbg(ctx: logoParser.SetbgContext?): Int {
+    override fun visitSetbg(ctx: logoParser.SetbgContext?) {
         val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
-        val color = penColors[intColor]
-        canvas.drawColor(color)
-        return 0
+        canvas.drawColor(penColors[intColor])
     }
 
     override fun visitExpression(ctx: logoParser.ExpressionContext?): Float {
@@ -169,7 +150,6 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
                 result -= right
             }
         }
-
         return result
     }
 
@@ -186,7 +166,6 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
                 result /= right
             }
         }
-
         return result
     }
 
@@ -227,16 +206,12 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
 
     override fun visitRandom(ctx: logoParser.RandomContext?): Int{
         val maxValue = visit(ctx!!.expression())!!.toString().toFloat().toInt()
-        return (0..maxValue-1).random()
+        return (0..<maxValue).random()
     }
 
-    override fun visitMake(ctx: logoParser.MakeContext?): Int {
+    override fun visitMake(ctx: logoParser.MakeContext?) {
         val variableName = ctx!!.STRINGLITERAL().text.toString().substring(1)
-        var value = visit(ctx.value())
-
-        variables[variableName] = value
-
-        return 0
+        variables[variableName] = visit(ctx.value())
     }
 
     override fun visitValue(ctx: logoParser.ValueContext?): Any {
@@ -249,19 +224,15 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         if (ctx.deref() != null) {
             return visit(ctx.deref())
         }
-
         return 0
     }
 
     override fun visitDeref(ctx: logoParser.DerefContext?): Any {
-        val variableName = ctx!!.name().text
-
-        val value = variables[variableName]
-        Log.i("gg",variables.toString())
+        val value = variables[ctx!!.name().text]
         return value!!
     }
 
-    override fun visitLabel(ctx: logoParser.LabelContext?): Int {
+    override fun visitLabel(ctx: logoParser.LabelContext?) {
         var text = ""
         if (ctx!!.deref() != null) {
             val value = visit(ctx.deref())
@@ -272,13 +243,10 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
             text = text.substring(1, text.length)
         }
         canvas.drawText(text, Turtle.Xposition, Turtle.Yposition, paint)
-        return 0
     }
 
-    override fun visitSettextsize(ctx: logoParser.SettextsizeContext?): Int {
-        val size = ctx!!.expression().text.toFloat()
-        paint.textSize = size
-        return 0
+    override fun visitSettextsize(ctx: logoParser.SettextsizeContext?) {
+        paint.textSize = ctx!!.expression().text.toFloat() //size
     }
 
     //Procedury
@@ -329,8 +297,6 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return 0
     }
 
-
-
     //IF
     override fun visitIfe(ctx: logoParser.IfeContext?): Int {
         // sprawdź porownanie
@@ -362,14 +328,8 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         }
     }
 
-
     //STOP
     override fun visitStop(ctx: logoParser.StopContext?): Int {
         throw StopException("STOP")
     }
-
-
-
-
-
 }
