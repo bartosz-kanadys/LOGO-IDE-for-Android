@@ -5,7 +5,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
-import android.util.Log
+import com.example.logointerpreterbeta.errors.StopException
+import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
 import kotlin.math.cos
@@ -291,7 +292,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
                 variables = previousVariables // Przywróć poprzednie zmienne po zakończeniu procedury
             }
         } else {
-            throw RuntimeException("Nieznana procedura: $procedureName")
+            SyntaxError.errors.add("Nieznana procedura: $procedureName")
         }
 
         return 0
