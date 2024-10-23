@@ -1,13 +1,12 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.activities
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,6 +34,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.errors.SyntaxError
+import com.example.logointerpreterbeta.LogoInterpreter
+import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 
@@ -42,13 +43,22 @@ class MainAppActivity: ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val logo = LogoInterpreter()
+
 
         setContent {
             LogoInterpreterBetaTheme {
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp.dp
-                val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
+                InterpreterApp();
+            }
+        }
+    }
+}
+
+@Composable
+fun InterpreterApp(modifier: Modifier=Modifier){
+    val logo = LogoInterpreter()
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
 
                 var codeState by rememberSaveable { mutableStateOf("") }
                 var img by rememberSaveable {
@@ -99,9 +109,9 @@ class MainAppActivity: ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-}
+
+
+
 
 @Composable
 fun GeneratedImage(img: Bitmap, modifier: Modifier) {
@@ -153,5 +163,13 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
                 .height(300.dp)
                 //.border(1.dp, Color.Black)
         )
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview() {
+    LogoInterpreterBetaTheme {
+        InterpreterApp();
     }
 }
