@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -25,6 +26,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,11 +38,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,7 +50,7 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt
 
 
-class MainAppActivity: ComponentActivity() {
+class MainAppActivity : ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,19 +58,19 @@ class MainAppActivity: ComponentActivity() {
 
         setContent {
             LogoInterpreterBetaTheme {
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp.dp
-                val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
+//                val configuration = LocalConfiguration.current
+//                val screenWidth = configuration.screenWidthDp.dp
+//                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
 
                 var codeState by rememberSaveable { mutableStateOf("") }
                 var img by rememberSaveable {
-                    mutableStateOf(Bitmap.createBitmap(pxValue.toInt(),1000,Bitmap.Config.ARGB_8888))
+                    mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
                 }
                 var errors by rememberSaveable {
                     mutableStateOf(SyntaxError.errors.toString())
                 }
                 LazyColumn {
-                    item { GeneratedImage(img = img, modifier = Modifier) }
+                    item { ImagePanel(img = img) }
                     item { ErrorsList(errors = errors) }
                     item {
                         Box {
@@ -87,11 +88,11 @@ class MainAppActivity: ComponentActivity() {
                                 ),
                                 onClick = {
                                     SyntaxError.errors.clear()
-                                    Turtle.setAcctualPosition(500F, 500F)
+                                    Turtle.setAcctualPosition(1000F, 1000F)
                                     Turtle.direction = 0f
                                     try {
                                         logo.start(codeState)
-                                        img = logo.bitmap!!
+                                        img = logo.bitmap
 
                                     } catch (e: Exception) {
                                         Log.e("ERROR", "Błąd wykonywania interpretera")
@@ -120,32 +121,45 @@ val OffsetSaver = Saver<Offset, List<Float>>(
 )
 
 @Composable
-fun GeneratedImage(img: Bitmap, modifier: Modifier) {
-    var scale by rememberSaveable { mutableFloatStateOf(1f) }
+fun ImagePanel(
+    img: Bitmap,
+) {
+    var scale by rememberSaveable { mutableFloatStateOf(2f) }
     var offset by rememberSaveable(stateSaver = OffsetSaver) { mutableStateOf(Offset.Zero) }
+    var isBlocked by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(300.dp)
+            .fillMaxHeight()
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
                     scale *= zoom
-                    offset = Offset(offset.x + pan.x, offset.y + pan.y)
+                    if (!isBlocked) {
+                        offset = Offset(
+                            x = offset.x + pan.x,
+                            y = offset.y + pan.y
+                        )
+                    }
                 }
             }
-
     ) {
         Image(
             bitmap = img.asImageBitmap(),
             contentDescription = null,
-            modifier =  Modifier
-                .offset { // Zastosowanie przesunięcia
-                    IntOffset(offset.x.roundToInt(), offset.y.roundToInt())
-                }
-                .scale(scale),  // Zastosowanie skalowania
-            contentScale = ContentScale.Fit  // Dopasowanie obrazu do kontenera
+            // contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                .scale(scale)
         )
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+        ) {
+            ImageButton(s = "+") { scale += 0.2f }
+            ImageButton(s = "-") { scale -= 0.2f }
+            ImageButton(s = "b") {isBlocked = !isBlocked}
+            ImageButton(s = "c") { offset = Offset.Zero }
+        }
     }
 }
 
@@ -186,7 +200,28 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
             modifier = modifier
                 .fillMaxWidth()
                 .height(300.dp)
-            //.border(1.dp, Color.Black)
+        )
+    }
+}
+
+@Composable
+fun ImageButton(s: String, onClick: () -> Unit) {
+    Button(
+        shape = RectangleShape,
+
+        onClick = { onClick() },
+        modifier = Modifier
+            .width(50.dp)
+            .height(40.dp)
+            .padding(0.dp)
+
+    ) {
+        Text(
+            text = s,
+            fontSize = 20.sp,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+
         )
     }
 }
