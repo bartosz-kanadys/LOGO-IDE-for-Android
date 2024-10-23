@@ -1,10 +1,13 @@
 package com.example.logointerpreterbeta
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
@@ -12,7 +15,7 @@ import com.example.logointerpreterbeta.interpreter.logoParser
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor : logoBaseVisitor<Any>() {
+class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     val image = MyImage
     private val canvas = Canvas(image)
     private var paint = Paint()
@@ -333,5 +336,45 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     //STOP
     override fun visitStop(ctx: logoParser.StopContext?): Int {
         throw StopException("STOP")
+    }
+
+    private fun getBitmapFromImage(context: Context, drawable: Int): Bitmap {
+
+        // on below line we are getting drawable
+        val db = ContextCompat.getDrawable(context, drawable)
+
+        // in below line we are creating our bitmap and initializing it.
+        val bit = Bitmap.createBitmap(
+            db!!.intrinsicWidth/10, db.intrinsicHeight/10, Bitmap.Config.ARGB_8888
+        )
+
+        // on below line we are
+        // creating a variable for canvas.
+        val canvas = Canvas(bit)
+
+        // on below line we are setting bounds for our bitmap.
+        db.setBounds(0, 0, canvas.width, canvas.height)
+
+        // on below line we are simply
+        // calling draw to draw our canvas.
+        db.draw(canvas)
+
+        // on below line we are
+        // returning our bitmap.
+        return bit
+    }
+
+    override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        super.visitProg(ctx)
+
+        val arrow = getBitmapFromImage(context, R.drawable.arrow_turtle)
+
+        val matrix = Matrix()
+        matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f) // Ustaw rotację
+        val rotatedArrow = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
+
+        // Rysuj strzałkę w aktualnej pozycji żółwia
+        canvas.drawBitmap(rotatedArrow, Turtle.Xposition - rotatedArrow.width / 2, Turtle.Yposition - rotatedArrow.height / 2, paint)
+        return 0
     }
 }
