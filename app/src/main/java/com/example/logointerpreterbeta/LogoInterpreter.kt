@@ -8,7 +8,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 class LogoInterpreter {
-    var bitmap:Bitmap? = null
+    var bitmap = MyImage
 
     val myVisitor = MyLogoVisitor()
 

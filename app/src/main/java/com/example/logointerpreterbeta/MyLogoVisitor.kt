@@ -13,7 +13,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class MyLogoVisitor : logoBaseVisitor<Any>() {
-    val image: Bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+    val image = MyImage
     private val canvas = Canvas(image)
     private var paint = Paint()
 
@@ -27,6 +27,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
+        canvas.drawRect(0f,0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(),paint)
     }
 
     override fun visitFd(ctx: logoParser.FdContext?) {
@@ -94,14 +95,14 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
    }
 
     override fun visitHome(ctx: logoParser.HomeContext?){
-        Turtle.setAcctualPosition(500F, 500F)
+        Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?) {
         var x = ctx!!.expression(0).text.toFloat()
         var y = ctx.expression(1).text.toFloat()
-        y = if (y<0) 500-y else 500+y
-        x = if (x<0) 500+x else 500-x
+        y = if (y<0) MyImageHeight/2-y else MyImageHeight/2+y
+        x = if (x<0) MyImageWidth/2+x else MyImageWidth/2-x
         Turtle.setAcctualPosition(x,y)
     }
 
