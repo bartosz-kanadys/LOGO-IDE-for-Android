@@ -6,11 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,8 +43,11 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -54,7 +60,8 @@ class MainAppActivity : ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val logo = LogoInterpreter()
+
+        val logo = LogoInterpreter(this)
 
         setContent {
             LogoInterpreterBetaTheme {
@@ -155,10 +162,14 @@ fun ImagePanel(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
         ) {
-            ImageButton(s = "+") { scale += 0.2f }
-            ImageButton(s = "-") { scale -= 0.2f }
-            ImageButton(s = "b") {isBlocked = !isBlocked}
-            ImageButton(s = "c") { offset = Offset.Zero }
+            ImageButton(R.drawable.plus) { scale += 0.2f }
+            ImageButton(R.drawable.minus) { scale -= 0.2f }
+            if (isBlocked) {
+                ImageButton(R.drawable.locked) { isBlocked = !isBlocked }
+            } else {
+                ImageButton(R.drawable.unlocked) { isBlocked = !isBlocked }
+            }
+            ImageButton(R.drawable.center) { offset = Offset.Zero }
         }
     }
 }
@@ -205,23 +216,21 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
 }
 
 @Composable
-fun ImageButton(s: String, onClick: () -> Unit) {
+fun ImageButton(icon: Int, onClick: () -> Unit) {
     Button(
+        colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
         shape = RectangleShape,
-
+        contentPadding = PaddingValues(0.dp),
         onClick = { onClick() },
         modifier = Modifier
-            .width(50.dp)
+            .width(40.dp)
             .height(40.dp)
-            .padding(0.dp)
-
     ) {
-        Text(
-            text = s,
-            fontSize = 20.sp,
-            textAlign = TextAlign.Center,
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = null,
             modifier = Modifier
-
+                .width(50.dp)
         )
     }
 }
