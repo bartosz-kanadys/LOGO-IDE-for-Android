@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -44,22 +45,22 @@ class MainActivity : ComponentActivity() {
                     composable<Projects> {
                         Layout({
                             modifier -> ProjectsApp(modifier = modifier)
-                       } ,"Projekty")
+                       } ,"Projekty",navController)
                     }
                     composable<Settings> {
                         Layout({
-                                modifier -> ProjectsApp(modifier = modifier)
-                        } ,"Ustawienia")
+                                modifier -> SettingsApp(modifier = modifier)
+                        } ,"Ustawienia",navController)
                     }
                     composable<Tutorials> {
                         Layout({
-                                modifier -> ProjectsApp(modifier = modifier)
-                        } ,"Poradniki")
+                                modifier -> TutorialsApp(modifier = modifier)
+                        } ,"Poradniki",navController)
                     }
                     composable<Libraries> {
                         Layout({
-                                modifier -> ProjectsApp(modifier = modifier)
-                        } ,"Biblioteki")
+                                modifier -> LibraryApp(modifier = modifier)
+                        } ,"Biblioteki",navController)
                     }
                 }
             }
@@ -67,10 +68,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 @Composable
-fun Layout(content: @Composable (Modifier) -> Unit, title: String) {
+fun Layout(content: @Composable (Modifier) -> Unit, title: String, navController: NavHostController = rememberNavController()) {
     Scaffold(
         topBar = {
-            TopBarWithMenu(title)
+            TopBarWithMenu(title,navController)
         }
     ) { innerPadding ->
         content(Modifier.padding(innerPadding))
@@ -93,9 +94,3 @@ object Libraries
 //    val name: String?,
 //    val age: Int
 //)
-//Button(onClick = {
-//    navController.navigate(ScreenB(
-//        name = null,
-//        age = 25
-//    ))
-//})
