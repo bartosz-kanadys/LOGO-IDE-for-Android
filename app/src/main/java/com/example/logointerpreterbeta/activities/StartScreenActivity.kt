@@ -32,6 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
@@ -43,56 +45,59 @@ class StartScreenActivity : ComponentActivity() {
         setContent {
             LogoInterpreterBetaTheme (
             ){
-                Surface(
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .padding(top = 40.dp)
-                    ) {
-                        Image(
-                            painterResource(id = R.drawable.logo),
-                            contentDescription = "logo",
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .size(180.dp)
-                            //.padding(top = 40.dp)
-                        )
-                        Text(
-                            text = "LOGO IDE",
-                            fontSize = 34.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = jetBrainsMono,
-                            modifier = Modifier.padding(bottom = 12.dp)
-                        )
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
-                            modifier = Modifier.fillMaxHeight()
-                        ) {
-                            item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
-                            item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
-                            item { MenuButton("Otwórz projekt",ProjectsActivity::class.java) }
-                            item { MenuButton("Poradniki",TutorialsActivity::class.java) }
-                            item { MenuButton("Biblioteki",LibraryActivity::class.java) }
-                            item { MenuButton("Ustawienia",SettingsActivity::class.java) }
-                        }
-
-                    }
-                }
+                StartScreenApp()
             }
         }
     }
 }
-
 @Composable
-fun MenuButton(text: String, activity: Class<*>,modifier: Modifier = Modifier, context: Context = LocalContext.current) {
+fun StartScreenApp(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+    Surface(
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(top = 40.dp)
+        ) {
+            Image(
+                painterResource(id = R.drawable.logo),
+                contentDescription = "logo",
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier
+                    .size(180.dp)
+                //.padding(top = 40.dp)
+            )
+            Text(
+                text = "LOGO IDE",
+                fontSize = 34.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = jetBrainsMono,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxHeight()
+            ) {
+                item { MenuButton("Kontynuuj ostatni projekt",{navController.navigate(Interpreter)}) }
+                item { MenuButton("Nowy projekt",{navController.navigate(Interpreter)})}
+                item { MenuButton("Otwórz projekt",{navController.navigate(Projects)}) }
+                item { MenuButton("Poradniki",{navController.navigate(Tutorials)}) }
+                item { MenuButton("Biblioteki",{navController.navigate(Libraries)})}
+                item { MenuButton("Ustawienia",{navController.navigate(Settings)})}
+            }
+
+        }
+    }
+}
+@Composable
+fun MenuButton(text: String, onClick: () -> Unit,modifier: Modifier = Modifier, context: Context = LocalContext.current) {
     Button(
-        onClick = {
-            context.startActivity(Intent(context, activity))
-        },
+        onClick =
+            onClick
+        ,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(Color(red = 182, green = 255, blue = 161)),
         modifier = Modifier
@@ -116,44 +121,8 @@ fun MenuButton(text: String, activity: Class<*>,modifier: Modifier = Modifier, c
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme (
     ){
-        Surface(
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(top = 40.dp)
-            ) {
-                Image(
-                    painterResource(id = R.drawable.logo),
-                    contentDescription = "logo",
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .size(180.dp)
-                    //.padding(top = 40.dp)
-                )
-                Text(
-                    text = "LOGO IDE",
-                    fontSize = 34.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 12.dp)
-                )
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    item { MenuButton("Kontynuuj ostatni projekt",MainAppActivity::class.java) }
-                    item { MenuButton("Nowy projekt",MainAppActivity::class.java) }
-                    item { MenuButton("Otwórz projekt",MainAppActivity::class.java) }
-                    item { MenuButton("Poradniki",MainAppActivity::class.java) }
-                    item { MenuButton("Biblioteki",MainAppActivity::class.java) }
-                    item { MenuButton("Ustawienia",MainAppActivity::class.java) }
-                }
 
-            }
-        }
+        StartScreenApp()
 
     }
 }

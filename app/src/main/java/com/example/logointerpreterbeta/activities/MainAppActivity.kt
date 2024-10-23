@@ -36,46 +36,51 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 class MainAppActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val logo = LogoInterpreter()
+
 
         setContent {
             LogoInterpreterBetaTheme {
-                val configuration = LocalConfiguration.current
-                val screenWidth = configuration.screenWidthDp.dp
-                val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
-
-                var codeState by remember { mutableStateOf("") }
-                var img by remember {
-                    mutableStateOf(Bitmap.createBitmap(pxValue.toInt(),1000,Bitmap.Config.ARGB_8888))
-                }
-                Column {
-                    GeneratedImage(img = img, modifier = Modifier)
-                    Box {
-                        CodeEditor(codeState = codeState, onCodeChange = { newCode ->
-                            codeState = newCode
-                        }, modifier = Modifier)
-                        Button(
-                            shape = RectangleShape,
-                            colors = ButtonDefaults.buttonColors(Color(red = 19, green = 128, blue = 16)),
-                            onClick = {
-                                Turtle.setAcctualPosition(500F, 500F)
-                                Turtle.direction = 0
-                                logo.start(codeState)
-                                img = logo.bitmap!!
-                            },
-                            modifier = Modifier.align(Alignment.BottomEnd)
-                                .padding(end = 5.dp, bottom = 1.dp)
-
-                        ) {
-                            Text(text = "Wykonaj")
-                        }
-                    }
-                }
+                InterpreterApp();
             }
         }
     }
 }
 
+@Composable
+fun InterpreterApp(modifier: Modifier=Modifier){
+    val logo = LogoInterpreter()
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
+
+    var codeState by remember { mutableStateOf("") }
+    var img by remember {
+        mutableStateOf(Bitmap.createBitmap(pxValue.toInt(),1000,Bitmap.Config.ARGB_8888))
+    }
+    Column {
+        GeneratedImage(img = img, modifier = Modifier)
+        Box {
+            CodeEditor(codeState = codeState, onCodeChange = { newCode ->
+                codeState = newCode
+            }, modifier = Modifier)
+            Button(
+                shape = RectangleShape,
+                colors = ButtonDefaults.buttonColors(Color(red = 19, green = 128, blue = 16)),
+                onClick = {
+                    Turtle.setAcctualPosition(500F, 500F)
+                    Turtle.direction = 0
+                    logo.start(codeState)
+                    img = logo.bitmap!!
+                },
+                modifier = Modifier.align(Alignment.BottomEnd)
+                    .padding(end = 5.dp, bottom = 1.dp)
+
+            ) {
+                Text(text = "Wykonaj")
+            }
+        }
+    }
+}
 @Composable
 fun GeneratedImage(img: Bitmap, modifier: Modifier) {
     Column {
@@ -106,5 +111,6 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme {
+        InterpreterApp();
     }
 }
