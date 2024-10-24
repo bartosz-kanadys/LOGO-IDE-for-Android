@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt
+import kotlin.reflect.KMutableProperty0
 
 
 class MainAppActivity : ComponentActivity() {
@@ -76,6 +77,10 @@ class MainAppActivity : ComponentActivity() {
                 var errors by rememberSaveable {
                     mutableStateOf(SyntaxError.errors.toString())
                 }
+                Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
+                Turtle.direction = 0f
+                logo.start("st")
+                img = logo.bitmap
                 LazyColumn {
                     item { ImagePanel(img = img) }
                     item { ErrorsList(errors = errors) }
@@ -95,12 +100,11 @@ class MainAppActivity : ComponentActivity() {
                                 ),
                                 onClick = {
                                     SyntaxError.errors.clear()
-                                    Turtle.setAcctualPosition(1000F, 1000F)
+                                    Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
                                     Turtle.direction = 0f
                                     try {
                                         logo.start(codeState)
                                         img = logo.bitmap
-
                                     } catch (e: Exception) {
                                         Log.e("ERROR", "Błąd wykonywania interpretera")
                                     } finally {

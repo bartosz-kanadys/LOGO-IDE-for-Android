@@ -7,7 +7,7 @@ import com.example.logointerpreterbeta.interpreter.logoParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
-class LogoInterpreter(private val context: Context) {
+class LogoInterpreter(context: Context) {
     var bitmap = MyImage
 
     private val myVisitor = MyLogoVisitor(context = context)
@@ -15,7 +15,7 @@ class LogoInterpreter(private val context: Context) {
     fun start(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
-            CharStreams.fromString("cs "+input+"\n")
+            CharStreams.fromString("cs st $input\n")
         )
         lexer.removeErrorListeners()
         lexer.addErrorListener(MyErrorListener())
