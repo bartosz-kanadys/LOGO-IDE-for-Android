@@ -1,21 +1,21 @@
 package com.example.logointerpreterbeta
 
-import android.graphics.Bitmap
+import android.content.Context
 import com.example.logointerpreterbeta.errors.MyErrorListener
 import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
-class LogoInterpreter {
-    var bitmap:Bitmap? = null
+class LogoInterpreter(context: Context) {
+    var bitmap = MyImage
 
-    val myVisitor = MyLogoVisitor()
+    private val myVisitor = MyLogoVisitor(context = context)
 
     fun start(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
-            CharStreams.fromString(input+"\n")
+            CharStreams.fromString("cs st $input\n")
         )
         lexer.removeErrorListeners()
         lexer.addErrorListener(MyErrorListener())

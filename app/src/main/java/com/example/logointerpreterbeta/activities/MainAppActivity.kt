@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.activities
+package com.example.logointerpreterbeta
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -9,12 +9,16 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -23,30 +27,34 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import kotlin.math.roundToInt
 
 
-class MainAppActivity: ComponentActivity() {
+class MainAppActivity : ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
 
         setContent {
             LogoInterpreterBetaTheme {
@@ -58,20 +66,24 @@ class MainAppActivity: ComponentActivity() {
 
 @Composable
 fun InterpreterApp(modifier: Modifier=Modifier){
-    val logo = LogoInterpreter()
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val pxValue = with(LocalDensity.current) {screenWidth.toPx() }
+                val logo = LogoInterpreter(this)
+//                val configuration = LocalConfiguration.current
+//                val screenWidth = configuration.screenWidthDp.dp
+//                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
 
                 var codeState by rememberSaveable { mutableStateOf("") }
                 var img by rememberSaveable {
-                    mutableStateOf(Bitmap.createBitmap(pxValue.toInt(),1000,Bitmap.Config.ARGB_8888))
+                    mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
                 }
                 var errors by rememberSaveable {
                     mutableStateOf(SyntaxError.errors.toString())
                 }
+                Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+                Turtle.direction = 0f
+                logo.start("st")
+                img = logo.bitmap
                 LazyColumn {
-                    item { GeneratedImage(img = img, modifier = Modifier) }
+                    item { ImagePanel(img = img) }
                     item { ErrorsList(errors = errors) }
                     item {
                         Box {
@@ -89,12 +101,14 @@ fun InterpreterApp(modifier: Modifier=Modifier){
                                 ),
                                 onClick = {
                                     SyntaxError.errors.clear()
-                                    Turtle.setAcctualPosition(500F, 500F)
+                                    Turtle.setAcctualPosition(
+                                        MyImageWidth.toFloat() / 2,
+                                        MyImageHeight.toFloat() / 2
+                                    )
                                     Turtle.direction = 0f
                                     try {
                                         logo.start(codeState)
-                                        img = logo.bitmap!!
-
+                                        img = logo.bitmap
                                     } catch (e: Exception) {
                                         Log.e("ERROR", "Błąd wykonywania interpretera")
                                     } finally {
@@ -116,14 +130,55 @@ fun InterpreterApp(modifier: Modifier=Modifier){
 
 
 
+val OffsetSaver = Saver<Offset, List<Float>>(
+    save = { listOf(it.x, it.y) },
+    restore = { Offset(it[0], it[1]) }
+)
+
 @Composable
-fun GeneratedImage(img: Bitmap, modifier: Modifier) {
-    Column {
+fun ImagePanel(
+    img: Bitmap,
+) {
+    var scale by rememberSaveable { mutableFloatStateOf(2f) }
+    var offset by rememberSaveable(stateSaver = OffsetSaver) { mutableStateOf(Offset.Zero) }
+    var isBlocked by rememberSaveable { mutableStateOf(false) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxHeight()
+            .pointerInput(Unit) {
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale *= zoom
+                    if (!isBlocked) {
+                        offset = Offset(
+                            x = offset.x + pan.x,
+                            y = offset.y + pan.y
+                        )
+                    }
+                }
+            }
+    ) {
         Image(
             bitmap = img.asImageBitmap(),
             contentDescription = null,
-            modifier = modifier
+            // contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                .scale(scale)
         )
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+        ) {
+            ImageButton(R.drawable.plus) { scale += 0.2f }
+            ImageButton(R.drawable.minus) { scale -= 0.2f }
+            if (isBlocked) {
+                ImageButton(R.drawable.locked) { isBlocked = !isBlocked }
+            } else {
+                ImageButton(R.drawable.unlocked) { isBlocked = !isBlocked }
+            }
+            ImageButton(R.drawable.center) { offset = Offset.Zero }
+        }
     }
 }
 
@@ -137,8 +192,8 @@ fun ErrorsList(errors: String) {
     } else listOf(":)")
     LazyColumn(
         modifier = Modifier
-            .height(50.dp)
-            .fillMaxHeight()
+            .height(20.dp)
+            //.fillMaxHeight()
     ) {
         items(errorsList) { error ->
             Text(
@@ -164,7 +219,26 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
             modifier = modifier
                 .fillMaxWidth()
                 .height(300.dp)
-                //.border(1.dp, Color.Black)
+        )
+    }
+}
+
+@Composable
+fun ImageButton(icon: Int, onClick: () -> Unit) {
+    Button(
+        colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
+        shape = RectangleShape,
+        contentPadding = PaddingValues(0.dp),
+        onClick = { onClick() },
+        modifier = Modifier
+            .width(40.dp)
+            .height(40.dp)
+    ) {
+        Image(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            modifier = Modifier
+                .width(50.dp)
         )
     }
 }

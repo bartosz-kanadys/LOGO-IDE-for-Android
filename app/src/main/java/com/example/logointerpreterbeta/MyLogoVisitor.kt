@@ -1,10 +1,13 @@
 package com.example.logointerpreterbeta
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
@@ -12,8 +15,10 @@ import com.example.logointerpreterbeta.interpreter.logoParser
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor : logoBaseVisitor<Any>() {
-    val image: Bitmap = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
+class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
+    val image = MyImage
+    private var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
+
     private val canvas = Canvas(image)
     private var paint = Paint()
 
@@ -27,6 +32,9 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
+        canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
+
+        updateTurtleBitmap()
     }
 
     override fun visitFd(ctx: logoParser.FdContext?) {
@@ -35,13 +43,21 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         val angleRadians = Math.toRadians((Turtle.direction - 90).toDouble())
 
         // Obliczenie końcowych współrzędnych linii do narysowania z poprawką na wypełnianie rogów
-        val endXtoDraw = (Turtle.Xposition + (distance+paint.strokeWidth/2) * cos(angleRadians)).toFloat()
-        val endYtoDraw = (Turtle.Yposition + (distance+paint.strokeWidth/2) * sin(angleRadians)).toFloat()
+        val endXtoDraw =
+            (Turtle.Xposition + (distance + paint.strokeWidth / 2) * cos(angleRadians)).toFloat()
+        val endYtoDraw =
+            (Turtle.Yposition + (distance + paint.strokeWidth / 2) * sin(angleRadians)).toFloat()
         // obliczanie koncowych pozycji dla zolwia
         val endXTurtlePosition = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
         val endYTurtlePosition = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
 
-        if (Turtle.isDown) canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endXtoDraw, endYtoDraw, paint)
+        if (Turtle.isDown) canvas.drawLine(
+            Turtle.Xposition,
+            Turtle.Yposition,
+            endXtoDraw,
+            endYtoDraw,
+            paint
+        )
 
         Turtle.setAcctualPosition(endXTurtlePosition, endYTurtlePosition)
     }
@@ -55,7 +71,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         val endX = (Turtle.Xposition + distance * cos(angleRadians)).toFloat()
         val endY = (Turtle.Yposition + distance * sin(angleRadians)).toFloat()
 
-        if (Turtle.isDown) canvas.drawLine(Turtle.Xposition, Turtle.Yposition,endX, endY, paint)
+        if (Turtle.isDown) canvas.drawLine(Turtle.Xposition, Turtle.Yposition, endX, endY, paint)
 
         Turtle.setAcctualPosition(endX, endY)
     }
@@ -65,12 +81,12 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         val distance = visit(ctx.expression(1)).toString().toFloat()
 
         val rectF = RectF(
-            Turtle.Xposition-distance,
-            Turtle.Yposition-distance,
-            Turtle.Xposition+distance,
-            Turtle.Yposition+distance
+            Turtle.Xposition - distance,
+            Turtle.Yposition - distance,
+            Turtle.Xposition + distance,
+            Turtle.Yposition + distance
         )
-        canvas.drawArc(rectF,270f+Turtle.direction, angle,false,paint)
+        canvas.drawArc(rectF, 270f + Turtle.direction, angle, false, paint)
     }
 
     override fun visitRt(ctx: logoParser.RtContext?) {
@@ -85,24 +101,40 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         canvas.drawColor(Color.WHITE)
     }
 
-   override fun visitPu(ctx: logoParser.PuContext?) {
-       Turtle.isDown = false
-   }
+    override fun visitPu(ctx: logoParser.PuContext?) {
+        Turtle.isDown = false
+    }
 
-   override fun visitPd(ctx: logoParser.PdContext?) {
-       Turtle.isDown = true
-   }
+    override fun visitPd(ctx: logoParser.PdContext?) {
+        Turtle.isDown = true
+    }
 
-    override fun visitHome(ctx: logoParser.HomeContext?){
-        Turtle.setAcctualPosition(500F, 500F)
+    override fun visitHome(ctx: logoParser.HomeContext?) {
+        Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+    }
+
+    override fun visitSt(ctx: logoParser.StContext?) {
+        Turtle.isShowed = true
+        val color = paint.color
+        paint.color = Color.TRANSPARENT
+        canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
+        paint.color = color
+    }
+
+    override fun visitHt(ctx: logoParser.HtContext?) {
+        Turtle.isShowed = false
+        val color = paint.color
+        paint.color = Color.TRANSPARENT
+        canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
+        paint.color = color
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?) {
         var x = ctx!!.expression(0).text.toFloat()
         var y = ctx.expression(1).text.toFloat()
-        y = if (y<0) 500-y else 500+y
-        x = if (x<0) 500+x else 500-x
-        Turtle.setAcctualPosition(x,y)
+        y = if (y < 0) MyImageHeight / 2 - y else MyImageHeight / 2 + y
+        x = if (x < 0) MyImageWidth / 2 + x else MyImageWidth / 2 - x
+        Turtle.setAcctualPosition(x, y)
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
@@ -114,7 +146,9 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
                     visit(command)
                 }
             }
-        }catch (e: StopException) {return 0}
+        } catch (e: StopException) {
+            return 0
+        }
 
         return 0
     }
@@ -197,7 +231,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         return 0f
     }
 
-    override fun visitNumber(ctx: logoParser.NumberContext?): Float{
+    override fun visitNumber(ctx: logoParser.NumberContext?): Float {
         return if (ctx!!.FLOAT() != null) {
             ctx.FLOAT().text.toFloat()
         } else {
@@ -205,7 +239,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         }
     }
 
-    override fun visitRandom(ctx: logoParser.RandomContext?): Int{
+    override fun visitRandom(ctx: logoParser.RandomContext?): Int {
         val maxValue = visit(ctx!!.expression())!!.toString().toFloat().toInt()
         return (0..<maxValue).random()
     }
@@ -289,7 +323,7 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
             } catch (e: StopException) {
                 return 0
             } finally {
-                variables = previousVariables // Przywróć poprzednie zmienne po zakończeniu procedury
+                variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
             }
         } else {
             SyntaxError.errors.add("Nieznana procedura: $procedureName")
@@ -315,13 +349,13 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
         var leftValue = 0f
         var rightValue = 0f
 
-        if (ctx!!.expression(0) != null)  leftValue = visit(ctx.expression(0)).toString().toFloat()
+        if (ctx!!.expression(0) != null) leftValue = visit(ctx.expression(0)).toString().toFloat()
         if (ctx.expression(1) != null) rightValue = visit(ctx.expression(1)).toString().toFloat()
 
         return when (val operator = ctx.comparisonOperator().text!!) {
-            "<"  -> if (leftValue < rightValue) 1 else 0
-            ">"  -> if (leftValue > rightValue) 1 else 0
-            "="  -> if (leftValue == rightValue) 1 else 0
+            "<" -> if (leftValue < rightValue) 1 else 0
+            ">" -> if (leftValue > rightValue) 1 else 0
+            "=" -> if (leftValue == rightValue) 1 else 0
             "<=" -> if (leftValue <= rightValue) 1 else 0
             ">=" -> if (leftValue >= rightValue) 1 else 0
             "<>" -> if (leftValue != rightValue) 1 else 0
@@ -332,5 +366,42 @@ class MyLogoVisitor : logoBaseVisitor<Any>() {
     //STOP
     override fun visitStop(ctx: logoParser.StopContext?): Int {
         throw StopException("STOP")
+    }
+
+    private fun getBitmapFromImage(context: Context, drawable: Int): Bitmap {
+        val db = ContextCompat.getDrawable(context, drawable)
+        val bit = Bitmap.createBitmap(
+            db!!.intrinsicWidth / 10, db.intrinsicHeight / 10, Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bit)
+        db.setBounds(0, 0, canvas.width, canvas.height)
+        db.draw(canvas)
+
+        return bit
+    }
+
+    private fun updateTurtleBitmap() {
+        if (Turtle.isShowed) {
+            // Pobieranie bitmapy żółwia i rotacja
+            val arrow = getBitmapFromImage(context, R.drawable.arrow_turtle)
+            val matrix = Matrix()
+            matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f)
+            turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
+            canvas.drawBitmap(
+                turtleBitmap!!,
+                Turtle.Xposition - turtleBitmap!!.width / 2,
+                Turtle.Yposition - turtleBitmap!!.height / 2,
+                paint
+            )
+
+        } else {
+            turtleBitmap = null
+        }
+    }
+
+    override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        super.visitProg(ctx)
+        updateTurtleBitmap()
+        return 0
     }
 }
