@@ -8,6 +8,7 @@ public class Turtle {
     public static float Yposition = 500;
     public static float direction = 0;
     public static boolean isDown = true;
+    public static boolean isShowed = true;
     public static int penColor = Color.WHITE;
     public static int penSize = 5;
 

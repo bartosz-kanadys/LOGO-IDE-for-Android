@@ -17,6 +17,8 @@ import kotlin.math.sin
 
 class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     val image = MyImage
+    private var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
+
     private val canvas = Canvas(image)
     private var paint = Paint()
 
@@ -31,6 +33,8 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         paint.textSize = 50f
         paint.isAntiAlias = true
         canvas.drawRect(0f,0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(),paint)
+
+        updateTurtleBitmap()
     }
 
     override fun visitFd(ctx: logoParser.FdContext?) {
@@ -99,6 +103,16 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     override fun visitHome(ctx: logoParser.HomeContext?){
         Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
+    }
+
+    override fun visitSt(ctx: logoParser.StContext?) {
+        Turtle.isShowed = true
+        canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
+    }
+
+    override fun visitHt(ctx: logoParser.HtContext?) {
+        Turtle.isShowed = false
+        canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?) {
@@ -339,42 +353,34 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     private fun getBitmapFromImage(context: Context, drawable: Int): Bitmap {
-
-        // on below line we are getting drawable
         val db = ContextCompat.getDrawable(context, drawable)
-
-        // in below line we are creating our bitmap and initializing it.
         val bit = Bitmap.createBitmap(
             db!!.intrinsicWidth/10, db.intrinsicHeight/10, Bitmap.Config.ARGB_8888
         )
-
-        // on below line we are
-        // creating a variable for canvas.
         val canvas = Canvas(bit)
-
-        // on below line we are setting bounds for our bitmap.
         db.setBounds(0, 0, canvas.width, canvas.height)
-
-        // on below line we are simply
-        // calling draw to draw our canvas.
         db.draw(canvas)
 
-        // on below line we are
-        // returning our bitmap.
         return bit
+    }
+
+    private fun updateTurtleBitmap() {
+        if (Turtle.isShowed) {
+            // Pobieranie bitmapy żółwia i rotacja
+            val arrow = getBitmapFromImage(context, R.drawable.arrow_turtle)
+            val matrix = Matrix()
+            matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f)
+            turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
+            canvas.drawBitmap(turtleBitmap!!, Turtle.Xposition - turtleBitmap!!.width / 2, Turtle.Yposition - turtleBitmap!!.height / 2, paint)
+
+        } else {
+            turtleBitmap = null
+        }
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         super.visitProg(ctx)
-
-        val arrow = getBitmapFromImage(context, R.drawable.arrow_turtle)
-
-        val matrix = Matrix()
-        matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f) // Ustaw rotację
-        val rotatedArrow = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
-
-        // Rysuj strzałkę w aktualnej pozycji żółwia
-        canvas.drawBitmap(rotatedArrow, Turtle.Xposition - rotatedArrow.width / 2, Turtle.Yposition - rotatedArrow.height / 2, paint)
+        updateTurtleBitmap()
         return 0
     }
 }
