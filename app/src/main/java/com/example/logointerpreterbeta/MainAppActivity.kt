@@ -6,14 +6,12 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,7 +27,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,19 +39,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt
-import kotlin.reflect.KMutableProperty0
 
 
 class MainAppActivity : ComponentActivity() {
@@ -77,7 +68,7 @@ class MainAppActivity : ComponentActivity() {
                 var errors by rememberSaveable {
                     mutableStateOf(SyntaxError.errors.toString())
                 }
-                Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
+                Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
                 Turtle.direction = 0f
                 logo.start("st")
                 img = logo.bitmap
@@ -100,7 +91,10 @@ class MainAppActivity : ComponentActivity() {
                                 ),
                                 onClick = {
                                     SyntaxError.errors.clear()
-                                    Turtle.setAcctualPosition(MyImageWidth.toFloat()/2, MyImageHeight.toFloat()/2)
+                                    Turtle.setAcctualPosition(
+                                        MyImageWidth.toFloat() / 2,
+                                        MyImageHeight.toFloat() / 2
+                                    )
                                     Turtle.direction = 0f
                                     try {
                                         logo.start(codeState)
