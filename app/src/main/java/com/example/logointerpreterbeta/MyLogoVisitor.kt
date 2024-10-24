@@ -115,12 +115,18 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     override fun visitSt(ctx: logoParser.StContext?) {
         Turtle.isShowed = true
+        val color = paint.color
+        paint.color = Color.TRANSPARENT
         canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
+        paint.color = color
     }
 
     override fun visitHt(ctx: logoParser.HtContext?) {
         Turtle.isShowed = false
+        val color = paint.color
+        paint.color = Color.TRANSPARENT
         canvas.drawPoint(Turtle.Xposition, Turtle.Yposition, paint)
+        paint.color = color
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?) {
