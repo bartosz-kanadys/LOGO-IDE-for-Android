@@ -182,8 +182,8 @@ fun ErrorsList(errors: String) {
     } else listOf(":)")
     LazyColumn(
         modifier = Modifier
-            .height(50.dp)
-            .fillMaxHeight()
+            .height(20.dp)
+            //.fillMaxHeight()
     ) {
         items(errorsList) { error ->
             Text(
