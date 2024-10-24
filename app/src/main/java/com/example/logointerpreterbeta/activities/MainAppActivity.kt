@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
@@ -8,7 +8,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,13 +39,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.LogoInterpreter
+import com.example.logointerpreterbeta.MyImageHeight
+import com.example.logointerpreterbeta.MyImageWidth
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt
 
@@ -58,76 +62,74 @@ class MainAppActivity : ComponentActivity() {
 
         setContent {
             LogoInterpreterBetaTheme {
-                InterpreterApp();
+                InterpreterApp()
             }
         }
     }
 }
 
 @Composable
-fun InterpreterApp(modifier: Modifier=Modifier){
-                val logo = LogoInterpreter(this)
+fun InterpreterApp() {
+    val logo = LogoInterpreter(LocalContext.current)
 //                val configuration = LocalConfiguration.current
 //                val screenWidth = configuration.screenWidthDp.dp
 //                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
 
-                var codeState by rememberSaveable { mutableStateOf("") }
-                var img by rememberSaveable {
-                    mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
-                }
-                var errors by rememberSaveable {
-                    mutableStateOf(SyntaxError.errors.toString())
-                }
-                Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-                Turtle.direction = 0f
-                logo.start("st")
-                img = logo.bitmap
-                LazyColumn {
-                    item { ImagePanel(img = img) }
-                    item { ErrorsList(errors = errors) }
-                    item {
-                        Box {
-                            CodeEditor(codeState = codeState, onCodeChange = { newCode ->
-                                codeState = newCode
-                            }, modifier = Modifier)
-                            Button(
-                                shape = RectangleShape,
-                                colors = ButtonDefaults.buttonColors(
-                                    Color(
-                                        red = 19,
-                                        green = 128,
-                                        blue = 16
-                                    )
-                                ),
-                                onClick = {
-                                    SyntaxError.errors.clear()
-                                    Turtle.setAcctualPosition(
-                                        MyImageWidth.toFloat() / 2,
-                                        MyImageHeight.toFloat() / 2
-                                    )
-                                    Turtle.direction = 0f
-                                    try {
-                                        logo.start(codeState)
-                                        img = logo.bitmap
-                                    } catch (e: Exception) {
-                                        Log.e("ERROR", "Błąd wykonywania interpretera")
-                                    } finally {
-                                        errors = SyntaxError.errors.toString()
-                                    }
-                                },
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .padding(end = 5.dp, bottom = 1.dp)
-
-                            ) {
-                                Text(text = "Wykonaj")
-                            }
+    var codeState by rememberSaveable { mutableStateOf("") }
+    var img by rememberSaveable {
+        mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
+    }
+    var errors by rememberSaveable {
+        mutableStateOf(SyntaxError.errors.toString())
+    }
+    Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+    Turtle.direction = 0f
+    logo.start("st")
+    img = logo.bitmap
+    LazyColumn {
+        item { ImagePanel(img = img) }
+        item { ErrorsList(errors = errors) }
+        item {
+            Box {
+                CodeEditor(codeState = codeState, onCodeChange = { newCode ->
+                    codeState = newCode
+                }, modifier = Modifier)
+                Button(
+                    shape = RectangleShape,
+                    colors = ButtonDefaults.buttonColors(
+                        Color(
+                            red = 19,
+                            green = 128,
+                            blue = 16
+                        )
+                    ),
+                    onClick = {
+                        SyntaxError.errors.clear()
+                        Turtle.setAcctualPosition(
+                            MyImageWidth.toFloat() / 2,
+                            MyImageHeight.toFloat() / 2
+                        )
+                        Turtle.direction = 0f
+                        try {
+                            logo.start(codeState)
+                            img = logo.bitmap
+                        } catch (e: Exception) {
+                            Log.e("ERROR", "Błąd wykonywania interpretera")
+                        } finally {
+                            errors = SyntaxError.errors.toString()
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 5.dp, bottom = 1.dp)
+
+                ) {
+                    Text(text = "Wykonaj")
                 }
             }
-
-
+        }
+    }
+}
 
 
 val OffsetSaver = Saver<Offset, List<Float>>(
@@ -193,7 +195,7 @@ fun ErrorsList(errors: String) {
     LazyColumn(
         modifier = Modifier
             .height(20.dp)
-            //.fillMaxHeight()
+        //.fillMaxHeight()
     ) {
         items(errorsList) { error ->
             Text(
@@ -247,6 +249,6 @@ fun ImageButton(icon: Int, onClick: () -> Unit) {
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme {
-        InterpreterApp();
+        InterpreterApp()
     }
 }

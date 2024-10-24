@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.activities.MainAppActivity
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
@@ -89,7 +90,7 @@ class StartScreen : ComponentActivity() {
 fun MenuButton(text: String, modifier: Modifier = Modifier, context: Context = LocalContext.current) {
     Button(
         onClick = {
-            context.startActivity(Intent(context,MainAppActivity::class.java))
+            context.startActivity(Intent(context, MainAppActivity::class.java))
         },
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(Color(red = 182, green = 255, blue = 161)),
