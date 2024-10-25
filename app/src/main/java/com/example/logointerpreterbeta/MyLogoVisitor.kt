@@ -371,7 +371,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     private fun getBitmapFromImage(context: Context, drawable: Int): Bitmap {
         val db = ContextCompat.getDrawable(context, drawable)
         val bit = Bitmap.createBitmap(
-            db!!.intrinsicWidth / 10, db.intrinsicHeight / 10, Bitmap.Config.ARGB_8888
+            db!!.intrinsicWidth / 2, db.intrinsicHeight / 2, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bit)
         db.setBounds(0, 0, canvas.width, canvas.height)
@@ -383,7 +383,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     private fun updateTurtleBitmap() {
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
-            val arrow = getBitmapFromImage(context, R.drawable.arrow_turtle)
+            val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
             val matrix = Matrix()
             matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f)
             turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
