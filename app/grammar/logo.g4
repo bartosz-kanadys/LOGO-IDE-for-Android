@@ -36,7 +36,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 grammar logo;
 
 prog
-    : (line? EOL)+ line? EOF
+    : (line EOL)* line? EOF
     ;
 
 line
@@ -44,7 +44,10 @@ line
     | comment
     | print_ comment?
     | procedureDeclaration
+    |
+    | WS? EOL
     | WS
+    | EOL
     ;
 
 cmd
