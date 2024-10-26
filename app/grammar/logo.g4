@@ -36,18 +36,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 grammar logo;
 
 prog
-    : (line EOL)* line? EOF
+    : (line? EOL)+ line? EOF
     ;
 
 line
-    : (cmd (WS | EOL)* )+ comment?
+    : cmd+ comment?
     | comment
     | print_ comment?
     | procedureDeclaration
-    |
-    | WS? EOL
-    | WS
-    | EOL
     ;
 
 cmd
@@ -78,6 +74,19 @@ cmd
     | sety
     | setx
     | setcornerrounding
+    ;
+
+procedureInvocation
+    : name expression*
+    ;
+
+procedureDeclaration
+    : 'to' name parameterDeclarations* EOL? (line? EOL)+ 'end'
+    | 'TO' name parameterDeclarations* EOL? (line? EOL)+ 'END'
+    ;
+
+parameterDeclarations
+    : ':' name (',' parameterDeclarations)*
     ;
 
 setcornerrounding
@@ -132,19 +141,6 @@ setpensize
 arc
     : 'arc' expression expression
     | 'ARC' expression expression
-    ;
-
-procedureInvocation
-    : name expression*
-    ;
-
-procedureDeclaration
-    : 'to' name parameterDeclarations* EOL? (line? EOL)+ 'end'
-    | 'TO' name parameterDeclarations* EOL? (line? EOL)+ 'END'
-    ;
-
-parameterDeclarations
-    : ':' name (',' parameterDeclarations)*
     ;
 
 func_
@@ -313,6 +309,14 @@ comment
     : COMMENT
     ;
 
+STRINGLITERAL
+    : '"' (STRING | NUMBER)
+    ;
+
+STRING
+    : [a-zA-Z] [a-zA-Z0-9_]*
+    ;
+
 NUMBER
     : [0-9]+
     ;
@@ -321,13 +325,6 @@ FLOAT
     : [0-9]+ '.' [0-9]+;
 
 
-STRINGLITERAL
-    : '"' (STRING | NUMBER)
-    ;
-
-STRING
-    : [a-zA-Z] [a-zA-Z0-9_]*
-    ;
 
 COMMENT
     : ';' ~ [\r\n]*
@@ -338,5 +335,5 @@ EOL
     ;
 
 WS
-    : [ \t\r\n]+ -> skip
+    : [ \t\r\n] -> skip
     ;

@@ -28,6 +28,24 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitCmd(logoParser.CmdContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link logoParser#procedureInvocation}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcedureInvocation(logoParser.ProcedureInvocationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#procedureDeclaration}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProcedureDeclaration(logoParser.ProcedureDeclarationContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#parameterDeclarations}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParameterDeclarations(logoParser.ParameterDeclarationsContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link logoParser#setcornerrounding}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -81,24 +99,6 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitArc(logoParser.ArcContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#procedureInvocation}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitProcedureInvocation(logoParser.ProcedureInvocationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#procedureDeclaration}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitProcedureDeclaration(logoParser.ProcedureDeclarationContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#parameterDeclarations}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitParameterDeclarations(logoParser.ParameterDeclarationsContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link logoParser#func_}.
 	 * @param ctx the parse tree
