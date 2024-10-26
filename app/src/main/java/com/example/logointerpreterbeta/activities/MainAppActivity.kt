@@ -16,17 +16,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -42,12 +45,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -66,6 +71,11 @@ import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
+import com.github.skydoves.colorpicker.compose.AlphaSlider
+import com.github.skydoves.colorpicker.compose.AlphaTile
+import com.github.skydoves.colorpicker.compose.BrightnessSlider
+import com.github.skydoves.colorpicker.compose.HsvColorPicker
+import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlin.math.roundToInt
 
 class MainAppActivity : ComponentActivity() {
@@ -153,7 +163,6 @@ fun InterpreterApp() {
                         contentDescription = null,
                         modifier = Modifier
                             .width(40.dp)
-
                             .align(Alignment.CenterVertically)
                     )
                 }
@@ -194,10 +203,10 @@ fun ImagePanel(
     var scale by rememberSaveable { mutableFloatStateOf(2f) }
     var offset by rememberSaveable(stateSaver = OffsetSaver) { mutableStateOf(Offset.Zero) }
     var isBlocked by rememberSaveable { mutableStateOf(false) }
+    var isPickerVisable by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = Modifier
-            .fillMaxHeight()
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
                     scale *= zoom
@@ -213,15 +222,25 @@ fun ImagePanel(
         Image(
             bitmap = img.asImageBitmap(),
             contentDescription = null,
-            // contentScale = ContentScale.Fit,
             modifier = Modifier
                 .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
                 .scale(scale)
         )
+        AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
+            ColorPicker(
+                initialColor = Turtle.penColor,
+                onClick = { isPickerVisable = !isPickerVisable }
+            )
+        }
         Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+               // .height(390.dp)
                 .align(Alignment.BottomEnd)
+                .padding(end = 3.dp)
         ) {
+            ImageButton(R.drawable.color, modifier = Modifier.width(30.dp)) { isPickerVisable = !isPickerVisable }
+            Spacer(modifier = Modifier.height(170.dp))
             ImageButton(R.drawable.plus) { scale += 0.2f }
             ImageButton(R.drawable.minus) { scale -= 0.2f }
             if (isBlocked) {
@@ -296,6 +315,7 @@ fun ErrorsList(
         }
     }
 }
+
 @Composable
 fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
     val linesCount = codeState.lines().size
@@ -362,22 +382,93 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
 }
 
 @Composable
-fun ImageButton(icon: Int, onClick: () -> Unit) {
+fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
         shape = RectangleShape,
         contentPadding = PaddingValues(0.dp),
         onClick = { onClick() },
-        modifier = Modifier
+        modifier = modifier
             .width(40.dp)
             .height(40.dp)
+
     ) {
         Image(
             painter = painterResource(id = icon),
             contentDescription = null,
             modifier = Modifier
                 .width(50.dp)
+
         )
+    }
+}
+
+@Composable
+fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
+    val controller = rememberColorPickerController()
+
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxWidth(0.5f)
+            .padding(8.dp)
+            .clip(shape = RoundedCornerShape(10.dp))
+            .background(Color(0xFFC8E6C9))
+
+    ){
+        AlphaTile(
+            controller = controller,
+            modifier = Modifier
+                .height(50.dp)
+                .padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                .width(200.dp)
+                .clip(shape = RoundedCornerShape(10.dp))
+        )
+        HsvColorPicker(
+            initialColor = Color(initialColor),
+            controller = controller,
+            modifier = Modifier
+                .size(170.dp)
+                .padding(horizontal = 8.dp)
+
+        )
+        AlphaSlider(
+            controller = controller,
+            modifier = Modifier
+                .height(15.dp)
+                .padding(horizontal = 10.dp)
+                .width(200.dp)
+                .clip(shape = RoundedCornerShape(8.dp))
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        BrightnessSlider(
+            controller = controller,
+            modifier = Modifier
+                .height(15.dp)
+                .padding(horizontal = 10.dp)
+                .width(200.dp)
+                .clip(shape = RoundedCornerShape(8.dp))
+        )
+        Spacer(modifier = Modifier.height(10.dp))
+        Button(
+            onClick = {
+                onClick()
+                Turtle.penColor = controller.selectedColor.value.toArgb()
+                Log.i("ff", Turtle.penColor.toString())
+                      },
+            contentPadding = PaddingValues(0.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            modifier = Modifier
+                .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
+                .height(30.dp)
+                .fillMaxWidth()
+        ) {
+            Text(
+                text = "Wybierz",
+                fontFamily = jetBrainsMono,
+                fontSize = 10.sp,
+            )
+        }
     }
 }
 
