@@ -15,7 +15,7 @@ class LogoInterpreter(context: Context) {
     fun start(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
-            CharStreams.fromString("cs\n$input\n")
+            CharStreams.fromString("$input")
         )
         lexer.removeErrorListeners()
         lexer.addErrorListener(MyErrorListener())

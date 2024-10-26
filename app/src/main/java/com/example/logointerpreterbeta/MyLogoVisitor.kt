@@ -400,6 +400,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        canvas.drawColor(Color.WHITE) //czyszczenie obrazka przed startem programu
         super.visitProg(ctx)
         updateTurtleBitmap()
         return 0
