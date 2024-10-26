@@ -27,7 +27,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     init {
         // Ustawienia malowania (kolor, grubość linii)
-        paint.color = Color.BLACK
+        paint.color = Turtle.penColor
         paint.strokeWidth = 5f
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
@@ -400,6 +400,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        paint.color = Turtle.penColor
         canvas.drawColor(Color.WHITE) //czyszczenie obrazka przed startem programu
         super.visitProg(ctx)
         updateTurtleBitmap()
