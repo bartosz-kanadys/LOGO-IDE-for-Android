@@ -25,17 +25,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -52,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
@@ -67,7 +62,6 @@ import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import kotlin.math.roundToInt
-
 
 class MainAppActivity : ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
@@ -107,6 +101,7 @@ fun InterpreterApp() {
             Box {
                 CodeEditor(codeState = codeState,
                     onCodeChange = { newCode -> codeState = newCode },
+                    errors = errors,
                     modifier = Modifier
                 )
                 Button(
@@ -124,8 +119,7 @@ fun InterpreterApp() {
                         )
                         Turtle.direction = 0f
                         try {
-                            val codeWithoutEmptyLines = codeState
-                            logo.start(codeWithoutEmptyLines)
+                            logo.start(codeState)
                             img = logo.bitmap
                         } catch (e: Exception) {
                             Log.e("ERROR", "Błąd wykonywania interpretera")
@@ -161,10 +155,23 @@ val OffsetSaver = Saver<Offset, List<Float>>(
     restore = { Offset(it[0], it[1]) }
 )
 
-fun removeEmptyLines(text: String): String {
-    return text.lines()
-        .filter { it.isNotBlank() }
-        .joinToString("\n")
+fun prepareErrorList(errorList: MutableList<String>) : MutableMap<Int, String>{
+    val errorMap = mutableMapOf<Int, String>()
+    if (errorList.isNotEmpty()) {
+        for (error in errorList) {
+            val lineRegex = """line (\d+):""".toRegex()
+            val matchResult = lineRegex.find(error)
+            if (matchResult != null) {
+                val lineNumber = matchResult.groupValues[1].toInt()
+                errorMap[lineNumber] = error
+            } else {
+                errorMap[-1] = "Invalid format in error message: $error"
+            }
+        }
+    } else {
+        errorMap[-1] = "Succes"
+    }
+    return errorMap
 }
 
 @Composable
@@ -225,7 +232,6 @@ fun ErrorsList(errors: String) {
     LazyColumn(
         modifier = Modifier
             .height(20.dp)
-        //.fillMaxHeight()
     ) {
         items(errorsList) { error ->
             Text(
@@ -234,7 +240,7 @@ fun ErrorsList(errors: String) {
                 fontSize = 10.sp,
                 modifier = Modifier
                     .height(20.dp)
-                    .background(Color.Gray)
+                    .background(Color(0xFFC8E6C9))
                     .fillMaxWidth()
             )
         }
@@ -242,14 +248,19 @@ fun ErrorsList(errors: String) {
 }
 
 @Composable
-fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
+fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
     val linesCount = codeState.lines().size
     val scrollState = rememberScrollState()
+    val errorsList = if (errors.isNotEmpty()) {
+        errors.removeSurrounding("[", "]")
+            .split(",")
+            .toMutableList()
+    } else mutableListOf(":)")
+    val errorMap = prepareErrorList(errorsList)
 
     Row(modifier = modifier
         .height(300.dp)
         .fillMaxWidth()) {
-        // Kolumna na numery linii
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -266,13 +277,12 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
                     color = Color(0xFF212121),
                     fontSize = 18.sp,
                     style = TextStyle(
-                        platformStyle = PlatformTextStyle(
-                            includeFontPadding = false
-                        ),
+                        platformStyle = PlatformTextStyle(includeFontPadding = false),
                         fontFamily = jetBrainsMono
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .background(if (i in errorMap) Color(0xFFFF5252) else Color(0xFF4CAF50))
                 )
             }
         }
@@ -293,13 +303,10 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
                     .verticalScroll(scrollState)
                     .background(Color.White)
                     .padding(horizontal = 10.dp, vertical = 10.dp)
-
             )
         }
     }
 }
-
-
 
 @Composable
 fun ImageButton(icon: Int, onClick: () -> Unit) {
