@@ -15,14 +15,13 @@ class LogoInterpreter(context: Context) {
     fun start(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
-            CharStreams.fromString("$input")
+            CharStreams.fromString(input)
         )
         lexer.removeErrorListeners()
         lexer.addErrorListener(MyErrorListener())
 
         // Tokenizacja
         val tokens = CommonTokenStream(lexer)
-
         // Parsowanie
         val parser = logoParser(tokens)
         parser.removeErrorListeners()
@@ -33,5 +32,4 @@ class LogoInterpreter(context: Context) {
         myVisitor.visit(tree)
         bitmap = myVisitor.image
     }
-
 }
