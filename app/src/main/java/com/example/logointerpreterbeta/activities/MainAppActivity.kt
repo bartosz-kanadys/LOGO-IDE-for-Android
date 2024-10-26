@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.ui.input.key.*
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -24,15 +23,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -44,15 +47,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -88,7 +89,7 @@ fun InterpreterApp() {
 //                val screenWidth = configuration.screenWidthDp.dp
 //                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
 
-    var codeState by rememberSaveable { mutableStateOf("\n\n\n\n\n\n\n\n\n\n") }
+    var codeState by rememberSaveable { mutableStateOf("\n\n\n\n\n\n\n\n\n\n\n") }
     var img by rememberSaveable {
         mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
     }
@@ -109,13 +110,11 @@ fun InterpreterApp() {
                     modifier = Modifier
                 )
                 Button(
-                    shape = RectangleShape,
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+
                     colors = ButtonDefaults.buttonColors(
-                        Color(
-                            red = 19,
-                            green = 128,
-                            blue = 16
-                        )
+                        Color(0xFF4CAF50)
                     ),
                     onClick = {
                         SyntaxError.errors.clear()
@@ -125,7 +124,7 @@ fun InterpreterApp() {
                         )
                         Turtle.direction = 0f
                         try {
-                            val codeWithoutEmptyLines = removeEmptyLines(codeState)
+                            val codeWithoutEmptyLines = codeState
                             logo.start(codeWithoutEmptyLines)
                             img = logo.bitmap
                         } catch (e: Exception) {
@@ -136,11 +135,20 @@ fun InterpreterApp() {
                         }
                     },
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 5.dp, bottom = 1.dp)
+                        .align(Alignment.TopEnd)
+                        .padding(top = 5.dp, end = 5.dp)
+                        .width(45.dp)
+                        .height(45.dp)
 
                 ) {
-                    Text(text = "Wykonaj")
+                    Image(
+                        painter = painterResource(id = R.drawable.play_icon),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+
+                            .align(Alignment.CenterVertically)
+                    )
                 }
             }
         }
@@ -235,7 +243,6 @@ fun ErrorsList(errors: String) {
 
 @Composable
 fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
-    // Liczymy liczbę linii na podstawie kodu
     val linesCount = codeState.lines().size
     val scrollState = rememberScrollState()
 
@@ -245,19 +252,19 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
         // Kolumna na numery linii
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-
             modifier = Modifier
-                 .verticalScroll(scrollState)
-                .width(33.dp)
-                .background(Color.LightGray)
                 .fillMaxHeight()
+                .verticalScroll(scrollState)
+                .width(33.dp)
+                .background(Color(0xFF4CAF50))
                 .padding(vertical = 10.dp)
         ) {
             for (i in 1..linesCount) {
                 Text(
+                    textAlign = TextAlign.Center,
                     text = i.toString(),
-                    color = Color.Black,
-                    fontSize = 18.sp,  // Dopasowujemy rozmiar czcionki
+                    color = Color(0xFF212121),
+                    fontSize = 18.sp,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(
                             includeFontPadding = false
@@ -265,7 +272,7 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
                         fontFamily = jetBrainsMono
                     ),
                     modifier = Modifier
-
+                        .fillMaxWidth()
                 )
             }
         }
@@ -281,12 +288,13 @@ fun CodeEditor(codeState: String, onCodeChange: (String) -> Unit, modifier: Modi
                     fontFamily = jetBrainsMono
                 ),
                 modifier = Modifier
-                    .verticalScroll(scrollState)
                     .fillMaxSize()
+
+                    .verticalScroll(scrollState)
                     .background(Color.White)
                     .padding(horizontal = 10.dp, vertical = 10.dp)
 
-                )
+            )
         }
     }
 }
