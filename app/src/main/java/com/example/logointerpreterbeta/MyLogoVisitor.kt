@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+
 import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
@@ -29,7 +30,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     init {
         // Ustawienia malowania (kolor, grubość linii)
-        paint.color = Color.BLACK
+        paint.color = Turtle.penColor
         paint.strokeWidth = 5f
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
@@ -156,10 +157,21 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?) {
-        val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
-        val color = penColors[intColor]
-        paint.setColor(color)
-        Turtle.penColor = color
+        if (ctx!!.expression() != null) {
+            val intColor = visit(ctx.expression()).toString().toFloat().toInt()
+            val color = penColors[intColor]
+            paint.setColor(color)
+            Turtle.penColor = color
+        }
+
+        if (ctx.number(0) != null && ctx.number(1) != null && ctx.number(2) != null) {
+            val red = ctx.number(0).text.toInt()
+            val green = ctx.number(1).text.toInt()
+            val blue = ctx.number(2).text.toInt()
+            val color = Color.rgb(red, green, blue).toInt()
+            paint.setColor(color)
+            Turtle.penColor = color
+        }
     }
 
     override fun visitSetpensize(ctx: logoParser.SetpensizeContext?) {
@@ -402,6 +414,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        paint.setColor(Turtle.penColor)
         canvas.drawColor(Color.WHITE) //czyszczenie obrazka przed startem programu
         super.visitProg(ctx)
         updateTurtleBitmap()

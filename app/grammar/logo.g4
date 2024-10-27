@@ -126,9 +126,13 @@ fill
 
 setpencolor
     : 'setpc' expression
+    | 'setpc' '[' number number number ']'
     | 'SETPC' expression
+    | 'SETPC' '[' number number number ']'
     | 'setpencolor' expression
+    | 'setpencolor' '[' number number number ']'
     | 'SETPENCOLOR' expression
+    | 'SETPENCOLOR' '[' number number number ']'
     ;
 
 setpensize

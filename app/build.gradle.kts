@@ -66,6 +66,8 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.3.0")
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
