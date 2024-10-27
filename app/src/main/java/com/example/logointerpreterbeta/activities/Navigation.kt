@@ -1,39 +1,26 @@
 package com.example.logointerpreterbeta.activities
 
-import android.app.Activity
-import android.content.Context
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import android.Manifest
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -45,7 +32,7 @@ class MainActivity : ComponentActivity() {
                     startDestination = StartScreen
                 ) {
                     composable<StartScreen> {
-                        StartScreenApp(Modifier,navController);
+                        StartScreenApp(navController)
                     }
                     composable<Interpreter> {
                         Scaffold(

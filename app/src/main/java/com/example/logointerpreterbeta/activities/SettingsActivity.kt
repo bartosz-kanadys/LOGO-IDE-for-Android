@@ -27,8 +27,7 @@ class SettingsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogoInterpreterBetaTheme (
-            ){
+            LogoInterpreterBetaTheme {
                 Scaffold(
                     topBar = {
                         TopBarWithMenu("Ustawienia")
@@ -68,8 +67,7 @@ fun SettingsApp(modifier: Modifier = Modifier){
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun SettingsPreview() {
-    LogoInterpreterBetaTheme (
-    ){
+    LogoInterpreterBetaTheme {
         Scaffold(
             topBar = {
                 TopBarWithMenu("Ustawienia")

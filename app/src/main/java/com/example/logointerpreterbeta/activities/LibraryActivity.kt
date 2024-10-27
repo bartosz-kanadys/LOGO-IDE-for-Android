@@ -27,8 +27,7 @@ class LibraryActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogoInterpreterBetaTheme (
-            ){
+            LogoInterpreterBetaTheme {
                 Scaffold(
                     topBar = {
                         TopBarWithMenu("Biblioteki")
@@ -70,8 +69,7 @@ fun LibraryApp(modifier: Modifier = Modifier){
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun LibraryPreview() {
-    LogoInterpreterBetaTheme (
-    ){
+    LogoInterpreterBetaTheme {
         Scaffold(
             topBar = {
                 TopBarWithMenu("Biblioteki")

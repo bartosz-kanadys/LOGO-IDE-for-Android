@@ -27,8 +27,7 @@ class TutorialsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogoInterpreterBetaTheme (
-            ){
+            LogoInterpreterBetaTheme {
                 Scaffold(
                     topBar = {
                         TopBarWithMenu("Poradniki")
@@ -68,8 +67,7 @@ fun TutorialsApp(modifier: Modifier = Modifier){
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun TutorialsPreview() {
-    LogoInterpreterBetaTheme (
-    ){
+    LogoInterpreterBetaTheme {
         Scaffold(
             topBar = {
                 TopBarWithMenu("Ustawienia")

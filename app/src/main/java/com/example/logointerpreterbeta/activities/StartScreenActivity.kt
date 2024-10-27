@@ -1,7 +1,5 @@
 package com.example.logointerpreterbeta.activities
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -43,15 +40,14 @@ class StartScreenActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogoInterpreterBetaTheme (
-            ){
+            LogoInterpreterBetaTheme {
                 StartScreenApp()
             }
         }
     }
 }
 @Composable
-fun StartScreenApp(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+fun StartScreenApp(navController: NavHostController = rememberNavController()) {
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -81,19 +77,20 @@ fun StartScreenApp(modifier: Modifier = Modifier, navController: NavHostControll
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxHeight()
             ) {
-                item { MenuButton("Kontynuuj ostatni projekt",{navController.navigate(Interpreter)}) }
-                item { MenuButton("Nowy projekt",{navController.navigate(Interpreter)})}
-                item { MenuButton("Otwórz projekt",{navController.navigate(Projects)}) }
-                item { MenuButton("Poradniki",{navController.navigate(Tutorials)}) }
-                item { MenuButton("Biblioteki",{navController.navigate(Libraries)})}
-                item { MenuButton("Ustawienia",{navController.navigate(Settings)})}
+                item { MenuButton("Kontynuuj ostatni projekt",
+                    {navController.navigate(Interpreter)}) }
+                item { MenuButton("Nowy projekt", {navController.navigate(Interpreter)})}
+                item { MenuButton("Otwórz projekt", {navController.navigate(Projects)}) }
+                item { MenuButton("Poradniki", {navController.navigate(Tutorials)}) }
+                item { MenuButton("Biblioteki", {navController.navigate(Libraries)})}
+                item { MenuButton("Ustawienia", {navController.navigate(Settings)})}
             }
 
         }
     }
 }
 @Composable
-fun MenuButton(text: String, onClick: () -> Unit,modifier: Modifier = Modifier, context: Context = LocalContext.current) {
+fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
         onClick =
             onClick
@@ -119,8 +116,7 @@ fun MenuButton(text: String, onClick: () -> Unit,modifier: Modifier = Modifier, 
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun GreetingPreview2() {
-    LogoInterpreterBetaTheme (
-    ){
+    LogoInterpreterBetaTheme {
 
         StartScreenApp()
 

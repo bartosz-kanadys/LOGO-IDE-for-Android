@@ -27,8 +27,7 @@ class ProjectsActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            LogoInterpreterBetaTheme (
-            ){
+            LogoInterpreterBetaTheme {
                 Scaffold(
                     topBar = {
                         TopBarWithMenu("Projekty")
@@ -67,8 +66,7 @@ fun ProjectsApp(modifier: Modifier = Modifier){
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun ProjectsPreview() {
-    LogoInterpreterBetaTheme (
-    ){
+    LogoInterpreterBetaTheme {
         Scaffold(
             topBar = {
                 TopBarWithMenu("Projekty")
