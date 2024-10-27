@@ -1,11 +1,17 @@
 package com.example.logointerpreterbeta.activities
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -63,6 +69,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
@@ -79,6 +86,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 import kotlin.math.roundToInt
 
 class MainAppActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,6 +99,7 @@ class MainAppActivity : ComponentActivity() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InterpreterApp() {
     val logo = LogoInterpreter(LocalContext.current)
@@ -196,6 +205,7 @@ fun prepareErrorList(errorList: MutableList<String>) : MutableMap<Int, String>{
     return errorMap
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ImagePanel(
     img: Bitmap,
@@ -229,13 +239,14 @@ fun ImagePanel(
         AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
             ColorPicker(
                 initialColor = Turtle.penColor,
-                onClick = { isPickerVisable = !isPickerVisable }
+                onSelectClick = { isPickerVisable = !isPickerVisable},
+                context = LocalContext.current
             )
         }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-               // .height(390.dp)
+                // .height(390.dp)
                 .align(Alignment.BottomEnd)
                 .padding(end = 3.dp)
         ) {
@@ -403,8 +414,10 @@ fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
+@SuppressLint("ServiceCast")
 @Composable
-fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
+fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) {
     val controller = rememberColorPickerController()
 
     Column (
@@ -419,8 +432,8 @@ fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
         AlphaTile(
             controller = controller,
             modifier = Modifier
-                .height(50.dp)
-                .padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                .height(20.dp)
+                .padding(top = 5.dp, start = 10.dp, end = 10.dp)
                 .width(200.dp)
                 .clip(shape = RoundedCornerShape(10.dp))
         )
@@ -428,7 +441,7 @@ fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
             initialColor = Color(initialColor),
             controller = controller,
             modifier = Modifier
-                .size(170.dp)
+                .size(160.dp)
                 .padding(horizontal = 8.dp)
 
         )
@@ -440,7 +453,7 @@ fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
                 .width(200.dp)
                 .clip(shape = RoundedCornerShape(8.dp))
         )
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         BrightnessSlider(
             controller = controller,
             modifier = Modifier
@@ -450,25 +463,46 @@ fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
                 .clip(shape = RoundedCornerShape(8.dp))
         )
         Spacer(modifier = Modifier.height(10.dp))
-        Button(
+
+        PickerButton(
+            text = "Wybierz", onClick = {
+                    onSelectClick()
+                    Turtle.penColor = controller.selectedColor.value.toArgb()
+                    Log.i("ff", Turtle.penColor.toString())
+                })
+
+        PickerButton(
+            text = "Kopiuj",
             onClick = {
-                onClick()
-                Turtle.penColor = controller.selectedColor.value.toArgb()
-                Log.i("ff", Turtle.penColor.toString())
-                      },
-            contentPadding = PaddingValues(0.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
-            modifier = Modifier
-                .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
-                .height(30.dp)
-                .fillMaxWidth()
-        ) {
-            Text(
-                text = "Wybierz",
-                fontFamily = jetBrainsMono,
-                fontSize = 10.sp,
-            )
-        }
+                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val color = controller.selectedColor.value.toArgb().toColor()
+
+                val clip = ClipData.newPlainText("label",
+                    "setpc [ ${(color.red()*255).toInt()} ${(color.green()*255).toInt()} ${(color.blue()*255).toInt()} ]")
+                clipboard.setPrimaryClip(clip)
+                Toast.makeText(context, "Tekst skopiowany do schowka", Toast.LENGTH_SHORT).show()
+            })
+
+    }
+}
+
+@Composable
+fun PickerButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = { onClick() },
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+        modifier = Modifier
+            .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
+            .height(25.dp)
+            .fillMaxWidth()
+    ) {
+        Text(
+            text = text,
+            fontFamily = jetBrainsMono,
+            fontSize = 10.sp,
+            color = Color.White
+        )
     }
 }
 
@@ -476,6 +510,8 @@ fun ColorPicker(initialColor: Int, onClick: () -> Unit) {
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme {
-        InterpreterApp()
+        //ColorPicker(initialColor = Turtle.penColor,) {
+            
+        //}
     }
 }
