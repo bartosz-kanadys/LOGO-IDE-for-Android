@@ -1,15 +1,17 @@
 package com.example.logointerpreterbeta.components.image_exporting
 
+import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfDocument
 import android.os.Environment
+import android.provider.MediaStore
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 
-fun saveBitmapAsPdf(context: Context, bitmap: Bitmap, fileName: String): File? {
-    // Tworzymy instancję PdfDocument
+fun saveBitmapAsPdf(context: Context, bitmap: Bitmap, fileName: String): Boolean {
     val pdfDocument = PdfDocument()
 
     // Tworzymy stronę PDF o rozmiarze bitmapy
@@ -20,24 +22,32 @@ fun saveBitmapAsPdf(context: Context, bitmap: Bitmap, fileName: String): File? {
     val canvas = page.canvas
     canvas.drawBitmap(bitmap, 0f, 0f, null)
 
-    // Zamykanie strony i dodawanie jej do dokumentu
     pdfDocument.finishPage(page)
 
-    // Tworzenie pliku do zapisania PDF
-    val pdfFile = File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "$fileName.pdf")
-
-    // Zapisywanie pliku PDF
-    try {
-        val outputStream = FileOutputStream(pdfFile)
-        pdfDocument.writeTo(outputStream)
-        outputStream.close()
-    } catch (e: IOException) {
-        e.printStackTrace()
-        return null
-    } finally {
-        pdfDocument.close()
+    // Definiujemy dane do zapisania w MediaStore
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.pdf")
+        put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/MyAppPDFs")
     }
 
-    // Zwracamy plik PDF
-    return pdfFile
+    // Zapisujemy plik w MediaStore
+    val uri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+    uri?.let {
+        var outputStream: OutputStream? = null
+        try {
+            outputStream = context.contentResolver.openOutputStream(it)
+            pdfDocument.writeTo(outputStream!!)
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return false
+        } finally {
+            outputStream?.close()
+            pdfDocument.close()
+        }
+        return true
+    }
+
+    pdfDocument.close()
+    return false
 }

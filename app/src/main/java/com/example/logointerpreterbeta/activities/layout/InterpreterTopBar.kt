@@ -36,8 +36,10 @@ import com.example.logointerpreterbeta.activities.Projects
 import com.example.logointerpreterbeta.activities.Settings
 import com.example.logointerpreterbeta.activities.StartScreen
 import com.example.logointerpreterbeta.activities.Tutorials
+import com.example.logointerpreterbeta.components.image_exporting.checkPermissions
 import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsJpg
 import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsPdf
+import java.util.Date
 
 class InterpreterTopBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,10 +98,11 @@ fun InterpreterTopBar(Title: String,navController: NavHostController = rememberN
                 )
                 DropdownMenuItem(
                     onClick = {
-                        val jpgFile = saveBitmapAsJpg(context, MyLogoVisitor.image, "MyBitmapImage")
-                        if (jpgFile != null) {
+                        checkPermissions(context)
+                        val jpgFile = saveBitmapAsJpg(context, MyLogoVisitor.image, "LogoImage"+ Date())
+                        if (jpgFile) {
                             // Udało się zapisać plik JPG
-                            Toast.makeText(context, "Zapisano JPG: ${jpgFile.path}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Zapisano JPG", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "Nie udało się zapisać JPG", Toast.LENGTH_SHORT).show()
                         }
@@ -108,10 +111,11 @@ fun InterpreterTopBar(Title: String,navController: NavHostController = rememberN
                 )
                 DropdownMenuItem(
                     onClick = {
+                        checkPermissions(context)
                         val pdfFile = saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
-                        if (pdfFile != null) {
+                        if (pdfFile) {
                             // Udało się zapisać plik PDF
-                            Toast.makeText(context, "Zapisano PDF: ${pdfFile.path}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Zapisano PDF", Toast.LENGTH_SHORT).show()
                         } else {
                             Toast.makeText(context, "Nie udało się zapisać PDF", Toast.LENGTH_SHORT).show()
                         }
