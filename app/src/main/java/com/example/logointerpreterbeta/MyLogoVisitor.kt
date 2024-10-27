@@ -16,7 +16,9 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
-    val image = MyImage
+    companion object{
+        val image = MyImage
+    }
     private var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
 
     private val canvas = Canvas(image)

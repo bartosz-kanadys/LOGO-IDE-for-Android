@@ -30,6 +30,6 @@ class LogoInterpreter(context: Context) {
         val tree = parser.prog()
 
         myVisitor.visit(tree)
-        bitmap = myVisitor.image
+        bitmap = MyLogoVisitor.image
     }
 }
