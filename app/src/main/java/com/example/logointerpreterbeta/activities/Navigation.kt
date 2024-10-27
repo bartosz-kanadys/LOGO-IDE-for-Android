@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlinx.serialization.Serializable
@@ -40,7 +41,14 @@ class MainActivity : ComponentActivity() {
                         StartScreenApp(Modifier,navController);
                     }
                     composable<Interpreter> {
-                        InterpreterApp()
+                        Scaffold(
+                            topBar = {
+                                InterpreterTopBar("plik.txt",navController)
+                            }
+                        ) { innerPadding ->
+                            InterpreterApp(Modifier.padding(innerPadding))
+                        }
+
                     }
                     composable<Projects> {
                         Layout({

@@ -63,6 +63,7 @@ import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.components.CodeEditor
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
@@ -82,7 +83,7 @@ class MainAppActivity : ComponentActivity() {
 }
 
 @Composable
-fun InterpreterApp() {
+fun InterpreterApp(modifier: Modifier = Modifier) {
     val logo = LogoInterpreter(LocalContext.current)
 //                val configuration = LocalConfiguration.current
 //                val screenWidth = configuration.screenWidthDp.dp
@@ -102,7 +103,9 @@ fun InterpreterApp() {
     Turtle.direction = 0f
     logo.start("st")
     img = logo.bitmap
-    LazyColumn {
+    LazyColumn(
+        modifier = modifier
+    ) {
         item { ImagePanel(img = img) }
         item { ErrorsList(
             errors = errors,
@@ -296,70 +299,7 @@ fun ErrorsList(
         }
     }
 }
-@Composable
-fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
-    val linesCount = codeState.lines().size
-    val scrollState = rememberScrollState()
-    val errorsList = if (errors.isNotEmpty()) {
-        errors.removeSurrounding("[", "]")
-            .split(",")
-            .toMutableList()
-    } else mutableListOf(":)")
-    val errorMap = prepareErrorList(errorsList)
 
-    Row(
-        modifier = modifier
-            .height(300.dp)
-            .fillMaxWidth()
-            .shadow(18.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxHeight()
-                .verticalScroll(scrollState)
-                .width(33.dp)
-                .background(Color(0xFF4CAF50))
-                .padding(vertical = 10.dp)
-
-        ) {
-            for (i in 1..linesCount) {
-                Text(
-                    textAlign = TextAlign.Center,
-                    text = i.toString(),
-                    color = Color(0xFF212121),
-                    fontSize = 18.sp,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontFamily = jetBrainsMono
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(if (i in errorMap) Color(0xFFFF5252) else Color(0xFF4CAF50))
-                )
-            }
-        }
-
-        // Pole tekstowe
-        Box(modifier = Modifier.fillMaxSize()) {
-            BasicTextField(
-                value = codeState,
-                onValueChange = {newValue -> onCodeChange(newValue) },
-                minLines = 10,
-                textStyle = TextStyle(
-                    fontSize = 18.sp,
-                    fontFamily = jetBrainsMono
-                ),
-                modifier = Modifier
-                    .fillMaxSize()
-
-                    .verticalScroll(scrollState)
-                    .background(Color.White)
-                    .padding(horizontal = 10.dp, vertical = 10.dp)
-            )
-        }
-    }
-}
 
 @Composable
 fun ImageButton(icon: Int, onClick: () -> Unit) {

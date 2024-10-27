@@ -34,7 +34,7 @@ import com.example.logointerpreterbeta.activities.Settings
 import com.example.logointerpreterbeta.activities.StartScreen
 import com.example.logointerpreterbeta.activities.Tutorials
 
-class TopBar : ComponentActivity() {
+class InterpreterTopBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -45,7 +45,7 @@ class TopBar : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBarWithMenu(Title: String,navController: NavHostController = rememberNavController()) {
+fun InterpreterTopBar(Title: String,navController: NavHostController = rememberNavController()) {
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
@@ -62,17 +62,6 @@ fun TopBarWithMenu(Title: String,navController: NavHostController = rememberNavC
             }
         },
         navigationIcon = {
-            // Ikona menu kontekstowego
-            IconButton(onClick = { navController.navigate(StartScreen) }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Settings"
-                )
-            }
-        },
-        actions = {
-
-
             IconButton(onClick = { expanded = true }) {
                 Icon(
                     imageVector = Icons.Default.Menu,
@@ -101,7 +90,15 @@ fun TopBarWithMenu(Title: String,navController: NavHostController = rememberNavC
                     text = { Text("Ustawienia") }
                 )
             }
-
+        },
+        actions = {
+            // Ikona menu kontekstowego
+            IconButton(onClick = { navController.navigate(StartScreen) }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Settings"
+                )
+            }
 
         }
     )
@@ -109,6 +106,6 @@ fun TopBarWithMenu(Title: String,navController: NavHostController = rememberNavC
 
 @Preview(showBackground = true)
 @Composable
-fun TopBarWithMenuPreview() {
-    TopBarWithMenu("Test")
+fun InterpreterTopBarPreview() {
+    InterpreterTopBar("Test")
 }
