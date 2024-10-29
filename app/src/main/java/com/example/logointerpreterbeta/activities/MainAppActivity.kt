@@ -62,13 +62,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
-import com.example.logointerpreterbeta.LogoInterpreter
-import com.example.logointerpreterbeta.MyImageHeight
-import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.CodeEditor
-import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import com.github.skydoves.colorpicker.compose.AlphaSlider
@@ -80,87 +76,51 @@ import kotlin.math.roundToInt
 
 class MainAppActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("MutableCollectionMutableState")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             LogoInterpreterBetaTheme {
-                InterpreterApp()
+                //InterpreterApp(viewModel = viewModel)
             }
         }
     }
 }
 
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun InterpreterApp(modifier: Modifier = Modifier) {
-    val logo = LogoInterpreter(LocalContext.current)
-//                val configuration = LocalConfiguration.current
-//                val screenWidth = configuration.screenWidthDp.dp
-//                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
-
-    var codeState by rememberSaveable { mutableStateOf("\n\n\n\n\n\n\n\n\n\n\n") }
-    var img by rememberSaveable {
-        mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
-    }
-    var errors by rememberSaveable {
-        mutableStateOf(SyntaxError.errors.toString())
-    }
-    var isErrorListVisable by rememberSaveable { mutableStateOf(false) }
-    var isErrorListExpanded by rememberSaveable { mutableStateOf(false) }
-
-    Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-    Turtle.direction = 0f
-    logo.start("st")
-    img = logo.bitmap
-    LazyColumn(
-        modifier = modifier
-    ) {
-        item { ImagePanel(img = img) }
-        item { ErrorsList(
-            errors = errors,
-            isErrorListVisable = isErrorListVisable,
-            isErrorListExpanded = isErrorListExpanded,
-            onClick = { isErrorListExpanded = !isErrorListExpanded }
-        ) }
+fun InterpreterApp(
+    viewModel: InterpreterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    modifier: Modifier = Modifier
+) {
+    LazyColumn {
+        item { ImagePanel(img = viewModel.img) }
+        item {
+            ErrorsList(
+                errors = viewModel.errors,
+                isErrorListVisable = viewModel.isErrorListVisable,
+                isErrorListExpanded = viewModel.isErrorListExpanded,
+                onClick = { viewModel.toggleErrorListVisibility() }
+            )
+        }
         item {
             Box {
-                CodeEditor(codeState = codeState,
-                    onCodeChange = { newCode -> codeState = newCode },
-                    errors = errors,
+                CodeEditor(
+                    codeState = viewModel.codeState,
+                    onCodeChange = viewModel::onCodeChange,
+                    errors = viewModel.errors,
                     modifier = Modifier
                 )
                 Button(
                     shape = CircleShape,
                     contentPadding = PaddingValues(0.dp),
-
-                    colors = ButtonDefaults.buttonColors(
-                        Color(0xFF4CAF50)
-                    ),
-                    onClick = {
-                        SyntaxError.errors.clear()
-                        Turtle.setAcctualPosition(
-                            MyImageWidth.toFloat() / 2,
-                            MyImageHeight.toFloat() / 2
-                        )
-                        Turtle.direction = 0f
-                        try {
-                            logo.start(codeState)
-                            img = logo.bitmap
-                        } catch (e: Exception) {
-                            Log.e("ERROR", "Błąd wykonywania interpretera")
-                        } finally {
-                            errors = SyntaxError.errors.toString()
-                            isErrorListVisable= errors != "[]"
-                        }
-                    },
+                    colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50)),
+                    onClick = { viewModel.interpretCode() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 5.dp, end = 5.dp)
                         .width(45.dp)
                         .height(45.dp)
-
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.play_icon),
@@ -181,7 +141,7 @@ val OffsetSaver = Saver<Offset, List<Float>>(
     restore = { Offset(it[0], it[1]) }
 )
 
-fun prepareErrorList(errorList: MutableList<String>) : MutableMap<Int, String>{
+fun prepareErrorList(errorList: MutableList<String>): MutableMap<Int, String> {
     val errorMap = mutableMapOf<Int, String>()
     if (errorList.isNotEmpty()) {
         for (error in errorList) {
@@ -234,7 +194,7 @@ fun ImagePanel(
         AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
             ColorPicker(
                 initialColor = Turtle.penColor,
-                onSelectClick = { isPickerVisable = !isPickerVisable},
+                onSelectClick = { isPickerVisable = !isPickerVisable },
                 context = LocalContext.current
             )
         }
@@ -245,7 +205,9 @@ fun ImagePanel(
                 .align(Alignment.BottomEnd)
                 .padding(end = 3.dp)
         ) {
-            ImageButton(R.drawable.color, modifier = Modifier.width(30.dp)) { isPickerVisable = !isPickerVisable }
+            ImageButton(R.drawable.color, modifier = Modifier.width(30.dp)) {
+                isPickerVisable = !isPickerVisable
+            }
             Spacer(modifier = Modifier.height(170.dp))
             ImageButton(R.drawable.plus) { scale += 0.2f }
             ImageButton(R.drawable.minus) { scale -= 0.2f }
@@ -273,7 +235,7 @@ fun ErrorsList(
             .toList()
     } else listOf(":)")
 
-    AnimatedVisibility (isErrorListVisable) {
+    AnimatedVisibility(isErrorListVisable) {
 
         Column {
             Row(
@@ -285,21 +247,20 @@ fun ErrorsList(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Wykryto ${errorsList.size } błędy/ów z kodem!",
+                    text = "Wykryto ${errorsList.size} błędy/ów z kodem!",
                     fontFamily = jetBrainsMono,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
-                    //.padding(horizontal = 15.dp, vertical = 4.dp)
                 )
                 Icon(
-                    painter = painterResource(if (isErrorListExpanded ) R.drawable.up else R.drawable.down ),
+                    painter = painterResource(if (isErrorListExpanded) R.drawable.up else R.drawable.down),
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .width(30.dp)
                 )
             }
-           AnimatedVisibility (isErrorListExpanded) {
+            AnimatedVisibility(isErrorListExpanded) {
                 LazyColumn(
                     modifier = Modifier
                         .height(50.dp)
@@ -322,7 +283,6 @@ fun ErrorsList(
     }
 }
 
-
 @Composable
 fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
@@ -339,7 +299,6 @@ fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
             contentDescription = null,
             modifier = Modifier
                 .width(50.dp)
-
         )
     }
 }
@@ -350,7 +309,7 @@ fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
 fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) {
     val controller = rememberColorPickerController()
 
-    Column (
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxWidth(0.5f)
@@ -358,7 +317,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             .clip(shape = RoundedCornerShape(10.dp))
             .background(Color(0xFFC8E6C9))
 
-    ){
+    ) {
         AlphaTile(
             controller = controller,
             modifier = Modifier
@@ -396,23 +355,26 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
 
         PickerButton(
             text = "Wybierz", onClick = {
-                    onSelectClick()
-                    Turtle.penColor = controller.selectedColor.value.toArgb()
-                    Log.i("ff", Turtle.penColor.toString())
-                })
+                onSelectClick()
+                Turtle.penColor = controller.selectedColor.value.toArgb()
+                Log.i("ff", Turtle.penColor.toString())
+            })
 
         PickerButton(
             text = "Kopiuj",
             onClick = {
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipboard =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val color = controller.selectedColor.value.toArgb().toColor()
 
-                val clip = ClipData.newPlainText("label",
-                    "setpc [ ${(color.red()*255).toInt()} ${(color.green()*255).toInt()} ${(color.blue()*255).toInt()} ]")
+                val clip = ClipData.newPlainText(
+                    "label",
+                    "setpc [ ${(color.red() * 255).toInt()} ${(color.green() * 255).toInt()} ${(color.blue() * 255).toInt()} ]"
+                )
                 clipboard.setPrimaryClip(clip)
                 Toast.makeText(context, "Tekst skopiowany do schowka", Toast.LENGTH_SHORT).show()
-            })
-
+            }
+        )
     }
 }
 
@@ -441,6 +403,6 @@ fun PickerButton(text: String, onClick: () -> Unit) {
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme {
-        InterpreterApp()
+        //InterpreterApp()
     }
 }
