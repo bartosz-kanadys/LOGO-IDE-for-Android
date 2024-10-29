@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.activities
 
+import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,6 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +29,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val viewModel: InterpreterViewModel =
+                viewModel(factory = InterpreterViewModelFactory(this))
+
             LogoInterpreterBetaTheme {
                 val navController = rememberNavController()
                 NavHost(
@@ -37,64 +44,77 @@ class MainActivity : ComponentActivity() {
                     composable<Interpreter> {
                         Scaffold(
                             topBar = {
-                                InterpreterTopBar("plik.txt",navController)
+                                InterpreterTopBar("plik.txt", viewModel, navController)
                             }
                         ) { innerPadding ->
-                            InterpreterApp(Modifier.padding(innerPadding))
+                            InterpreterApp(viewModel, Modifier.padding(innerPadding))
                         }
-
                     }
                     composable<Projects> {
-                        Layout({
-                            modifier -> ProjectsApp(modifier = modifier)
-                       } ,"Projekty",navController)
+                        Layout({ modifier ->
+                            ProjectsApp(modifier = modifier)
+                        }, "Projekty", navController)
                     }
                     composable<Settings> {
-                        Layout({
-                                modifier -> SettingsApp(modifier = modifier)
-                        } ,"Ustawienia",navController)
+                        Layout({ modifier ->
+                            SettingsApp(modifier = modifier)
+                        }, "Ustawienia", navController)
                     }
                     composable<Tutorials> {
-                        Layout({
-                                modifier -> TutorialsApp(modifier = modifier)
-                        } ,"Poradniki",navController)
+                        Layout({ modifier ->
+                            TutorialsApp(modifier = modifier)
+                        }, "Poradniki", navController)
                     }
                     composable<Libraries> {
-                        Layout({
-                                modifier -> LibraryApp(modifier = modifier)
-                        } ,"Biblioteki",navController)
+                        Layout({ modifier ->
+                            LibraryApp(modifier = modifier)
+                        }, "Biblioteki", navController)
                     }
                 }
             }
         }
     }
 }
+
+// Własna fabryka ViewModel do przekazania kontekstu
+class InterpreterViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(InterpreterViewModel::class.java)) {
+            return InterpreterViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
 @Composable
-fun Layout(content: @Composable (Modifier) -> Unit, title: String, navController: NavHostController = rememberNavController()) {
+fun Layout(
+    content: @Composable (Modifier) -> Unit,
+    title: String,
+    navController: NavHostController = rememberNavController()
+) {
     Scaffold(
         topBar = {
-            TopBarWithMenu(title,navController)
+            TopBarWithMenu(title, navController)
         }
     ) { innerPadding ->
         content(Modifier.padding(innerPadding))
     }
 }
 
-
 @Serializable
 object StartScreen
+
 @Serializable
 object Interpreter
+
 @Serializable
 object Projects
+
 @Serializable
 object Settings
+
 @Serializable
 object Tutorials
+
 @Serializable
 object Libraries
-//@Serializable
-//data class ScreenB(
-//    val name: String?,
-//    val age: Int
-//)
