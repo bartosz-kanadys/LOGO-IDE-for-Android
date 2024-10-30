@@ -2,25 +2,24 @@ package com.example.logointerpreterbeta.components.CodeEditor
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 
 object NearestWordFinder{
-    var nearestSpacePosition by mutableStateOf(-1)
-    var nearestSpacePositionToTheRight by  mutableStateOf(-1)
+    var nearestSpacePositionToLeft by mutableStateOf(-1)
+    var nearestSpacePositionToRight by  mutableStateOf(-1)
     var nearestWord by  mutableStateOf("")
     fun find(text: String, cursorPosition: Int) {
         // Znajdź najbliższą spację w lewo od pozycji kursora
-        nearestSpacePosition = findNearestSpaceToLeft(text, cursorPosition)
-        nearestSpacePositionToTheRight = findNearestSpaceToRight(text, cursorPosition)
-        if(nearestSpacePositionToTheRight==-1) {
-            nearestSpacePositionToTheRight=text.length
+        nearestSpacePositionToLeft = findNearestSpaceToLeft(text, cursorPosition)
+        nearestSpacePositionToRight = findNearestSpaceToRight(text, cursorPosition)
+        if(nearestSpacePositionToRight==-1) {
+            nearestSpacePositionToRight=text.length
         }
         nearestWord = NearestWordToLeft(
             text,
-            nearestSpacePositionToTheRight,
-            nearestSpacePosition
+            nearestSpacePositionToRight,
+            nearestSpacePositionToLeft
         )
     }
     // Funkcja do znajdowania najbliższej spacji w lewo od pozycji kursora
@@ -34,7 +33,7 @@ object NearestWordFinder{
         }
         return -1 // Zwraca -1, jeśli nie znaleziono spacji
     }
-    // Funkcja do znajdowania najbliższej spacji w lewo od pozycji kursora
+    // Funkcja do znajdowania najbliższej spacji w prawo od pozycji kursora
     fun findNearestSpaceToRight(text: String, cursorPosition: Int): Int {
         if (cursorPosition > 0) {
             for (i in cursorPosition-1 until text.length) {
@@ -46,9 +45,9 @@ object NearestWordFinder{
         return -1 // Zwraca -1, jeśli nie znaleziono spacji
     }
     // Funkcja do znajdowania najbliższej spacji w lewo od pozycji kursora
-    fun NearestWordToLeft(text: String, cursorPosition: Int,wordStart:Int): String {
-        if (cursorPosition > 0 && wordStart>0) {
-            return text.substring(wordStart,cursorPosition)
+    fun NearestWordToLeft(text: String, wordEnd: Int,wordStart:Int): String {
+        if (wordEnd > 0 && wordStart>0) {
+            return text.substring(wordStart,wordEnd)
         }
         return text // Zwraca -1, jeśli nie znaleziono spacji
     }
