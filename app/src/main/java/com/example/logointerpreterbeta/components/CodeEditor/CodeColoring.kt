@@ -20,49 +20,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.withStyle
 
-class CodeColoring : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MyApp {
-                ColorfulTextField(
-                    wordColors = mapOf(
-                        "kot" to Color.Magenta,
-                        "pies" to Color.Blue,
-                        "ptak" to Color.Green
-                    )
-                )
-            }
-        }
-    }
-}
 
-@Composable
-fun MyApp(content: @Composable () -> Unit) {
-    MaterialTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            content()
-        }
-    }
-}
-
-@Composable
-fun ColorfulTextField(wordColors: Map<String, Color>) {
-    var textFieldValue by remember { mutableStateOf(TextFieldValue("")) }
-
-    TextField(
-        value = textFieldValue,
-        onValueChange = { newValue ->
-            textFieldValue = newValue.copy(
-                annotatedString = colorizeText(newValue.text, wordColors)
-            )
-        },
-        textStyle = MaterialTheme.typography.bodyLarge
-    )
-}
 
 fun colorizeText(text: String, wordColors: Map<String, Color>): AnnotatedString {
     return buildAnnotatedString {

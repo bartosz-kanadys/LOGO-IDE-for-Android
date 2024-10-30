@@ -14,6 +14,7 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.components.CodeEditor.ColorsForInstructions.Colors
 import com.example.logointerpreterbeta.components.CodeEditor.colorizeText
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
@@ -45,13 +46,9 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     }
 
     fun onCodeChange(newCode: TextFieldValue) {
-        var wordColors = mapOf(
-            "fd" to Color.Magenta,
-            "rt" to Color.Blue,
-            "ld" to Color.Green
-        )
+
         codeState = newCode.copy(
-            annotatedString = colorizeText(newCode.text, wordColors)
+            annotatedString = colorizeText(newCode.text, Colors)
         )
     }
 
