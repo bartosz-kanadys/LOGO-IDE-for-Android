@@ -49,6 +49,6 @@ object NearestWordFinder{
         if (wordEnd > 0 && wordStart>0) {
             return text.substring(wordStart,wordEnd)
         }
-        return text // Zwraca -1, jeśli nie znaleziono spacji
+        return "" // Zwraca -1, jeśli nie znaleziono spacji
     }
 }
