@@ -90,7 +90,7 @@ fun InterpreterTopBar(
         uri?.let {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
-                    writer.write(viewModel.codeState)
+                    writer.write(viewModel.codeState.text)
                 }
                 Toast.makeText(context, "Zapisano plik: ${fileName.text} ", Toast.LENGTH_SHORT)
                     .show()
@@ -112,7 +112,7 @@ fun InterpreterTopBar(
                 }
             }
 
-            viewModel.codeState = stringBuilder.toString() // Zaktualizuj stan kodu
+            viewModel.onCodeChange(TextFieldValue(stringBuilder.toString()))  // Zaktualizuj stan kodu
             Toast.makeText(context, "Wczytano plik 👍", Toast.LENGTH_SHORT).show()
         }
     }

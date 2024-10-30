@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.components
+package com.example.logointerpreterbeta.components.CodeEditor
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,8 +29,8 @@ import com.example.logointerpreterbeta.activities.prepareErrorList
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
 @Composable
-fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
-    val linesCount = codeState.lines().size
+fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
+    val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
     val errorsList = if (errors.isNotEmpty()) {
         errors.removeSurrounding("[", "]")
