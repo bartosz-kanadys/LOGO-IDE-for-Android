@@ -22,8 +22,9 @@ import kotlinx.coroutines.launch
 class InterpreterViewModel(context: Context) : ViewModel() {
 
     private val logo = LogoInterpreter(context)
-
+    //Nie powinniśmy tutaj używać remember?
     var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
+    var cursorPosition by mutableStateOf(0)
 
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
@@ -46,7 +47,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     }
 
     fun onCodeChange(newCode: TextFieldValue) {
-
+        cursorPosition = newCode.selection.start
         codeState = newCode.copy(
             annotatedString = colorizeText(newCode.text, Colors)
         )
