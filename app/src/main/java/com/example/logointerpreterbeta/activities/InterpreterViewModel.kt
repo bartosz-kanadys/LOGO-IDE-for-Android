@@ -49,16 +49,22 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
     fun onCodeChange(newCode: TextFieldValue) {
         cursorPosition = newCode.selection.start
-        //logo.colorizeText1(newCode.text)
-//        codeState = newCode.copy(
-//            annotatedString = logo.colorizeText1(newCode.text)
-//        )
+        logo.colorizeText1(newCode.text)
+
+
+        codeState = newCode.copy(
+            annotatedString = logo.colorizeText1(newCode.text)
+        )
+
+
 //        codeState = newCode.copy(
 //            annotatedString = colorizeText(newCode.text, Colors)
 //        )
-        codeState = newCode.copy(
-            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text)
-        )
+
+
+//        codeState = newCode.copy(
+//            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text)
+//        )
     }
 
     fun toggleErrorListVisibility() {
