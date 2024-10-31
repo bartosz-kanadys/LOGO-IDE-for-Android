@@ -11,21 +11,26 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.activities.prepareErrorList
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
 fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
@@ -50,7 +55,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
                 .width(33.dp)
-                .background(Color(0xFF4CAF50))
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(vertical = 10.dp)
 
         ) {
@@ -58,35 +63,39 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                 Text(
                     textAlign = TextAlign.Center,
                     text = i.toString(),
-                    color = Color(0xFF212121),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 18.sp,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontFamily = jetBrainsMono
+                        fontFamily = AppTypography.bodySmall.fontFamily
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(if (i in errorMap) Color(0xFFFF5252) else Color(0xFF4CAF50))
+                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface)
                 )
             }
         }
 
         // Pole tekstowe
-        Box(modifier = Modifier.fillMaxSize()) {
-            BasicTextField(
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Red)
+        ) {
+            TextField(
                 value = codeState,
                 onValueChange = {newValue -> onCodeChange(newValue) },
                 minLines = 10,
                 textStyle = TextStyle(
                     fontSize = 18.sp,
-                    fontFamily = jetBrainsMono
+                    fontFamily = AppTypography.bodySmall.fontFamily,
                 ),
+                shape = RoundedCornerShape(0.dp),
                 modifier = Modifier
+                    .background(Color.Red, shape = RectangleShape)
                     .fillMaxSize()
-
                     .verticalScroll(scrollState)
                     .background(Color.White)
-                    .padding(horizontal = 10.dp, vertical = 10.dp)
+                  //  .padding(horizontal = 10.dp, vertical = 10.dp)
             )
         }
     }

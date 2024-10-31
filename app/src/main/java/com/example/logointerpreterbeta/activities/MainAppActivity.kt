@@ -37,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -69,8 +70,8 @@ import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.CodeEditor
 import com.example.logointerpreterbeta.errors.SyntaxError
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
@@ -281,19 +282,21 @@ fun ErrorsList(
                 modifier = Modifier
                     .height(32.dp)
                     .clickable { onClick() }
-                    .background(Color(0xFFC8E6C9))
+                    .background(MaterialTheme.colorScheme.errorContainer)
                     .fillMaxWidth()
             ) {
                 Text(
                     text = "Wykryto ${errorsList.size } błędy/ów z kodem!",
-                    fontFamily = jetBrainsMono,
+                    style = AppTypography.bodySmall,
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.CenterVertically),
+                    color = MaterialTheme.colorScheme.onErrorContainer
                     //.padding(horizontal = 15.dp, vertical = 4.dp)
                 )
                 Icon(
                     painter = painterResource(if (isErrorListExpanded ) R.drawable.up else R.drawable.down ),
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .width(30.dp)
@@ -303,13 +306,13 @@ fun ErrorsList(
                 LazyColumn(
                     modifier = Modifier
                         .height(50.dp)
-                        .background(Color(0xFFC8E6C9))
+                        .background(MaterialTheme.colorScheme.error)
                 ) {
                     items(errorsList) { error ->
                         Text(
                             text = error.trim(),
-                            color = Color.Red,
-                            fontFamily = jetBrainsMono,
+                            color = MaterialTheme.colorScheme.onError,
+                            style = AppTypography.bodySmall,
                             fontSize = 10.sp,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -356,7 +359,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             .fillMaxWidth(0.5f)
             .padding(8.dp)
             .clip(shape = RoundedCornerShape(10.dp))
-            .background(Color(0xFFC8E6C9))
+            .background(MaterialTheme.colorScheme.surfaceBright)
 
     ){
         AlphaTile(
@@ -421,7 +424,7 @@ fun PickerButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = { onClick() },
         contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         modifier = Modifier
             .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
             .height(25.dp)
@@ -429,9 +432,9 @@ fun PickerButton(text: String, onClick: () -> Unit) {
     ) {
         Text(
             text = text,
-            fontFamily = jetBrainsMono,
+            style = AppTypography.bodySmall,
             fontSize = 10.sp,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }

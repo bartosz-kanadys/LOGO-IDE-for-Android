@@ -19,8 +19,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
 class SettingsActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,7 +57,7 @@ fun SettingsApp(modifier: Modifier = Modifier){
                 text = "Settings",
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = jetBrainsMono,
+                style = AppTypography.bodySmall,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
