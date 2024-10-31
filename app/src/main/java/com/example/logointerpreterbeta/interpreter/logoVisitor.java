@@ -46,144 +46,6 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitParameterDeclarations(logoParser.ParameterDeclarationsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link logoParser#setcornerrounding}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetcornerrounding(logoParser.SetcornerroundingContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#setx}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetx(logoParser.SetxContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#sety}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSety(logoParser.SetyContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#settextsize}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSettextsize(logoParser.SettextsizeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#setbg}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetbg(logoParser.SetbgContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#fill}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFill(logoParser.FillContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#setpencolor}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetpencolor(logoParser.SetpencolorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#setpensize}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSetpensize(logoParser.SetpensizeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#arc}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitArc(logoParser.ArcContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#func_}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunc_(logoParser.Func_Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#repeat_}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitRepeat_(logoParser.Repeat_Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#block}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBlock(logoParser.BlockContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#ife}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitIfe(logoParser.IfeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#comparison}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitComparison(logoParser.ComparisonContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#comparisonOperator}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitComparisonOperator(logoParser.ComparisonOperatorContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#make}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMake(logoParser.MakeContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#print_}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitPrint_(logoParser.Print_Context ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#name}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitName(logoParser.NameContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#value}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitValue(logoParser.ValueContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#signExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitSignExpression(logoParser.SignExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#multiplyingExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitMultiplyingExpression(logoParser.MultiplyingExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#expression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitExpression(logoParser.ExpressionContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link logoParser#deref}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDeref(logoParser.DerefContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link logoParser#fd}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -244,23 +106,101 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitHome(logoParser.HomeContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link logoParser#stop}.
+	 * Visit a parse tree produced by {@link logoParser#setx}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitStop(logoParser.StopContext ctx);
+	T visitSetx(logoParser.SetxContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link logoParser#label}.
+	 * Visit a parse tree produced by {@link logoParser#sety}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLabel(logoParser.LabelContext ctx);
+	T visitSety(logoParser.SetyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#settextsize}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSettextsize(logoParser.SettextsizeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#setbg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetbg(logoParser.SetbgContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#fill}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFill(logoParser.FillContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#setpensize}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetpensize(logoParser.SetpensizeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#arc}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitArc(logoParser.ArcContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link logoParser#setxy}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitSetxy(logoParser.SetxyContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#make}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMake(logoParser.MakeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#print_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPrint_(logoParser.Print_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#setcornerrounding}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetcornerrounding(logoParser.SetcornerroundingContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#setpencolor}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSetpencolor(logoParser.SetpencolorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#repeat_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRepeat_(logoParser.Repeat_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#ife}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfe(logoParser.IfeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#func_}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunc_(logoParser.Func_Context ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#stop}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStop(logoParser.StopContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link logoParser#random}.
 	 * @param ctx the parse tree
@@ -273,6 +213,66 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFore(logoParser.ForeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#label}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLabel(logoParser.LabelContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#block}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBlock(logoParser.BlockContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#comparison}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComparison(logoParser.ComparisonContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#comparisonOperator}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitComparisonOperator(logoParser.ComparisonOperatorContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#name}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitName(logoParser.NameContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#value}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitValue(logoParser.ValueContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#signExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSignExpression(logoParser.SignExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#multiplyingExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMultiplyingExpression(logoParser.MultiplyingExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#expression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpression(logoParser.ExpressionContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link logoParser#deref}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDeref(logoParser.DerefContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link logoParser#number}.
 	 * @param ctx the parse tree
