@@ -3,6 +3,7 @@ package com.example.logointerpreterbeta.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -56,7 +58,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                 .verticalScroll(scrollState)
                 .width(33.dp)
                 .background(MaterialTheme.colorScheme.surface)
-                .padding(vertical = 10.dp)
+                .padding(top = 15.dp)
 
         ) {
             for (i in 1..linesCount) {
@@ -65,6 +67,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                     text = i.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 18.sp,
+
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
                         fontFamily = AppTypography.bodySmall.fontFamily
@@ -93,10 +96,19 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                 modifier = Modifier
                     .background(Color.Red, shape = RectangleShape)
                     .fillMaxSize()
+                    .padding(0.dp)
                     .verticalScroll(scrollState)
                     .background(Color.White)
+
                   //  .padding(horizontal = 10.dp, vertical = 10.dp)
+
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun aa() {
+    CodeEditor(codeState = "", errors = "", onCodeChange = {}, modifier = Modifier)
 }
