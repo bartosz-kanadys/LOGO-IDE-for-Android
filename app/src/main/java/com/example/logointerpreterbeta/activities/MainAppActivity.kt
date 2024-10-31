@@ -64,7 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
-import com.example.logointerpreterbeta.components.CodeEditor.CodeEditor
+import com.example.logointerpreterbeta.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import com.github.skydoves.colorpicker.compose.AlphaSlider

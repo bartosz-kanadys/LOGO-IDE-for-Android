@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.components.CodeEditor
+package com.example.logointerpreterbeta.components.codeEditor
 
 import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
@@ -10,7 +10,7 @@ fun TextDiffrence(oldText: AnnotatedString, newText: String): AnnotatedString {
         var lastSpaceInPrefix =
             NearestWordFinder.findNearestSpaceToLeft(newText, commonPrefixLength)
         if(lastSpaceInPrefix==-1) {
-            lastSpaceInPrefix=0;
+            lastSpaceInPrefix=0
         }
         Log.i("oldText",oldText.substring(0, lastSpaceInPrefix))
         append(oldText.subSequence(0, lastSpaceInPrefix))

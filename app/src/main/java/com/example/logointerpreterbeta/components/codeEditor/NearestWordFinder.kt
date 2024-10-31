@@ -1,13 +1,14 @@
-package com.example.logointerpreterbeta.components.CodeEditor
+package com.example.logointerpreterbeta.components.codeEditor
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 
 object NearestWordFinder{
-    var nearestSpacePositionToLeft by mutableStateOf(-1)
-    var nearestSpacePositionToRight by  mutableStateOf(-1)
+    var nearestSpacePositionToLeft by mutableIntStateOf(-1)
+    var nearestSpacePositionToRight by  mutableIntStateOf(-1)
     var nearestWord by  mutableStateOf("")
     fun find(text: String, cursorPosition: Int) {
         // Znajdź najbliższą spację w lewo od pozycji kursora
