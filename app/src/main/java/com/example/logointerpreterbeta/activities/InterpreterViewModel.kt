@@ -15,6 +15,7 @@ import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.CodeEditor.ColorsForInstructions.Colors
+import com.example.logointerpreterbeta.components.CodeEditor.TextDiffrence
 import com.example.logointerpreterbeta.components.CodeEditor.colorizeText
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
@@ -48,8 +49,15 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
     fun onCodeChange(newCode: TextFieldValue) {
         cursorPosition = newCode.selection.start
+        //logo.colorizeText1(newCode.text)
+//        codeState = newCode.copy(
+//            annotatedString = logo.colorizeText1(newCode.text)
+//        )
+//        codeState = newCode.copy(
+//            annotatedString = colorizeText(newCode.text, Colors)
+//        )
         codeState = newCode.copy(
-            annotatedString = colorizeText(newCode.text, Colors)
+            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text)
         )
     }
 
