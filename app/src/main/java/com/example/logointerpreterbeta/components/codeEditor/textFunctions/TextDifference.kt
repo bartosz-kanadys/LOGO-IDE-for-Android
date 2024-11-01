@@ -1,7 +1,6 @@
-package com.example.logointerpreterbeta.components.codeEditor
+package com.example.logointerpreterbeta.components.codeEditor.textFunctions
 
 import android.util.Log
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 

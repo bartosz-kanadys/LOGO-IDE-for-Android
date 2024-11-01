@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.components.codeEditor
+package com.example.logointerpreterbeta.components.codeEditor.codeColoring
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString

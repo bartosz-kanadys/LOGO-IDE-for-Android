@@ -13,7 +13,7 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
-import com.example.logointerpreterbeta.components.codeEditor.TextDiffrence
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.TextDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
 

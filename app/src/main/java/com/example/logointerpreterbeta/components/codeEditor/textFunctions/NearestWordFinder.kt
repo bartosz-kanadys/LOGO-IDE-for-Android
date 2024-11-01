@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.components.codeEditor
+package com.example.logointerpreterbeta.components.codeEditor.textFunctions
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -14,8 +14,8 @@ object NearestWordFinder{
         // Znajdź najbliższą spację w lewo od pozycji kursora
         nearestSpacePositionToLeft = findNearestSpaceToLeft(text, cursorPosition)
         nearestSpacePositionToRight = findNearestSpaceToRight(text, cursorPosition)
-        if(nearestSpacePositionToRight==-1) {
-            nearestSpacePositionToRight=text.length
+        if(nearestSpacePositionToRight ==-1) {
+            nearestSpacePositionToRight =text.length
         }
         nearestWord = NearestWordToLeft(
             text,
