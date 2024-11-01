@@ -13,13 +13,13 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.components.codeEditor.TextDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
 
 class InterpreterViewModel(context: Context) : ViewModel() {
 
     private val logo = LogoInterpreter(context)
-    //Nie powinniśmy tutaj używać remember?
     var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     var cursorPosition by mutableStateOf(0)
 
@@ -49,18 +49,8 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
 
         codeState = newCode.copy(
-            annotatedString = logo.colorizeText1(newCode.text)
+            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText1)
         )
-
-
-//        codeState = newCode.copy(
-//            annotatedString = colorizeText(newCode.text, Colors)
-//        )
-
-
-//        codeState = newCode.copy(
-//            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text)
-//        )
     }
 
     fun toggleErrorListVisibility() {

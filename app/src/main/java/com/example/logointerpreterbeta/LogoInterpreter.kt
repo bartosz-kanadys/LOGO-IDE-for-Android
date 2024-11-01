@@ -62,34 +62,5 @@ class LogoInterpreter(context: Context) {
         }
 
         return styledText
-//
-//        val tokenList = mutableListOf<Token>()
-//        // Przykładowa mapa kolorów tokenów
-//        while (true) {
-//            val token = lexer.nextToken()
-//            if (token.type == Token.EOF) break
-//            Log.i("Token", token.type.toString()+" "+token.text)
-//            tokenList.add(token)
-//        }
-//        val highlightedCode = highlightCode(tokenList)
-//        return highlightedCode
     }
-
-//    fun highlightCode(tokenList: List<Token>): AnnotatedString {
-//        val tokenColors = mapOf(
-//            109 to Color.Magenta,
-//            55 to Color.Green
-//        )
-//        return buildAnnotatedString {
-//            tokenList.forEach { token ->
-//                val tokenType = token.type
-//                val tokenText = token.text
-//                val color = tokenColors[tokenType] ?: Color.Black
-//                withStyle(style = SpanStyle(color = color)) {
-//                    append(tokenText)
-//                }
-//            }
-//        }
-//    }
-
 }
