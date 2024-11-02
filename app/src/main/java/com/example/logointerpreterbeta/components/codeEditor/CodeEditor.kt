@@ -41,7 +41,10 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.logointerpreterbeta.activities.prepareErrorList
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
+import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.ReplaceAnnotatedSubstring
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.TextDiffrence
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import kotlin.math.roundToInt
 
@@ -55,7 +58,6 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             .toMutableList()
     } else mutableListOf(":)")
     val errorMap = prepareErrorList(errorsList)
-    val suggestions = listOf("String", "struct", "stream", "strategy", "structure","amogus","aString")
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
     var suggestedInstruction by remember { mutableStateOf("") }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
@@ -100,9 +102,15 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                     onValueChange = { newValue -> onCodeChange(newValue)
                             cursorPosition = newValue.selection.start
                             val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                            Log.i("wordToMatch",wordToMatch)
-                            filteredSuggestions= suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
-                                    },
+                            //Log.i("wordToMatch",wordToMatch)
+                            if(wordToMatch.isNotEmpty()){
+                                filteredSuggestions= SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
+                            }
+                                else{
+                                    filteredSuggestions= emptyList()
+                            }
+                            onCodeChange(newValue)
+                            },
                     minLines = 10,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -125,8 +133,16 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             }
             if(filteredSuggestions.isNotEmpty()) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
-                    suggestedInstruction = suggestion
-                    // onCodeChange(TextFieldValue(suggestion))
+                    onCodeChange(
+                        codeState.copy(
+                            annotatedString = ReplaceAnnotatedSubstring(
+                                    codeState.annotatedString,
+                                    NearestWordFinder.nearestSpacePositionToLeft,
+                                    NearestWordFinder.nearestSpacePositionToRight,
+                                    suggestion
+                            )
+                        )
+                    )
                 }
             }
         }
