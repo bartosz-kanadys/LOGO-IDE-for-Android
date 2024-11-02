@@ -15,13 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 
 class StartScreenActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,6 +49,7 @@ class StartScreenActivity : ComponentActivity() {
 @Composable
 fun StartScreenApp(navController: NavHostController = rememberNavController()) {
     Surface(
+        color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxHeight()
     ) {
         Column(
@@ -70,7 +71,8 @@ fun StartScreenApp(navController: NavHostController = rememberNavController()) {
                 text = "LOGO IDE",
                 fontSize = 34.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = jetBrainsMono,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = AppTypography.bodySmall,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
             LazyColumn(
@@ -96,24 +98,24 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
             onClick
         ,
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(Color(red = 182, green = 255, blue = 161)),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
         modifier = Modifier
             .size(width = 280.dp, height = 60.dp)
             .shadow(5.dp, RoundedCornerShape(12.dp))
     ) {
         Text(
             text = text,
-            color = Color.Black,
-            fontSize = 19.sp,
-            fontFamily = jetBrainsMono,
-            textAlign = TextAlign.Center,
+            style = AppTypography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface, // możesz nadpisać kolor lub inne właściwości
+                textAlign = TextAlign.Center // dostosowanie wyrównania tekstu
+            ),
             modifier = modifier
         )
     }
 
 }
 
-@Preview(showBackground = true, showSystemUi = false)
+@Preview(showBackground = true, showSystemUi = false, uiMode = 1)
 @Composable
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {

@@ -33,8 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.activities.MainAppActivity
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
+
 
 class StartScreen : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +65,7 @@ class StartScreen : ComponentActivity() {
                             text = "LOGO IDE",
                             fontSize = 34.sp,
                             fontWeight = FontWeight.Bold,
-                            fontFamily = jetBrainsMono,
+                            style = AppTypography.bodySmall,
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
                         LazyColumn(
@@ -102,7 +103,7 @@ fun MenuButton(text: String, modifier: Modifier = Modifier, context: Context = L
             text = text,
             color = Color.Black,
             fontSize = 19.sp,
-            fontFamily = jetBrainsMono,
+            style = AppTypography.bodySmall,
             textAlign = TextAlign.Center,
             modifier = modifier
         )

@@ -37,6 +37,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -64,9 +65,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.components.CodeEditor
+import com.example.logointerpreterbeta.errors.SyntaxError
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
 import com.github.skydoves.colorpicker.compose.BrightnessSlider
@@ -85,7 +88,6 @@ class MainAppActivity : ComponentActivity() {
         }
     }
 }
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -114,11 +116,13 @@ fun InterpreterApp(
                 Button(
                     shape = CircleShape,
                     contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50)),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primaryContainer
+                    ),
                     onClick = { viewModel.interpretCode() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = 5.dp, end = 5.dp)
+                        .padding(top = 15.dp, end = 5.dp)
                         .width(45.dp)
                         .height(45.dp)
                 ) {
@@ -203,9 +207,9 @@ fun ImagePanel(
             modifier = Modifier
                 // .height(390.dp)
                 .align(Alignment.BottomEnd)
-                .padding(end = 3.dp)
+                .padding(end = 3.dp, bottom = 10.dp)
         ) {
-            ImageButton(R.drawable.color, modifier = Modifier.width(30.dp)) {
+            ImageButton(R.drawable.color, Color.Unspecified, modifier = Modifier.width(30.dp)) {
                 isPickerVisable = !isPickerVisable
             }
             Spacer(modifier = Modifier.height(170.dp))
@@ -243,18 +247,20 @@ fun ErrorsList(
                 modifier = Modifier
                     .height(32.dp)
                     .clickable { onClick() }
-                    .background(Color(0xFFC8E6C9))
+                    .background(MaterialTheme.colorScheme.errorContainer)
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Wykryto ${errorsList.size} błędy/ów z kodem!",
-                    fontFamily = jetBrainsMono,
+                    text = "Wykryto ${errorsList.size } błędy/ów z kodem!",
+                    style = AppTypography.bodySmall,
                     modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                        .align(Alignment.CenterVertically),
+                    color = MaterialTheme.colorScheme.onErrorContainer
                 )
                 Icon(
                     painter = painterResource(if (isErrorListExpanded) R.drawable.up else R.drawable.down),
                     contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                         .width(30.dp)
@@ -264,13 +270,13 @@ fun ErrorsList(
                 LazyColumn(
                     modifier = Modifier
                         .height(50.dp)
-                        .background(Color(0xFFC8E6C9))
+                        .background(MaterialTheme.colorScheme.error)
                 ) {
                     items(errorsList) { error ->
                         Text(
                             text = error.trim(),
-                            color = Color.Red,
-                            fontFamily = jetBrainsMono,
+                            color = MaterialTheme.colorScheme.onError,
+                            style = AppTypography.bodySmall,
                             fontSize = 10.sp,
                             modifier = Modifier
                                 .fillMaxSize()
@@ -284,7 +290,7 @@ fun ErrorsList(
 }
 
 @Composable
-fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ImageButton(icon: Int,tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
         shape = RectangleShape,
@@ -294,9 +300,10 @@ fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
             .width(40.dp)
             .height(40.dp)
     ) {
-        Image(
+        Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
+            tint = tint,
             modifier = Modifier
                 .width(50.dp)
         )
@@ -315,14 +322,14 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             .fillMaxWidth(0.5f)
             .padding(8.dp)
             .clip(shape = RoundedCornerShape(10.dp))
-            .background(Color(0xFFC8E6C9))
+            .background(MaterialTheme.colorScheme.inversePrimary)
 
     ) {
         AlphaTile(
             controller = controller,
             modifier = Modifier
                 .height(20.dp)
-                .padding(top = 5.dp, start = 10.dp, end = 10.dp)
+                .padding(top = 10.dp, start = 10.dp, end = 10.dp)
                 .width(200.dp)
                 .clip(shape = RoundedCornerShape(10.dp))
         )
@@ -363,6 +370,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
         PickerButton(
             text = "Kopiuj",
             onClick = {
+                onSelectClick()
                 val clipboard =
                     context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val color = controller.selectedColor.value.toArgb().toColor()
@@ -383,17 +391,17 @@ fun PickerButton(text: String, onClick: () -> Unit) {
     Button(
         onClick = { onClick() },
         contentPadding = PaddingValues(0.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         modifier = Modifier
-            .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
             .height(25.dp)
             .fillMaxWidth()
     ) {
         Text(
             text = text,
-            fontFamily = jetBrainsMono,
+            style = AppTypography.bodySmall,
             fontSize = 10.sp,
-            color = Color.White
+            color = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -402,7 +410,16 @@ fun PickerButton(text: String, onClick: () -> Unit) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Preview() {
-    LogoInterpreterBetaTheme {
-        //InterpreterApp()
+    LogoInterpreterBetaTheme(darkTheme = false) {
+        InterpreterApp()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview2() {
+    LogoInterpreterBetaTheme(darkTheme = true) {
+        InterpreterApp()
     }
 }
