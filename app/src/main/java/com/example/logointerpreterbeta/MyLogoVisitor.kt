@@ -7,16 +7,21 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.toArgb
 
 import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
+import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
+import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
+class MyLogoVisitor(private val context: Context, private val bgcolor: Int) : logoBaseVisitor<Any>() {
     companion object{
         val image = MyImage
     }
@@ -35,7 +40,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
-        canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
+        //canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
 
         updateTurtleBitmap()
     }
@@ -415,7 +420,8 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         paint.setColor(Turtle.penColor)
-        canvas.drawColor(Color.WHITE) //czyszczenie obrazka przed startem programu
+        canvas.drawColor(bgcolor) //czyszczenie obrazka przed startem programu
+
         super.visitProg(ctx)
         updateTurtleBitmap()
         return 0
