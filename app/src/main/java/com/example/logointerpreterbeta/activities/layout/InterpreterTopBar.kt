@@ -228,25 +228,28 @@ fun InterpreterTopBar(
                     text = { Text("Zapisz program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 AnimatedVisibility(visible = saevFileExpanded) {
-                    Column(modifier = modifier) {
+                    Column(
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.secondary)
+                            .fillMaxHeight()) {
                         DropdownMenuItem(
                             onClick = {
                                 saveFileLauncher.launch(fileName.text)
                             },
-                            text = { Text("Zapisz do pliku", style = menuTextStyle) }
+                            text = { Text("Zapisz do pliku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { Text("Zapisz na dysku", style = menuTextStyle) }
+                            text = { Text("Zapisz na dysku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
                     }
                 }
                 DropdownMenuItem(
                     onClick = { openFileExpanded = !openFileExpanded },
-                    text = { Text("Wczytaj program", style = menuTextStyle) }
+                    text = { Text("Wczytaj program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 AnimatedVisibility(visible = openFileExpanded) {
                     Column(

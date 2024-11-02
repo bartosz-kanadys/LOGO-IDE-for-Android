@@ -411,7 +411,7 @@ fun PickerButton(text: String, onClick: () -> Unit) {
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
-        InterpreterApp()
+        InterpreterApp(viewModel = InterpreterViewModel(context = LocalContext.current))
     }
 }
 

@@ -11,10 +11,10 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 
-class LogoInterpreter(context: Context, bgcolor: Int) {
+class LogoInterpreter(context: Context) {
     var bitmap = MyImage
 
-    private val myVisitor = MyLogoVisitor(context = context, bgcolor)
+    private val myVisitor = MyLogoVisitor(context = context)
 
     fun start(input: String) {
         // Tworzenie lexer'a

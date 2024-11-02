@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta
 
+import android.app.UiModeManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -7,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
@@ -16,12 +18,16 @@ import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
+import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
+import com.example.logointerpreterbeta.ui.theme.onSurfaceLight
+import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import java.security.AccessController.getContext
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor(private val context: Context, private val bgcolor: Int) : logoBaseVisitor<Any>() {
+class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     companion object{
         val image = MyImage
     }
@@ -33,6 +39,8 @@ class MyLogoVisitor(private val context: Context, private val bgcolor: Int) : lo
     private var variables: MutableMap<String, Any> = HashMap()
     private var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
 
+    val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+
     init {
         // Ustawienia malowania (kolor, grubość linii)
         paint.color = Turtle.penColor
@@ -40,6 +48,14 @@ class MyLogoVisitor(private val context: Context, private val bgcolor: Int) : lo
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
+        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
+        if (isDarkTheme) {
+            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
+
+        }
+        else {
+            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+        }
         //canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
 
         updateTurtleBitmap()
@@ -420,8 +436,15 @@ class MyLogoVisitor(private val context: Context, private val bgcolor: Int) : lo
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         paint.setColor(Turtle.penColor)
-        canvas.drawColor(bgcolor) //czyszczenie obrazka przed startem programu
-
+        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
+        if (isDarkTheme) {
+            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
+            Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
+        }
+        else {
+            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+            Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
+        }
         super.visitProg(ctx)
         updateTurtleBitmap()
         return 0
