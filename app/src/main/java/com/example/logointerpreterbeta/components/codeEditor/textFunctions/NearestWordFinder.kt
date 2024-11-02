@@ -32,11 +32,10 @@ object NearestWordFinder{
     fun findNearestSpaceToLeft(text: String, cursorPosition: Int): Int {
         if (cursorPosition > 0) {//
             for (i in cursorPosition - 1 downTo 0) {
-                if (text[i] == ' ') {//
-                    return i // Zwraca indeks pierwszej napotkanej spacji
+                if (text[i] == ' ' || text[i] == '\n') {//
+                    return i + 1 // Zwraca indeks pierwszej napotkanej spacji
                 }
-                if( text[i] == '\n')
-                    return i+1
+
             }
         }
         return -1 // Zwraca -1, jeśli nie znaleziono spacji
@@ -54,8 +53,8 @@ object NearestWordFinder{
     }
     // Funkcja do znajdowania najbliższej spacji w lewo od pozycji kursora
     fun NearestWordToLeft(text: String, wordEnd: Int,wordStart:Int): String {
-        //Log.i("WordStart", wordStart.toString())
-        //Log.i("WordEnd", wordEnd.toString())
+        Log.i("WordStart", wordStart.toString())
+        Log.i("WordEnd", wordEnd.toString())
         if (wordEnd > 0 && wordStart>=0 && wordStart<wordEnd) {
            // Log.i("Word",text.substring(wordStart,wordEnd))
             return text.substring(wordStart,wordEnd)

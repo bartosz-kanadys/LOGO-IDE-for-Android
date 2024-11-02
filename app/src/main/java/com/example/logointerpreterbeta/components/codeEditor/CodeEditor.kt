@@ -102,7 +102,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                     onValueChange = { newValue -> onCodeChange(newValue)
                             cursorPosition = newValue.selection.start
                             val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                            //Log.i("wordToMatch",wordToMatch)
+                            Log.i("wordToMatch",wordToMatch)
                             if(wordToMatch.isNotEmpty()){
                                 filteredSuggestions= SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
                             }
