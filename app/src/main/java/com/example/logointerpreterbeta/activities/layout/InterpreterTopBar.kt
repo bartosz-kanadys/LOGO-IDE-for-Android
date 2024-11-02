@@ -47,6 +47,7 @@ import com.example.logointerpreterbeta.components.image_exporting.checkPermissio
 import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsJpg
 import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsPdf
 import com.example.logointerpreterbeta.ui.theme.AppTypography
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import java.util.Date
 
 class InterpreterTopBar : ComponentActivity() {
@@ -73,11 +74,11 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
     val context = LocalContext.current
     TopAppBar(
         colors = TopAppBarColors(
-            titleContentColor = MaterialTheme.colorScheme.onSurface,
-            navigationIconContentColor = MaterialTheme.colorScheme.onSurface,
-            actionIconContentColor = MaterialTheme.colorScheme.onSurface,
-            containerColor = MaterialTheme.colorScheme.surface,
-            scrolledContainerColor = MaterialTheme.colorScheme.secondary,
+            titleContentColor = MaterialTheme.colorScheme.inverseSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.inverseSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.inverseSurface,
+            containerColor = MaterialTheme.colorScheme.inversePrimary,
+            scrolledContainerColor = MaterialTheme.colorScheme.inversePrimary,
         ),
         title = {
             Box(
@@ -85,6 +86,7 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
+                    fontSize = 20.sp,
                     text = title,
                     maxLines = 1,
                     //modifier = Modifier.align(Alignment.Center),
@@ -106,28 +108,28 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
                 expanded = dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false },
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary)
+                    .background(MaterialTheme.colorScheme.primaryContainer)
                     .fillMaxWidth(0.45f)
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { Text("Otwórz projekt", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Otwórz projekt", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Tutorials)},
-                    text = { Text("Poradniki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Poradniki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Libraries)},
-                    text = { Text("Biblioteki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Biblioteki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 DropdownMenuItem(
                     onClick = {navController.navigate(Settings)},
-                    text = { Text("Ustawienia", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Ustawienia", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
-                    text = { Text("Eksportuj rysunek", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Eksportuj rysunek", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 AnimatedVisibility(visible = exportMenuExpanded) {
                     Column(
@@ -142,7 +144,7 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
                                 Toast.makeText(context, if (jpgFile) "Zapisano JPG" else "Nie udało się zapisać JPG", Toast.LENGTH_SHORT).show()
                                 dropdownExpanded = false
                             },
-                            text = { Text("Eksportuj jako JPG", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondary) }
+                            text = { Text("Eksportuj jako JPG", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
 
                         DropdownMenuItem(
@@ -152,14 +154,14 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
                                 Toast.makeText(context, if (pdfFile) "Zapisano PDF" else "Nie udało się zapisać PDF", Toast.LENGTH_SHORT).show()
                                 dropdownExpanded = false
                             },
-                            text = { Text("Eksportuj jako PDF", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondary) }
+                            text = { Text("Eksportuj jako PDF", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
                     }
                 }
 
                 DropdownMenuItem(
                     onClick = { importMenuExpanded = !importMenuExpanded },
-                    text = { Text("Wczytaj program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimary) }
+                    text = { Text("Wczytaj program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
                 )
                 AnimatedVisibility(visible = importMenuExpanded) {
                     Column(
@@ -171,14 +173,14 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
                             onClick = {
 
                             },
-                            text = { Text("Wczytaj z pliku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondary) }
+                            text = { Text("Wczytaj z pliku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { Text("Wczytaj z dysku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondary) }
+                            text = { Text("Wczytaj z dysku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
                         )
                     }
                 }
@@ -201,5 +203,17 @@ fun InterpreterTopBar(title: String, navController: NavHostController = remember
 @Preview(showBackground = true)
 @Composable
 fun InterpreterTopBarPreview() {
-    InterpreterTopBar("Test")
+    LogoInterpreterBetaTheme {
+        InterpreterTopBar("Test")
+    }
+
 }
+
+@Preview(showBackground = true)
+@Composable
+fun InterpreterTopBarPreview2() {
+    LogoInterpreterBetaTheme(darkTheme = true) {
+        InterpreterTopBar("Test")
+    }
+}
+

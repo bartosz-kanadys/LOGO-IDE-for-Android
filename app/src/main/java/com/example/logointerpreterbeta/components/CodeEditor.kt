@@ -57,7 +57,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
                 .width(33.dp)
-                .background(MaterialTheme.colorScheme.surface)
+                .background(MaterialTheme.colorScheme.inversePrimary)
                 .padding(top = 15.dp)
 
         ) {
@@ -74,7 +74,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surface)
+                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inversePrimary)
                 )
             }
         }

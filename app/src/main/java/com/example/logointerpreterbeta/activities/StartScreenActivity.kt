@@ -98,7 +98,7 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
             onClick
         ,
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
         modifier = Modifier
             .size(width = 280.dp, height = 60.dp)
             .shadow(5.dp, RoundedCornerShape(12.dp))
@@ -106,7 +106,7 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
         Text(
             text = text,
             style = AppTypography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onPrimary, // możesz nadpisać kolor lub inne właściwości
+                color = MaterialTheme.colorScheme.onSurface, // możesz nadpisać kolor lub inne właściwości
                 textAlign = TextAlign.Center // dostosowanie wyrównania tekstu
             ),
             modifier = modifier

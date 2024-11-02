@@ -68,6 +68,7 @@ import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.components.CodeEditor
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.AppTypography
@@ -96,10 +97,8 @@ class MainAppActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InterpreterApp(modifier: Modifier = Modifier) {
-    val logo = LogoInterpreter(LocalContext.current)
-//                val configuration = LocalConfiguration.current
-//                val screenWidth = configuration.screenWidthDp.dp
-//                val pxValue = with(LocalDensity.current) { screenWidth.toPx() }
+    val logo = LogoInterpreter(LocalContext.current, MaterialTheme.colorScheme.surface.toArgb())
+    Turtle.penColor = MaterialTheme.colorScheme.onSurface.toArgb()
 
     var codeState by rememberSaveable { mutableStateOf("\n\n\n\n\n\n\n\n\n\n\n") }
     var img by rememberSaveable {
@@ -137,7 +136,7 @@ fun InterpreterApp(modifier: Modifier = Modifier) {
                     contentPadding = PaddingValues(0.dp),
 
                     colors = ButtonDefaults.buttonColors(
-                        Color(0xFF4CAF50)
+                        MaterialTheme.colorScheme.primaryContainer
                     ),
                     onClick = {
                         SyntaxError.errors.clear()
@@ -158,7 +157,7 @@ fun InterpreterApp(modifier: Modifier = Modifier) {
                     },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .padding(top = 5.dp, end = 5.dp)
+                        .padding(top = 15.dp, end = 5.dp)
                         .width(45.dp)
                         .height(45.dp)
 
@@ -244,9 +243,9 @@ fun ImagePanel(
             modifier = Modifier
                 // .height(390.dp)
                 .align(Alignment.BottomEnd)
-                .padding(end = 3.dp)
+                .padding(end = 3.dp, bottom = 10.dp)
         ) {
-            ImageButton(R.drawable.color, modifier = Modifier.width(30.dp)) { isPickerVisable = !isPickerVisable }
+            ImageButton(R.drawable.color, Color.Unspecified, modifier = Modifier.width(30.dp)) { isPickerVisable = !isPickerVisable }
             Spacer(modifier = Modifier.height(170.dp))
             ImageButton(R.drawable.plus) { scale += 0.2f }
             ImageButton(R.drawable.minus) { scale -= 0.2f }
@@ -327,7 +326,7 @@ fun ErrorsList(
 
 
 @Composable
-fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ImageButton(icon: Int,tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
         shape = RectangleShape,
@@ -337,9 +336,10 @@ fun ImageButton(icon: Int, modifier: Modifier = Modifier, onClick: () -> Unit) {
             .width(40.dp)
             .height(40.dp)
     ) {
-        Image(
+        Icon(
             painter = painterResource(id = icon),
             contentDescription = null,
+            tint = tint,
             modifier = Modifier
                 .width(50.dp)
 
@@ -359,14 +359,14 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             .fillMaxWidth(0.5f)
             .padding(8.dp)
             .clip(shape = RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceBright)
+            .background(MaterialTheme.colorScheme.inversePrimary)
 
     ){
         AlphaTile(
             controller = controller,
             modifier = Modifier
                 .height(20.dp)
-                .padding(top = 5.dp, start = 10.dp, end = 10.dp)
+                .padding(top = 10.dp, start = 10.dp, end = 10.dp)
                 .width(200.dp)
                 .clip(shape = RoundedCornerShape(10.dp))
         )
@@ -407,6 +407,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
         PickerButton(
             text = "Kopiuj",
             onClick = {
+                onSelectClick()
                 val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 val color = controller.selectedColor.value.toArgb().toColor()
 
@@ -426,7 +427,7 @@ fun PickerButton(text: String, onClick: () -> Unit) {
         contentPadding = PaddingValues(0.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
         modifier = Modifier
-            .padding(bottom = 5.dp, start = 10.dp, end = 10.dp)
+            .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
             .height(25.dp)
             .fillMaxWidth()
     ) {
@@ -443,7 +444,16 @@ fun PickerButton(text: String, onClick: () -> Unit) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun Preview() {
-    LogoInterpreterBetaTheme {
+    LogoInterpreterBetaTheme(darkTheme = false) {
+        InterpreterApp()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview2() {
+    LogoInterpreterBetaTheme(darkTheme = true) {
         InterpreterApp()
     }
 }
