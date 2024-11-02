@@ -1,9 +1,6 @@
 package com.example.logointerpreterbeta
 
 import android.content.Context
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.toArgb
 import com.example.logointerpreterbeta.errors.MyErrorListener
 import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser

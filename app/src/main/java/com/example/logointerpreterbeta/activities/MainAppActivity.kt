@@ -65,9 +65,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Turtle
-import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.components.CodeEditor
-import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.github.skydoves.colorpicker.compose.AlphaSlider
@@ -93,7 +91,7 @@ class MainAppActivity : ComponentActivity() {
 @Composable
 fun InterpreterApp(
     viewModel: InterpreterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
-    modifier: Modifier = Modifier
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     LazyColumn {
         item { ImagePanel(img = viewModel.img) }
@@ -290,7 +288,7 @@ fun ErrorsList(
 }
 
 @Composable
-fun ImageButton(icon: Int,tint: Color = MaterialTheme.colorScheme.onSurface, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun ImageButton(icon: Int, tint: Color = MaterialTheme.colorScheme.onSurface, @SuppressLint("ModifierParameter") modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(Color.Black.copy(0f)),
         shape = RectangleShape,
