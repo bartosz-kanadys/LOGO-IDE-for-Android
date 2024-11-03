@@ -24,9 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.components.CodeEditor
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
+import com.example.logointerpreterbeta.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 

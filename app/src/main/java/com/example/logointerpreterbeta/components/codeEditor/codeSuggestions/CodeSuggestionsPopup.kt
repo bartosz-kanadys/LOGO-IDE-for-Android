@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt
 
 @Composable
@@ -40,7 +42,7 @@ fun CodeSuggestionPopup(
         // Ustal maksymalną szerokość dla Popup
         LazyColumn(
             modifier = Modifier
-                .background(Color.Gray, shape = RoundedCornerShape(10.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp))
                 .widthIn(min = 100.dp, max = 200.dp)
                 .heightIn(max = 200.dp) // Ustal maksymalną wysokość, bez min
                 .padding(3.dp)
@@ -49,9 +51,9 @@ fun CodeSuggestionPopup(
                 Box(modifier = Modifier.padding(bottom = 2.dp)) {
                     Text(
                         text = suggestion,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .background(Color.LightGray, shape = RoundedCornerShape(7.dp))
+                            .background(MaterialTheme.colorScheme.inversePrimary, shape = RoundedCornerShape(7.dp))
                             .fillMaxWidth()
                             .clickable {
                                 onSuggestionClick(suggestion)
@@ -67,8 +69,18 @@ fun CodeSuggestionPopup(
 @Preview
 @Composable
 fun AA(){
-    CodeSuggestionPopup(suggestions = listOf("fd", "forward"), cursorOffset = Offset.Zero) {
+    LogoInterpreterBetaTheme(darkTheme = false) {
+        CodeSuggestionPopup(suggestions = listOf("fd", "forward"), cursorOffset = Offset.Zero) {
+        }
+    }
+}
 
+@Preview
+@Composable
+fun BB(){
+    LogoInterpreterBetaTheme(darkTheme = true) {
+        CodeSuggestionPopup(suggestions = listOf("fd", "forward"), cursorOffset = Offset.Zero) {
+        }
     }
 }
 

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,12 +35,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.activities.prepareErrorList
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.replaceAnnotatedSubstring
-import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
+import com.example.logointerpreterbeta.functions.prepareErrorList
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
 fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
@@ -67,23 +68,23 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                 .fillMaxHeight()
                 .verticalScroll(scrollState)
                 .width(33.dp)
-                .background(Color(0xFF4CAF50))
-                .padding(vertical = 10.dp)
+                .background(MaterialTheme.colorScheme.inversePrimary)
+                .padding(top = 15.dp)
 
         ) {
             for (i in 1..linesCount) {
                 Text(
                     textAlign = TextAlign.Center,
                     text = i.toString(),
-                    color = Color(0xFF212121),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 18.sp,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontFamily = jetBrainsMono
+                        fontFamily = AppTypography.bodySmall.fontFamily
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(if (i in errorMap) Color(0xFFFF5252) else Color(0xFF4CAF50))
+                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inversePrimary)
                 )
             }
         }
@@ -106,13 +107,12 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                     minLines = 10,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
-                        fontFamily = jetBrainsMono
+                        fontFamily = AppTypography.bodySmall.fontFamily,
                     ),
                     modifier = Modifier
                         .fillMaxSize()
-
                         .verticalScroll(scrollState)
-                        .background(Color.White)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(horizontal = 10.dp, vertical = 10.dp),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
                         val cursorPosition = codeState.selection.start
