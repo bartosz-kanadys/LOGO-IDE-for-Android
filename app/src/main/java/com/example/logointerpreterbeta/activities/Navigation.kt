@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {

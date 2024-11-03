@@ -8,6 +8,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
+import android.util.Log
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -43,21 +44,14 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
     init {
         // Ustawienia malowania (kolor, grubość linii)
+        Log.i("dd", "init")
+
         paint.color = Turtle.penColor
         paint.strokeWidth = 5f
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
-        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        if (isDarkTheme) {
-            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
-
-        }
-        else {
-            canvas.drawColor(surfaceLightMediumContrast.toArgb())
-        }
         //canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
-
         updateTurtleBitmap()
     }
 
@@ -122,7 +116,13 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitCs(ctx: logoParser.CsContext?) {
-        canvas.drawColor(Color.WHITE)
+        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
+        if (isDarkTheme) {
+            canvas.drawColor(surfaceDarkMediumContrast.toArgb())
+        }
+        else {
+            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+        }
     }
 
     override fun visitPu(ctx: logoParser.PuContext?) {
@@ -415,7 +415,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         return bit
     }
 
-    private fun updateTurtleBitmap() {
+   fun updateTurtleBitmap() {
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
@@ -438,12 +438,12 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         paint.setColor(Turtle.penColor)
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
         if (isDarkTheme) {
-            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
             Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
+            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
         }
         else {
-            canvas.drawColor(surfaceLightMediumContrast.toArgb())
             Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
+            canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
         super.visitProg(ctx)
         updateTurtleBitmap()

@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.MainAppActivity"
+            android:name=".activities.InterpreterActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">

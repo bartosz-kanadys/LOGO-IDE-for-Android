@@ -10,11 +10,24 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AddToDrive
+import androidx.compose.material.icons.filled.CreateNewFolder
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MenuBook
+import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.SaveAs
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,15 +44,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.MyLogoVisitor
-import com.example.logointerpreterbeta.activities.InterpreterViewModel
 import com.example.logointerpreterbeta.activities.Libraries
 import com.example.logointerpreterbeta.activities.Projects
 import com.example.logointerpreterbeta.activities.Settings
@@ -49,6 +63,7 @@ import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsJp
 import com.example.logointerpreterbeta.components.image_exporting.saveBitmapAsPdf
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
@@ -156,23 +171,23 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { Text("Otwórz projekt", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Otwórz projekt", icon = Icons.Filled.CreateNewFolder)}
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Tutorials) },
-                    text = { Text("Poradniki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Poradniki", icon = Icons.Filled.School)}
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Libraries)},
-                    text = { Text("Biblioteki", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Biblioteki", icon = Icons.AutoMirrored.Filled.MenuBook)}
                 )
                 DropdownMenuItem(
                     onClick = {navController.navigate(Settings)},
-                    text = { Text("Ustawienia", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Ustawienia", icon = Icons.Filled.Settings)}
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
-                    text = { Text("Eksportuj rysunek", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Exportuj rysunek", icon = Icons.Filled.Image)}
                 )
                 AnimatedVisibility(visible = exportMenuExpanded) {
                     Column(
@@ -195,7 +210,7 @@ fun InterpreterTopBar(
                                 ).show()
                                 dropdownExpanded = false
                             },
-                            text = { Text("Eksportuj jako JPG", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Jako JPG", icon = Icons.Filled.Image)}
                         )
 
                         DropdownMenuItem(
@@ -210,14 +225,14 @@ fun InterpreterTopBar(
                                 ).show()
                                 dropdownExpanded = false
                             },
-                            text = { Text("Eksportuj jako PDF", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Zapisz program", icon = Icons.Filled.PictureAsPdf)}
                         )
                     }
                 }
 
                 DropdownMenuItem(
                     onClick = { saevFileExpanded = !saevFileExpanded },
-                    text = { Text("Zapisz program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Zapisz program", icon = Icons.Filled.SaveAs)}
                 )
                 AnimatedVisibility(visible = saevFileExpanded) {
                     Column(
@@ -228,20 +243,20 @@ fun InterpreterTopBar(
                             onClick = {
                                 saveFileLauncher.launch(fileName.text)
                             },
-                            text = { Text("Zapisz do pliku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Zapisz do pliku", icon = Icons.Filled.FileOpen)}
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { Text("Zapisz na dysku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Zapisz na dysku", icon = Icons.Filled.AddToDrive)}
                         )
                     }
                 }
                 DropdownMenuItem(
                     onClick = { openFileExpanded = !openFileExpanded },
-                    text = { Text("Wczytaj program", style = menuTextStyle, color = MaterialTheme.colorScheme.onPrimaryContainer) }
+                    text = { MenuElement("Wczytaj program", icon = Icons.Filled.Download)}
                 )
                 AnimatedVisibility(visible = openFileExpanded) {
                     Column(
@@ -258,14 +273,14 @@ fun InterpreterTopBar(
                                     )
                                 )
                             },
-                            text = { Text("Wczytaj plik", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Zapisz program", icon = Icons.Filled.UploadFile)}
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { Text("Wczytaj z dysku", style = menuTextStyle, color = MaterialTheme.colorScheme.onSecondaryContainer) }
+                            text = { MenuElement("Wczytaj z dysku", icon = Icons.Filled.AddToDrive)}
                         )
                     }
                 }
@@ -283,11 +298,25 @@ fun InterpreterTopBar(
     )
 }
 
+@Composable
+fun MenuElement(text: String, icon: ImageVector) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.padding(end = 5.dp) )
+        Text(
+            text, style = AppTypography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer)
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun InterpreterTopBarPreview() {
     LogoInterpreterBetaTheme {
-        //InterpreterTopBar("Test")
+        MenuElement(text = "test", icon = Icons.Filled.SaveAs)
     }
 
 }

@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.CommonTokenStream
 
 
 class LogoInterpreter(context: Context) {
-    var bitmap = MyImage
+    var bitmap = MyLogoVisitor.image
 
     private val myVisitor = MyLogoVisitor(context = context)
 
