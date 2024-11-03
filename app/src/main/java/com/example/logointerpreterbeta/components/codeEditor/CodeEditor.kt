@@ -1,9 +1,7 @@
 package com.example.logointerpreterbeta.components.codeEditor
 
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,13 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -28,25 +26,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.example.logointerpreterbeta.activities.prepareErrorList
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
-import com.example.logointerpreterbeta.components.codeEditor.textFunctions.ReplaceAnnotatedSubstring
-import com.example.logointerpreterbeta.components.codeEditor.textFunctions.TextDiffrence
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.replaceAnnotatedSubstring
 import com.example.logointerpreterbeta.ui.theme.jetBrainsMono
-import kotlin.math.roundToInt
 
 @Composable
 fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
@@ -61,7 +53,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
     var suggestedInstruction by remember { mutableStateOf("") }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
-    var cursorPosition by remember {mutableStateOf(0)}
+    var cursorPosition by remember { mutableIntStateOf(0) }
     Row(
         modifier = modifier
             .height(300.dp)
@@ -103,14 +95,13 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                             cursorPosition = newValue.selection.start
                             val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
                             Log.i("wordToMatch",wordToMatch)
-                            if(wordToMatch.isNotEmpty()){
-                                filteredSuggestions= SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
+                            filteredSuggestions = if(wordToMatch.isNotEmpty()){
+                                SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
+                            } else{
+                                emptyList()
                             }
-                                else{
-                                    filteredSuggestions= emptyList()
-                            }
-                            onCodeChange(newValue)
-                            },
+                                onCodeChange(newValue)
+                                },
                     minLines = 10,
                     textStyle = TextStyle(
                         fontSize = 18.sp,
@@ -135,7 +126,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
                     onCodeChange(
                         codeState.copy(
-                            annotatedString = ReplaceAnnotatedSubstring(
+                            annotatedString = replaceAnnotatedSubstring(
                                     codeState.annotatedString,
                                     NearestWordFinder.nearestSpacePositionToLeft,
                                     NearestWordFinder.nearestSpacePositionToRight,

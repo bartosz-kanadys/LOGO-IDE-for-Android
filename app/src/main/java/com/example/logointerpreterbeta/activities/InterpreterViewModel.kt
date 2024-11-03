@@ -13,7 +13,7 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
-import com.example.logointerpreterbeta.components.codeEditor.textFunctions.TextDiffrence
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
 
@@ -49,7 +49,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
 
         codeState = newCode.copy(
-            annotatedString = TextDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText1)
+            annotatedString = textDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText1)
         )
     }
 

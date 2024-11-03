@@ -2,7 +2,7 @@ package com.example.logointerpreterbeta.components.codeEditor.textFunctions
 
 import androidx.compose.ui.text.AnnotatedString
 
-fun ReplaceAnnotatedSubstring(
+fun replaceAnnotatedSubstring(
     original: AnnotatedString,
     startIndex: Int,
     endIndex: Int,
