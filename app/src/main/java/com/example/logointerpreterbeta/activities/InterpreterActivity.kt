@@ -64,6 +64,7 @@ fun InterpreterApp(
     LaunchedEffect(isDarkTheme) {
         viewModel.interpretCode()
         viewModel.interpretCode()
+        viewModel.colorCode()
     }
 
     LazyColumn {
