@@ -28,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -124,14 +125,18 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             }
             if(filteredSuggestions.isNotEmpty()) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
+                    val newText = replaceAnnotatedSubstring(
+                        codeState.annotatedString,
+                        NearestWordFinder.nearestSpacePositionToLeft,
+                        NearestWordFinder.nearestSpacePositionToRight,
+                        suggestion
+                    )
+                    val cursorPosition = NearestWordFinder.nearestSpacePositionToLeft + suggestion.length
+
                     onCodeChange(
                         codeState.copy(
-                            annotatedString = replaceAnnotatedSubstring(
-                                    codeState.annotatedString,
-                                    NearestWordFinder.nearestSpacePositionToLeft,
-                                    NearestWordFinder.nearestSpacePositionToRight,
-                                    suggestion
-                            )
+                            annotatedString = newText,
+                            selection = TextRange(cursorPosition)
                         )
                     )
                 }
