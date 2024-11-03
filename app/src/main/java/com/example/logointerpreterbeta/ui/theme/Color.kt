@@ -158,12 +158,10 @@ val tertiaryDarkMediumContrast = Color(0xFF84D9DB)
 val onTertiaryDarkMediumContrast = Color(0xFF001A1B)
 val tertiaryContainerDarkMediumContrast = Color(0xFF479DA0)
 val onTertiaryContainerDarkMediumContrast = Color(0xFF000000)
-
 val errorDarkMediumContrast = Color(0xFF8c0009)
 val onErrorDarkMediumContrast = Color(0xFFffffff)
 val errorContainerDarkMediumContrast = Color(0xFFda342e)
 val onErrorContainerDarkMediumContrast = Color(0xFFffffff)
-
 val backgroundDarkMediumContrast = Color(0xFF11140F)
 val onBackgroundDarkMediumContrast = Color(0xFFE1E4DA)
 val surfaceDarkMediumContrast = Color(0xFF11140F)
@@ -220,6 +218,22 @@ val surfaceContainerDarkHighContrast = Color(0xFF1D211A)
 val surfaceContainerHighDarkHighContrast = Color(0xFF282B24)
 val surfaceContainerHighestDarkHighContrast = Color(0xFF32362F)
 
+
+//Kolorowanie kodu
+val stringColorLight = Color(0xff026105)
+val stringColorDark = Color(0xff026105)
+
+val functionColorDark = Color(0xFFad6200)
+val functionColorLight = Color(0xFFfa9107)
+
+val cmdColorDark = Color(0xFF001ae3)
+val cmdColorLight = Color(0xFF0c1063)
+
+val numberColorDark = Color(0xff730000)
+val numberColorLight = Color(0xff730000)
+
+val defaultTextColorLight = onSurfaceLightMediumContrast
+val defaultTextColorDark = onSurfaceDarkMediumContrast
 
 
 

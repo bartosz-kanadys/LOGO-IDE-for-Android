@@ -106,6 +106,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                                 },
                     minLines = 10,
                     textStyle = TextStyle(
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 18.sp,
                         fontFamily = AppTypography.bodySmall.fontFamily,
                     ),
