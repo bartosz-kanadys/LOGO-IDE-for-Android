@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
@@ -19,11 +20,20 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
 import com.example.logointerpreterbeta.components.codeEditor.CodeEditor
@@ -48,6 +58,14 @@ fun InterpreterApp(
     viewModel: InterpreterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
+    val isDark = isSystemInDarkTheme()
+    var isDarkTheme by rememberSaveable { mutableStateOf(isDark) }
+
+    LaunchedEffect(isDarkTheme) {
+        viewModel.interpretCode()
+        viewModel.interpretCode()
+    }
+
     LazyColumn {
         item { ImagePanel() }
         item {
