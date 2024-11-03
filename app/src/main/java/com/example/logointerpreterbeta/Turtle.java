@@ -4,8 +4,8 @@ package com.example.logointerpreterbeta;
 import android.graphics.Color;
 
 public class Turtle {
-    public static float Xposition = 500;
-    public static float Yposition = 500;
+    public static float Xposition = 1000;
+    public static float Yposition = 1000;
     public static float direction = 0;
     public static boolean isDown = true;
     public static boolean isShowed = true;
