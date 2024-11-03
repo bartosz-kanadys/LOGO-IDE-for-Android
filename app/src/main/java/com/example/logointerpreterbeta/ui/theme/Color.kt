@@ -226,10 +226,10 @@ val stringColorDark = Color(0xff026105)
 val functionColorDark = Color(0xFFad6200)
 val functionColorLight = Color(0xFFfa9107)
 
-val cmdColorDark = Color(0xFF001ae3)
-val cmdColorLight = Color(0xFF0c1063)
+val cmdColorDark = Color(0xFF1294ff)
+val cmdColorLight = Color(0xFF001ae3)
 
-val numberColorDark = Color(0xff730000)
+val numberColorDark = Color(0xffcf0060)
 val numberColorLight = Color(0xff730000)
 
 val defaultTextColorLight = onSurfaceLightMediumContrast
