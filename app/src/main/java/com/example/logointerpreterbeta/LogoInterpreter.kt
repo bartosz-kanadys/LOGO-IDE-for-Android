@@ -1,6 +1,10 @@
 package com.example.logointerpreterbeta
 
 import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import com.example.logointerpreterbeta.errors.MyErrorListener
 import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser
@@ -32,5 +36,32 @@ class LogoInterpreter(context: Context) {
 
         myVisitor.visit(tree)
         bitmap = MyLogoVisitor.image
+    }
+
+    fun colorizeText1(text: String): AnnotatedString {
+        val lexer = logoLexer(CharStreams.fromString(text))
+        val tokens = CommonTokenStream(lexer)
+        tokens.fill()
+
+        val styledText = buildAnnotatedString {
+            tokens.tokens.forEach { token ->
+                if (token.type == logoLexer.EOF) return@forEach
+
+                val color = when (token.type) {
+                    logoLexer.STRINGLITERAL -> Color.Green
+                    1, 2, 3, 4 -> Color.Magenta
+                    in 7..77, 80, 81, 82 -> Color.Blue
+                    in 83..94 -> Color.Magenta
+                    logoLexer.NUMBER, 105, 106 -> Color.Red
+                    else -> Color.Black
+                }
+                val tokenText = token.text
+                pushStyle(SpanStyle(color = color))
+                append(tokenText)
+                pop()
+            }
+        }
+
+        return styledText
     }
 }

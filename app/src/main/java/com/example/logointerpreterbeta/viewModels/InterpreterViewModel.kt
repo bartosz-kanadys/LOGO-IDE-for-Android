@@ -6,20 +6,22 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.launch
 
 class InterpreterViewModel(context: Context) : ViewModel() {
 
     private val logo = LogoInterpreter(context)
-
-    var codeState by mutableStateOf("\n\n\n\n\n\n\n\n\n\n\n")
+    var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
+    var cursorPosition by mutableStateOf(0)
 
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
@@ -40,8 +42,14 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.start("st")
     }
 
-    fun onCodeChange(newCode: String) {
-        codeState = newCode
+    fun onCodeChange(newCode: TextFieldValue) {
+        cursorPosition = newCode.selection.start
+        logo.colorizeText1(newCode.text)
+
+
+        codeState = newCode.copy(
+            annotatedString = textDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText1)
+        )
     }
 
     fun toggleErrorListVisibility() {
@@ -54,7 +62,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
             Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
             Turtle.direction = 0f
             try {
-                logo.start(codeState)
+                logo.start(codeState.text)
                 img = logo.bitmap
             } catch (e: Exception) {
                 Log.e("ERROR", "Błąd wykonywania interpretera")

@@ -89,136 +89,7 @@ parameterDeclarations
     : ':' name (',' parameterDeclarations)*
     ;
 
-setcornerrounding
-    : 'setcornerrounding' ('0'|'1')
-    | 'SETCORNERROUNDING' ('0'|'1')
-    | 'setcr' ('0'|'1')
-    | 'SETCR' ('0'|'1')
-    ;
-
-
-setx
-    : 'setx' expression
-    | 'SETX' expression;
-
-sety
-    : 'sety' expression
-    | 'SETY' expression;
-
-settextsize
-    : 'setts' expression
-    | 'SETTS' expression
-    | 'setpensize' expression
-    | 'SETPENSIZE' expression
-    ;
-
-setbg
-    : 'setbg' expression
-    | 'SETBG' expression
-    | 'setbackground' expression
-    | 'SETBACKGROUND' expression
-    ;
-
-fill
-    : 'fill'
-    | 'FILL'
-    ;
-
-setpencolor
-    : 'setpc' expression
-    | 'setpc' '[' number number number ']'
-    | 'SETPC' expression
-    | 'SETPC' '[' number number number ']'
-    | 'setpencolor' expression
-    | 'setpencolor' '[' number number number ']'
-    | 'SETPENCOLOR' expression
-    | 'SETPENCOLOR' '[' number number number ']'
-    ;
-
-setpensize
-    : 'setps' expression
-    | 'SETPS' expression
-    | 'setpensize' expression
-    | 'SETPENSIZE' expression
-    ;
-
-arc
-    : 'arc' expression expression
-    | 'ARC' expression expression
-    ;
-
-func_
-    : random
-    ;
-
-repeat_
-    : 'repeat' number block
-    | 'REPEAT' number block
-    ;
-
-block
-    : '[' ((WS | EOL)* cmd (WS | EOL)*)* ']'
-    ;
-
-ife
-    : 'if' comparison block
-    | 'IF' comparison block
-    ;
-
-comparison
-    : expression comparisonOperator expression
-    ;
-
-comparisonOperator
-    : '<'
-    | '>'
-    | '='
-    | '<='
-    | '>='
-    | '<>'
-    ;
-
-make
-    : 'make' STRINGLITERAL value
-    | 'MAKE' STRINGLITERAL value
-    ;
-
-print_
-    : 'print' (value | STRINGLITERAL)
-    | 'PRINT' (value | STRINGLITERAL)
-    ;
-
-//quotedstring
-//    : '"'(STRING | NUMBER)
-//    ;
-
-
-name
-    : STRING
-    ;
-
-value
-    : STRINGLITERAL
-    | expression
-    | deref
-    ;
-
-signExpression
-    : (('+' | '-'))* (number | deref | func_)
-    ;
-
-multiplyingExpression
-    : signExpression (('*' | '/') signExpression)*
-    ;
-
-expression
-    : multiplyingExpression (('+' | '-') multiplyingExpression)*
-    ;
-
-deref
-    : ':' name
-    ;
-
+//--------------- BEGIN COMANDS ---------------------------------------
 fd
     : ('fd' | 'forward' | 'FD' | 'FORWARD') expression
     ;
@@ -275,14 +146,43 @@ home
     | 'HOME'
     ;
 
-stop
-    : 'stop'
-    | 'STOP'
+setx
+    : 'setx' expression
+    | 'SETX' expression;
+
+sety
+    : 'sety' expression
+    | 'SETY' expression;
+
+settextsize
+    : 'setts' expression
+    | 'SETTS' expression
+    | 'setpensize' expression
+    | 'SETPENSIZE' expression
     ;
 
-label
-    : 'label' (STRINGLITERAL | deref)
-    | 'LABEL' (STRINGLITERAL | deref)
+setbg
+    : 'setbg' expression
+    | 'SETBG' expression
+    | 'setbackground' expression
+    | 'SETBACKGROUND' expression
+    ;
+
+fill
+    : 'fill'
+    | 'FILL'
+    ;
+
+setpensize
+    : 'setps' expression
+    | 'SETPS' expression
+    | 'setpensize' expression
+    | 'SETPENSIZE' expression
+    ;
+
+arc
+    : 'arc' expression expression
+    | 'ARC' expression expression
     ;
 
 setxy
@@ -290,6 +190,57 @@ setxy
     | 'SETXY' expression expression
     | 'setpos' expression expression
     | 'SETPOS' expression expression
+    ;
+
+make
+    : 'make' STRINGLITERAL value
+    | 'MAKE' STRINGLITERAL value
+    ;
+
+print_
+    : 'print' (value | STRINGLITERAL)
+    | 'PRINT' (value | STRINGLITERAL)
+    ;
+
+setcornerrounding
+    : 'setcornerrounding' BOOLEAND
+    | 'SETCORNERROUNDING' BOOLEAND
+    | 'setcr' BOOLEAND
+    | 'SETCR' BOOLEAND
+    ;
+
+setpencolor
+    : 'setpc' expression
+    | 'setpc' '[' number number number ']'
+    | 'SETPC' expression
+    | 'SETPC' '[' number number number ']'
+    | 'setpencolor' expression
+    | 'setpencolor' '[' number number number ']'
+    | 'SETPENCOLOR' expression
+    | 'SETPENCOLOR' '[' number number number ']'
+    ;
+
+
+//----- END COMMANDS --------------------------------
+
+//------BEGIN FUNCTIONS
+repeat_
+    : 'repeat' number block
+    | 'REPEAT' number block
+    ;
+
+ife
+    : 'if' comparison block
+    | 'IF' comparison block
+    ;
+
+func_
+    : random
+    ;
+
+stop
+    : 'stop'
+    | 'STOP'
     ;
 
 random
@@ -300,6 +251,56 @@ random
 fore
     : 'for' '[' name expression expression expression ']' block
     | 'FOR' '[' name expression expression expression ']' block
+    ;
+
+label
+    : 'label' (STRINGLITERAL | deref)
+    | 'LABEL' (STRINGLITERAL | deref)
+    ;
+
+//-------------- END FUNCTIONS --------------------------
+
+block
+    : '[' ((WS | EOL)* cmd (WS | EOL)*)* ']'
+    ;
+
+comparison
+    : expression comparisonOperator expression
+    ;
+
+comparisonOperator
+    : '<'
+    | '>'
+    | '='
+    | '<='
+    | '>='
+    | '<>'
+    ;
+
+name
+    : STRING
+    ;
+
+value
+    : STRINGLITERAL
+    | expression
+    | deref
+    ;
+
+signExpression
+    : (('+' | '-'))* (number | deref | func_)
+    ;
+
+multiplyingExpression
+    : signExpression (('*' | '/') signExpression)*
+    ;
+
+expression
+    : multiplyingExpression (('+' | '-') multiplyingExpression)*
+    ;
+
+deref
+    : ':' name
     ;
 
 number
@@ -314,7 +315,11 @@ comment
     ;
 
 STRINGLITERAL
-    : '"' (STRING | NUMBER)
+    : LITERAL (STRING | NUMBER)
+    ;
+
+LITERAL
+    : '"'
     ;
 
 STRING
@@ -328,7 +333,10 @@ NUMBER
 FLOAT
     : [0-9]+ '.' [0-9]+;
 
-
+BOOLEAND
+    : [1]
+    | [0]
+    ;
 
 COMMENT
     : ';' ~ [\r\n]*
@@ -339,5 +347,5 @@ EOL
     ;
 
 WS
-    : [ \t\r\n] -> skip
+    :  [ \t\r\n\u000C] -> channel(HIDDEN)
     ;
