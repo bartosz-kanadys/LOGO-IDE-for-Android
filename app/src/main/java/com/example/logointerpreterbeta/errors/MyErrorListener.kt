@@ -17,7 +17,7 @@ class MyErrorListener : BaseErrorListener() {
     ) {
         var errorMessage = "Error at line $line:$charPositionInLine - $msg"
         val index = errorMessage.indexOf("expecting")
-        if (index != -1){
+        if (index != -1) {
             errorMessage = errorMessage.substring(0, index)
         }
         SyntaxError.errors.add(errorMessage)

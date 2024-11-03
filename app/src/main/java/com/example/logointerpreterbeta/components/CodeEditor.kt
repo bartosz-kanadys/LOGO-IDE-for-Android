@@ -32,7 +32,12 @@ import com.example.logointerpreterbeta.functions.prepareErrorList
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
-fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit, modifier: Modifier) {
+fun CodeEditor(
+    codeState: String,
+    errors: String,
+    onCodeChange: (String) -> Unit,
+    modifier: Modifier
+) {
     val linesCount = codeState.lines().size
     val scrollState = rememberScrollState()
     val errorsList = if (errors.isNotEmpty()) {
@@ -77,13 +82,14 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
         }
 
         // Pole tekstowe
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Red)
         ) {
             TextField(
                 value = codeState,
-                onValueChange = {newValue -> onCodeChange(newValue) },
+                onValueChange = { newValue -> onCodeChange(newValue) },
                 minLines = 10,
                 textStyle = TextStyle(
                     fontSize = 18.sp,
@@ -97,7 +103,7 @@ fun CodeEditor(codeState: String, errors: String, onCodeChange: (String) -> Unit
                     .verticalScroll(scrollState)
                     .background(Color.White)
 
-                  //  .padding(horizontal = 10.dp, vertical = 10.dp)
+                //  .padding(horizontal = 10.dp, vertical = 10.dp)
 
             )
         }

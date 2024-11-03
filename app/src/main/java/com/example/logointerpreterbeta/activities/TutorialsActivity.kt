@@ -32,16 +32,17 @@ class TutorialsActivity : ComponentActivity() {
                     topBar = {
                         TopBarWithMenu("Poradniki")
                     }
-                ){
-                        innerPadding -> TutorialsApp(Modifier.padding(innerPadding))
+                ) { innerPadding ->
+                    TutorialsApp(Modifier.padding(innerPadding))
                 }
 
             }
         }
     }
 }
+
 @Composable
-fun TutorialsApp(modifier: Modifier = Modifier){
+fun TutorialsApp(modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -64,6 +65,7 @@ fun TutorialsApp(modifier: Modifier = Modifier){
         }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun TutorialsPreview() {
@@ -72,8 +74,8 @@ fun TutorialsPreview() {
             topBar = {
                 TopBarWithMenu("Ustawienia")
             }
-        ){
-                innerPadding -> TutorialsApp(Modifier.padding(innerPadding))
+        ) { innerPadding ->
+            TutorialsApp(Modifier.padding(innerPadding))
         }
 
     }

@@ -33,15 +33,16 @@ class ProjectsActivity : ComponentActivity() {
                     topBar = {
                         TopBarWithMenu("Projekty")
                     }
-                ){
-                        innerPadding -> ProjectsApp(Modifier.padding(innerPadding))
+                ) { innerPadding ->
+                    ProjectsApp(Modifier.padding(innerPadding))
                 }
             }
         }
     }
 }
+
 @Composable
-fun ProjectsApp(modifier: Modifier = Modifier){
+fun ProjectsApp(modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -64,6 +65,7 @@ fun ProjectsApp(modifier: Modifier = Modifier){
         }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun ProjectsPreview() {
@@ -72,8 +74,8 @@ fun ProjectsPreview() {
             topBar = {
                 TopBarWithMenu("Projekty")
             }
-        ){
-                innerPadding -> ProjectsApp(Modifier.padding(innerPadding))
+        ) { innerPadding ->
+            ProjectsApp(Modifier.padding(innerPadding))
         }
 
     }

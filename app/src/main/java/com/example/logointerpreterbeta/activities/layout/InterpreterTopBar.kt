@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.School
@@ -92,9 +91,6 @@ fun InterpreterTopBar(
     val fileName by remember { mutableStateOf(TextFieldValue("")) }
 
     val menuTextStyle = AppTypography.bodySmall // Ustawiona globalna czcionka
-
-
-
 
     val context = LocalContext.current
 
@@ -171,23 +167,23 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { MenuElement("Otwórz projekt", icon = Icons.Filled.CreateNewFolder)}
+                    text = { MenuElement("Otwórz projekt", icon = Icons.Filled.CreateNewFolder) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Tutorials) },
-                    text = { MenuElement("Poradniki", icon = Icons.Filled.School)}
+                    text = { MenuElement("Poradniki", icon = Icons.Filled.School) }
                 )
                 DropdownMenuItem(
-                    onClick = { navController.navigate(Libraries)},
-                    text = { MenuElement("Biblioteki", icon = Icons.AutoMirrored.Filled.MenuBook)}
+                    onClick = { navController.navigate(Libraries) },
+                    text = { MenuElement("Biblioteki", icon = Icons.AutoMirrored.Filled.MenuBook) }
                 )
                 DropdownMenuItem(
-                    onClick = {navController.navigate(Settings)},
-                    text = { MenuElement("Ustawienia", icon = Icons.Filled.Settings)}
+                    onClick = { navController.navigate(Settings) },
+                    text = { MenuElement("Ustawienia", icon = Icons.Filled.Settings) }
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
-                    text = { MenuElement("Exportuj rysunek", icon = Icons.Filled.Image)}
+                    text = { MenuElement("Exportuj rysunek", icon = Icons.Filled.Image) }
                 )
                 AnimatedVisibility(visible = exportMenuExpanded) {
                     Column(
@@ -210,7 +206,7 @@ fun InterpreterTopBar(
                                 ).show()
                                 dropdownExpanded = false
                             },
-                            text = { MenuElement("Jako JPG", icon = Icons.Filled.Image)}
+                            text = { MenuElement("Jako JPG", icon = Icons.Filled.Image) }
                         )
 
                         DropdownMenuItem(
@@ -225,38 +221,49 @@ fun InterpreterTopBar(
                                 ).show()
                                 dropdownExpanded = false
                             },
-                            text = { MenuElement("Zapisz program", icon = Icons.Filled.PictureAsPdf)}
+                            text = {
+                                MenuElement(
+                                    "Zapisz PDF",
+                                    icon = Icons.Filled.PictureAsPdf
+                                )
+                            }
                         )
                     }
                 }
 
                 DropdownMenuItem(
                     onClick = { saevFileExpanded = !saevFileExpanded },
-                    text = { MenuElement("Zapisz program", icon = Icons.Filled.SaveAs)}
+                    text = { MenuElement("Zapisz program", icon = Icons.Filled.SaveAs) }
                 )
                 AnimatedVisibility(visible = saevFileExpanded) {
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.secondary)
-                            .fillMaxHeight()) {
+                            .fillMaxHeight()
+                    ) {
                         DropdownMenuItem(
                             onClick = {
                                 saveFileLauncher.launch(fileName.text)
                             },
-                            text = { MenuElement("Zapisz do pliku", icon = Icons.Filled.FileOpen)}
+                            text = { MenuElement("Zapisz do pliku", icon = Icons.Filled.FileOpen) }
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { MenuElement("Zapisz na dysku", icon = Icons.Filled.AddToDrive)}
+                            text = {
+                                MenuElement(
+                                    "Zapisz na dysku",
+                                    icon = Icons.Filled.AddToDrive
+                                )
+                            }
                         )
                     }
                 }
                 DropdownMenuItem(
                     onClick = { openFileExpanded = !openFileExpanded },
-                    text = { MenuElement("Wczytaj program", icon = Icons.Filled.Download)}
+                    text = { MenuElement("Wczytaj program", icon = Icons.Filled.Download) }
                 )
                 AnimatedVisibility(visible = openFileExpanded) {
                     Column(
@@ -273,14 +280,19 @@ fun InterpreterTopBar(
                                     )
                                 )
                             },
-                            text = { MenuElement("Zapisz program", icon = Icons.Filled.UploadFile)}
+                            text = { MenuElement("Zapisz program", icon = Icons.Filled.UploadFile) }
                         )
 
                         DropdownMenuItem(
                             onClick = {
 
                             },
-                            text = { MenuElement("Wczytaj z dysku", icon = Icons.Filled.AddToDrive)}
+                            text = {
+                                MenuElement(
+                                    "Wczytaj z dysku",
+                                    icon = Icons.Filled.AddToDrive
+                                )
+                            }
                         )
                     }
                 }
@@ -305,10 +317,12 @@ fun MenuElement(text: String, icon: ImageVector) {
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
-            modifier = Modifier.padding(end = 5.dp) )
+            modifier = Modifier.padding(end = 5.dp)
+        )
         Text(
             text, style = AppTypography.bodySmall,
-            color = MaterialTheme.colorScheme.onSecondaryContainer)
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
     }
 }
 
@@ -325,6 +339,6 @@ fun InterpreterTopBarPreview() {
 @Composable
 fun InterpreterTopBarPreview2() {
     LogoInterpreterBetaTheme(darkTheme = true) {
-      //  InterpreterTopBar("Test")
+        //  InterpreterTopBar("Test")
     }
 }

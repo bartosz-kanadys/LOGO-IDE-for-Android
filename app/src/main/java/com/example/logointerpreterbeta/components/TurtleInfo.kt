@@ -41,7 +41,7 @@ fun TurtleInfo(onClick: () -> Unit) {
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "X=${Turtle.Xposition-1000}, Y=${(Turtle.Yposition-1000)*-1}",
+            text = "X=${Turtle.Xposition - 1000}, Y=${(Turtle.Yposition - 1000) * -1}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
@@ -83,6 +83,5 @@ fun TurtleInfo(onClick: () -> Unit) {
                 tint = Color(Turtle.penColor)
             )
         }
-
     }
 }

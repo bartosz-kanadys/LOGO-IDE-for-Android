@@ -8,30 +8,24 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RectF
-import android.util.Log
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
-
 import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.onSurfaceLight
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import java.security.AccessController.getContext
 import kotlin.math.cos
 import kotlin.math.sin
 
 class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
-    companion object{
+    companion object {
         val image = MyImage
     }
+
     private var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
 
     private val canvas = Canvas(image)
@@ -43,9 +37,6 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
     init {
-        // Ustawienia malowania (kolor, grubość linii)
-        Log.i("dd", "init")
-
         paint.color = Turtle.penColor
         paint.strokeWidth = 5f
         paint.style = Paint.Style.STROKE
@@ -119,8 +110,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
         if (isDarkTheme) {
             canvas.drawColor(surfaceDarkMediumContrast.toArgb())
-        }
-        else {
+        } else {
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
     }
@@ -415,7 +405,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         return bit
     }
 
-   fun updateTurtleBitmap() {
+    fun updateTurtleBitmap() {
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
@@ -440,8 +430,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         if (isDarkTheme) {
             Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
             canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
-        }
-        else {
+        } else {
             Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }

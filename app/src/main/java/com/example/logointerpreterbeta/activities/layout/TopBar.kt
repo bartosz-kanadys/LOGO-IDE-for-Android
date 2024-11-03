@@ -87,15 +87,15 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
                     text = { Text("Otwórz projekt") }
                 )
                 DropdownMenuItem(
-                    onClick = { navController.navigate(Tutorials)},
+                    onClick = { navController.navigate(Tutorials) },
                     text = { Text("Poradniki") }
                 )
                 DropdownMenuItem(
-                    onClick = { navController.navigate(Libraries)},
+                    onClick = { navController.navigate(Libraries) },
                     text = { Text("Biblioteki") }
                 )
                 DropdownMenuItem(
-                    onClick = {navController.navigate(Settings)},
+                    onClick = { navController.navigate(Settings) },
                     text = { Text("Ustawienia") }
                 )
             }

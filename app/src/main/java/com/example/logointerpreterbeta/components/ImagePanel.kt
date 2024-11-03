@@ -114,9 +114,9 @@ fun ImagePanel() {
             ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
         }
         AnimatedVisibility(visible = isInfoVisable, modifier = Modifier.align(Alignment.TopEnd)) {
-           TurtleInfo {
-               isInfoVisable = !isInfoVisable
-           }
+            TurtleInfo {
+                isInfoVisable = !isInfoVisable
+            }
         }
 
 //        val logo = LogoInterpreter(LocalContext.current)

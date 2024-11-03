@@ -30,7 +30,8 @@ fun saveBitmapAsPdf(context: Context, bitmap: Bitmap, fileName: String): Boolean
     }
 
     // Zapisujemy plik w MediaStore
-    val uri = context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
+    val uri =
+        context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
     uri?.let {
         var outputStream: OutputStream? = null
         try {

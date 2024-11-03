@@ -32,8 +32,8 @@ class SettingsActivity : ComponentActivity() {
                     topBar = {
                         TopBarWithMenu("Ustawienia")
                     }
-                ){
-                    innerPadding -> SettingsApp(Modifier.padding(innerPadding))
+                ) { innerPadding ->
+                    SettingsApp(Modifier.padding(innerPadding))
                 }
             }
         }
@@ -41,7 +41,7 @@ class SettingsActivity : ComponentActivity() {
 }
 
 @Composable
-fun SettingsApp(modifier: Modifier = Modifier){
+fun SettingsApp(modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -64,6 +64,7 @@ fun SettingsApp(modifier: Modifier = Modifier){
         }
     }
 }
+
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun SettingsPreview() {
@@ -72,8 +73,8 @@ fun SettingsPreview() {
             topBar = {
                 TopBarWithMenu("Ustawienia")
             }
-        ){
-                innerPadding -> SettingsApp(Modifier.padding(innerPadding))
+        ) { innerPadding ->
+            SettingsApp(Modifier.padding(innerPadding))
         }
     }
 }

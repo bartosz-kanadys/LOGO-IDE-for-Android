@@ -1,14 +1,11 @@
 package com.example.logointerpreterbeta.viewModels
 
-import android.app.UiModeManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.LogoInterpreter
@@ -16,10 +13,6 @@ import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.errors.SyntaxError
-import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import kotlinx.coroutines.launch
 
 class InterpreterViewModel(context: Context) : ViewModel() {

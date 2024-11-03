@@ -32,8 +32,8 @@ class LibraryActivity : ComponentActivity() {
                     topBar = {
                         TopBarWithMenu("Biblioteki")
                     }
-                ){
-                        innerPadding -> LibraryApp(Modifier.padding(innerPadding))
+                ) { innerPadding ->
+                    LibraryApp(Modifier.padding(innerPadding))
                 }
             }
         }
@@ -41,7 +41,7 @@ class LibraryActivity : ComponentActivity() {
 }
 
 @Composable
-fun LibraryApp(modifier: Modifier = Modifier){
+fun LibraryApp(modifier: Modifier = Modifier) {
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -74,8 +74,8 @@ fun LibraryPreview() {
             topBar = {
                 TopBarWithMenu("Biblioteki")
             }
-        ){
-                innerPadding -> LibraryApp(Modifier.padding(innerPadding))
+        ) { innerPadding ->
+            LibraryApp(Modifier.padding(innerPadding))
         }
 
     }

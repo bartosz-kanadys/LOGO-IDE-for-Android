@@ -46,6 +46,7 @@ class StartScreenActivity : ComponentActivity() {
         }
     }
 }
+
 @Composable
 fun StartScreenApp(navController: NavHostController = rememberNavController()) {
     Surface(
@@ -79,24 +80,25 @@ fun StartScreenApp(navController: NavHostController = rememberNavController()) {
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 modifier = Modifier.fillMaxHeight()
             ) {
-                item { MenuButton("Kontynuuj ostatni projekt",
-                    {navController.navigate(Interpreter)}) }
-                item { MenuButton("Nowy projekt", {navController.navigate(Interpreter)})}
-                item { MenuButton("Otwórz projekt", {navController.navigate(Projects)}) }
-                item { MenuButton("Poradniki", {navController.navigate(Tutorials)}) }
-                item { MenuButton("Biblioteki", {navController.navigate(Libraries)})}
-                item { MenuButton("Ustawienia", {navController.navigate(Settings)})}
+                item {
+                    MenuButton("Kontynuuj ostatni projekt",
+                        { navController.navigate(Interpreter) })
+                }
+                item { MenuButton("Nowy projekt", { navController.navigate(Interpreter) }) }
+                item { MenuButton("Otwórz projekt", { navController.navigate(Projects) }) }
+                item { MenuButton("Poradniki", { navController.navigate(Tutorials) }) }
+                item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
+                item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
             }
 
         }
     }
 }
+
 @Composable
 fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Button(
-        onClick =
-            onClick
-        ,
+        onClick = onClick,
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
         modifier = Modifier
