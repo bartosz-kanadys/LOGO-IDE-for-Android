@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
@@ -114,7 +115,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(horizontal = 10.dp, vertical = 10.dp),
+                        .padding(top = 15.dp, start = 10.dp, end = 10.dp),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
                         val cursorPosition = codeState.selection.start
                         if (cursorPosition >= 0) {
@@ -144,4 +145,10 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AA() {
+    CodeEditor(codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"), errors = "", onCodeChange = {  }, modifier = Modifier)
 }
