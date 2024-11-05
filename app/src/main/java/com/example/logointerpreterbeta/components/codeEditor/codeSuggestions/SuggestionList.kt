@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.components.codeEditor.codeSuggestions
 
 object SuggestionList {
-        val suggestions = listOf(
+        var suggestions = mutableListOf(
             "fd",
             "bk",
             "rt",
@@ -25,4 +25,12 @@ object SuggestionList {
             "setpc",
             "setpencolor",
         )
+        fun addSuggestion(suggestion: String) {
+            suggestions.add(suggestion)
+        }
+        fun removeSuggestionIfExists(suggestion: String) {
+            if (suggestions.contains(suggestion)) {
+                suggestions.remove(suggestion)
+            }
+        }
 }

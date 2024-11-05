@@ -53,8 +53,8 @@ object NearestWordFinder{
     }
     // Funkcja do znajdowania najbliższej spacji w lewo od pozycji kursora
     fun NearestWordToLeft(text: String, wordEnd: Int,wordStart:Int): String {
-        Log.i("WordStart", wordStart.toString())
-        Log.i("WordEnd", wordEnd.toString())
+        //Log.i("WordStart", wordStart.toString())
+        //Log.i("WordEnd", wordEnd.toString())
         if (wordEnd > 0 && wordStart>=0 && wordStart<wordEnd) {
            // Log.i("Word",text.substring(wordStart,wordEnd))
             return text.substring(wordStart,wordEnd)

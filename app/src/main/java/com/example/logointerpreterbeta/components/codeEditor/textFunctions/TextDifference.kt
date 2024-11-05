@@ -12,10 +12,10 @@ fun textDiffrence(oldText: AnnotatedString, newText: String, functionToPerformOn
         if(lastSpaceInPrefix==-1) {
             lastSpaceInPrefix=0
         }
-        Log.i("oldText",oldText.substring(0, lastSpaceInPrefix))
+        //Log.i("oldText",oldText.substring(0, lastSpaceInPrefix))
         append(oldText.subSequence(0, lastSpaceInPrefix))
         if (lastSpaceInPrefix < newText.length) {
-            Log.i("newText",newText.substring(lastSpaceInPrefix))
+            //Log.i("newText",newText.substring(lastSpaceInPrefix))
             append(functionToPerformOnNewText(newText.substring(lastSpaceInPrefix)))
         }
     }
