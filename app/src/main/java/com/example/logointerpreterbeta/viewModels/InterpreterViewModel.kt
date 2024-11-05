@@ -45,11 +45,8 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
     fun onCodeChange(newCode: TextFieldValue) {
         cursorPosition = newCode.selection.start
-        logo.colorizeText1(newCode.text)
-
-
         codeState = newCode.copy(
-            annotatedString = textDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText1)
+            annotatedString = textDiffrence(codeState.annotatedString, newCode.text,logo::colorizeText)
         )
     }
 
@@ -59,7 +56,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
     fun colorCode() {
         codeState = codeState.copy(
-            annotatedString = logo.colorizeText1(codeState.text)
+            annotatedString = logo.colorizeText(codeState.text)
         )
     }
 

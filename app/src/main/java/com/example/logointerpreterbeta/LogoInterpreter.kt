@@ -46,7 +46,7 @@ class LogoInterpreter(context: Context) {
         bitmap = MyLogoVisitor.image
     }
 
-    fun colorizeText1(text: String): AnnotatedString {
+    fun colorizeText(text: String): AnnotatedString {
         val lexer = logoLexer(CharStreams.fromString(text))
         val tokens = CommonTokenStream(lexer)
         tokens.fill()
