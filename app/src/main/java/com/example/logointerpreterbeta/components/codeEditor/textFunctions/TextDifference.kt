@@ -3,6 +3,7 @@ package com.example.logointerpreterbeta.components.codeEditor.textFunctions
 import android.util.Log
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
+import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList.checkForVariables
 
 fun textDiffrence(oldText: AnnotatedString, newText: String, functionToPerformOnNewText: (String) -> AnnotatedString): AnnotatedString {
     return buildAnnotatedString {
@@ -14,6 +15,9 @@ fun textDiffrence(oldText: AnnotatedString, newText: String, functionToPerformOn
         }
         //Log.i("oldText",oldText.substring(0, lastSpaceInPrefix))
         append(oldText.subSequence(0, lastSpaceInPrefix))
+        if(lastSpaceInPrefix<oldText.length) {
+            checkForVariables(oldText.substring(lastSpaceInPrefix))
+        }
         if (lastSpaceInPrefix < newText.length) {
             //Log.i("newText",newText.substring(lastSpaceInPrefix))
             append(functionToPerformOnNewText(newText.substring(lastSpaceInPrefix)))

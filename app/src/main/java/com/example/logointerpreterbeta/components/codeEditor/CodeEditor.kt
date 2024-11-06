@@ -102,7 +102,6 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                             } else{
                                 emptyList()
                             }
-                                onCodeChange(newValue)
                                 },
                     minLines = 10,
                     textStyle = TextStyle(
@@ -116,7 +115,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(horizontal = 10.dp, vertical = 10.dp),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
-                        val cursorPosition = codeState.selection.start
+                        //val cursorPosition = codeState.selection.start
                         if (cursorPosition >= 0) {
                             val cursorRect = textLayoutResult.getCursorRect(cursorPosition)
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)

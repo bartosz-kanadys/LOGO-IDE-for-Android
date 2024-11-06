@@ -16,11 +16,6 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
@@ -30,7 +25,6 @@ class LogoInterpreter(context: Context) {
 
     private val myVisitor = MyLogoVisitor(context = context)
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
-    var debounceJob: Job? = null
 
     fun start(input: String) {
         // Tworzenie lexer'a
@@ -69,14 +63,9 @@ class LogoInterpreter(context: Context) {
             tokens.tokens.forEach { token ->
                 if (token.type == logoLexer.EOF) return@forEach
                 if(token.type == logoLexer.STRINGLITERAL) {
-                    debounceJob?.cancel()  // Anulowanie poprzedniego joba, jeśli istnieje
-                    debounceJob = CoroutineScope(Dispatchers.Main).launch {
-                        delay(300)  // Czekaj 300 ms
-                        addSuggestion(token.text) // Wykonaj funkcję
-                    }
-
+                    addSuggestion(token.text) // Wykonaj funkcję
                 }
-                //Log.i("Token",token.type.toString()+" "+token.text) //Logi służące do znajdowania jaki numer ma jaki token XD
+                Log.i("Token",token.type.toString()+" "+token.text) //Logi służące do znajdowania jaki numer ma jaki token XD
                 val color = when (token.type) {
                     logoLexer.STRINGLITERAL         -> stringColorDark   // stringi np "Test
                     1, 2, 3, 4                      -> functionColorDark          //deklaracja procedury
