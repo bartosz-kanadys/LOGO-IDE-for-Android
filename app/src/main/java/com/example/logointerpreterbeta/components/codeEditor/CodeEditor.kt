@@ -43,7 +43,12 @@ import com.example.logointerpreterbeta.functions.prepareErrorList
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
-fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
+fun CodeEditor(
+    codeState: TextFieldValue,
+    errors: String,
+    onCodeChange: (TextFieldValue) -> Unit,
+    modifier: Modifier
+) {
     val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
     val errorsList = if (errors.isNotEmpty()) {
@@ -52,10 +57,13 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             .toMutableList()
     } else mutableListOf(":)")
     val errorMap = prepareErrorList(errorsList)
+
+    var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
-    var suggestedInstruction by remember { mutableStateOf("") }
-    var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
+    var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
+
+
     Row(
         modifier = modifier
             .height(300.dp)
@@ -70,7 +78,6 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                 .width(33.dp)
                 .background(MaterialTheme.colorScheme.inversePrimary)
                 .padding(top = 15.dp)
-
         ) {
             for (i in 1..linesCount) {
                 Text(
@@ -88,21 +95,27 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                 )
             }
         }
+
         Column {
-            // Pole tekstowe
             Box(modifier = Modifier.fillMaxSize()) {
                 BasicTextField(
                     value = codeState,
-                    onValueChange = { newValue -> onCodeChange(newValue)
-                            cursorPosition = newValue.selection.start
-                            val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                            Log.i("wordToMatch",wordToMatch)
-                            filteredSuggestions = if(wordToMatch.isNotEmpty()){
-                                SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
-                            } else{
-                                emptyList()
-                            }
-                                },
+                    onValueChange = { newValue ->
+                        if (cursorPosition >= 0  && layout != null) {
+                            val cursorRect = layout!!.getCursorRect(cursorPosition)
+                            cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
+                        }
+                        onCodeChange(newValue)
+                        cursorPosition = newValue.selection.start
+
+                        val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
+                        filteredSuggestions = if (wordToMatch.isNotEmpty()) {
+                            SuggestionList.suggestions.filter { it.startsWith(wordToMatch) && it != wordToMatch }
+                        } else {
+                            emptyList()
+                        }
+
+                    },
                     minLines = 10,
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -115,15 +128,12 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(horizontal = 10.dp, vertical = 10.dp),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
-                        //val cursorPosition = codeState.selection.start
-                        if (cursorPosition >= 0) {
-                            val cursorRect = textLayoutResult.getCursorRect(cursorPosition)
-                            cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
-                        }
+                        layout = textLayoutResult
                     }
                 )
             }
-            if(filteredSuggestions.isNotEmpty()) {
+
+            if (filteredSuggestions.isNotEmpty()) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
                     val newText = replaceAnnotatedSubstring(
                         codeState.annotatedString,
