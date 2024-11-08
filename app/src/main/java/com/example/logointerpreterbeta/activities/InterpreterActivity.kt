@@ -50,11 +50,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.projects.createFile
-import com.example.logointerpreterbeta.projects.deleteFile
-import com.example.logointerpreterbeta.projects.getProjectFromDirectory
-import com.example.logointerpreterbeta.projects.readFileContent
-import com.example.logointerpreterbeta.projects.writeFileContent
+import com.example.logointerpreterbeta.Projects.createFile
+import com.example.logointerpreterbeta.Projects.deleteFile
+import com.example.logointerpreterbeta.Projects.getProjectFromDirectory
+import com.example.logointerpreterbeta.Projects.readFileContent
+import com.example.logointerpreterbeta.Projects.writeFileContent
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
 import com.example.logointerpreterbeta.components.codeEditor.CodeEditor
@@ -88,9 +88,11 @@ fun InterpreterApp(
     var isAlertNewFileVisable by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
     var project by rememberSaveable {
-        mutableStateOf(getProjectFromDirectory(
+        mutableStateOf(
+            getProjectFromDirectory(
             File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
-        ))
+        )
+        )
     }
 
     var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
@@ -105,15 +107,15 @@ fun InterpreterApp(
         viewModel.colorCode()
     }
     LaunchedEffect(Unit) {
-        if (viewModel.acctualProjectName == "") {
-            navController.navigate(StartScreen)
-        }
+
         project = getProjectFromDirectory(
             File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
         )
         acctualFile = project?.files?.firstOrNull()?.name
         viewModel.acctualFileName = acctualFile
-
+        if (viewModel.acctualProjectName == "") {
+            navController.navigate(StartScreen)
+        }
         if (acctualFile != null) {
             viewModel.codeState = TextFieldValue(
                 readFileContent(

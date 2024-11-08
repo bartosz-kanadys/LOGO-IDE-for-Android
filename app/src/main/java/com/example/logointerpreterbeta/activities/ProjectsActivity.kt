@@ -44,9 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.projects.createProject
-import com.example.logointerpreterbeta.projects.deleteProject
-import com.example.logointerpreterbeta.projects.getProjectFoldersMap
+import com.example.logointerpreterbeta.Projects.createProject
+import com.example.logointerpreterbeta.Projects.deleteProject
+import com.example.logointerpreterbeta.Projects.getProjectFoldersMap
+import com.example.logointerpreterbeta.Projects.updateLastModifiedProjectJSON
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
@@ -105,6 +106,7 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
                         }
                         deleteProject(projectToDelete!!, context)
                         projects = getProjectFoldersMap(context)
+                        updateLastModifiedProjectJSON(context,"")
 
                         projectToDelete = null
                     }
