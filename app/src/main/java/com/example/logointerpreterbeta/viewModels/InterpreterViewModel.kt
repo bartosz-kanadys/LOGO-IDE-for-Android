@@ -74,13 +74,13 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         )
     }
 
-    fun interpretCode() {
+    fun interpretCode(text: String = codeState.text) {
         viewModelScope.launch {
             SyntaxError.errors.clear()
             Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
             Turtle.direction = 0f
             try {
-                logo.start(codeState.text)
+                logo.start(text+"\n")
                 img = logo.bitmap
             } catch (e: Exception) {
                 Log.e("ERROR", "Błąd wykonywania interpretera")
