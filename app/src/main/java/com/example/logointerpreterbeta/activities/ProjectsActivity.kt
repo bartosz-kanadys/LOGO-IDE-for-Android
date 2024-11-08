@@ -1,82 +1,251 @@
 package com.example.logointerpreterbeta.activities
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Draw
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
-import com.example.logointerpreterbeta.ui.theme.AppTypography
-import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import androidx.navigation.NavController
+import com.example.logointerpreterbeta.Projects.createProjectJSON
+import com.example.logointerpreterbeta.Projects.getProjectFoldersMap
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
 
-class ProjectsActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LogoInterpreterBetaTheme {
-                Scaffold(
-                    topBar = {
-                        TopBarWithMenu("Projekty")
-                    }
-                ) { innerPadding ->
-                    ProjectsApp(Modifier.padding(innerPadding))
+//class ProjectsActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        enableEdgeToEdge()
+//        setContent {
+//
+////            LogoInterpreterBetaTheme {
+////                Scaffold(
+////                    topBar = {
+////                        TopBarWithMenu("Projekty")
+////                    },
+////                    modifier = Modifier.padding(0.dp)
+////                ) { innerPadding ->
+////                    ProjectsApp(viewModel, Modifier.padding(innerPadding), navController = rememberNavController())
+////                }
+////            }
+//        }
+//    }
+//}
+
+@SuppressLint("UnrememberedMutableState")
+@Composable
+fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, navController: NavController) {
+    val context = LocalContext.current
+    var projectName by rememberSaveable {
+        mutableStateOf("")
+    }
+    var isTextFieldVisable by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var isErrorWhenCreatingProject by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var projects by rememberSaveable {
+        mutableStateOf(getProjectFoldersMap(context))
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(top = 20.dp)
+            .fillMaxSize()
+            .then(modifier)
+    ) {
+        CreateTextFieldWithNameButton {
+            isTextFieldVisable = !isTextFieldVisable
+            if (isErrorWhenCreatingProject) isErrorWhenCreatingProject = false
+        }
+        AnimatedVisibility(visible = isTextFieldVisable) {
+            Row (
+                Modifier
+                    .height(60.dp)
+                    .fillMaxWidth(0.9f)){
+                ProjectNameTextField(text = projectName, Modifier.weight(0.8f)) { projectName = it }
+                CreateProjectButton(projectName, context, Modifier.weight(0.2f)) {
+                    isErrorWhenCreatingProject = !createProjectJSON(projectName,context)
+                    viewModel.upadteAcctualProject(context,projectName)
+                    navController.navigate(Interpreter)
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ProjectsApp(modifier: Modifier = Modifier) {
-    Surface(
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(top = 40.dp)
-                .then(modifier)
-        ) {
+        AnimatedVisibility(visible = isErrorWhenCreatingProject) {
             Text(
-                text = "Projects",
-                fontSize = 34.sp,
-                fontWeight = FontWeight.Bold,
-                style = AppTypography.bodySmall,
-                modifier = Modifier.padding(bottom = 12.dp)
+                text = "Projekt o podanej nazwie już istnieje!",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.errorContainer,
+                modifier = Modifier
+                    .align(alignment = Alignment.CenterHorizontally)
+                    .padding(5.dp)
             )
-
         }
-    }
-}
 
-@Preview(showBackground = true, showSystemUi = false)
-@Composable
-fun ProjectsPreview() {
-    LogoInterpreterBetaTheme {
-        Scaffold(
-            topBar = {
-                TopBarWithMenu("Projekty")
+        LazyColumn (Modifier.padding(top = 20.dp)){
+            items(projects.entries.toList()) { (name, date) ->
+                ProjectButton(name = name, date = date, viewModel, navController)
+                Spacer(modifier = Modifier.height(20.dp))
             }
-        ) { innerPadding ->
-            ProjectsApp(Modifier.padding(innerPadding))
+        }
+
+
+    }
+}
+
+@Composable
+private fun TextFieldIcon() {
+    Icon(imageVector = Icons.Filled.Draw, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+}
+
+@Composable
+private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
+    Button(
+        onClick = { onClick() },
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
+        shape = RoundedCornerShape(8.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(60.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Add,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "Nowy projekt",
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 18.sp
+            )
         }
 
     }
 }
+
+@Composable
+private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController) {
+    OutlinedButton(
+        onClick = {
+            viewModel.acctualProjectName = name
+            navController.navigate(Interpreter)
+         },
+        shape = RoundedCornerShape(8.dp),
+        contentPadding = PaddingValues(0.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.9f)
+            .height(80.dp)
+    ) {
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(start = 15.dp, end = 7.dp)) {
+            Text(text = name, textAlign = TextAlign.Left, fontSize = 20.sp, modifier = Modifier.weight(0.6f))
+            HorizontalDivider(
+                thickness = 5.dp,
+                color = MaterialTheme.colorScheme.inversePrimary,
+                modifier = Modifier
+                    .weight(0.1f)
+                    .align(Alignment.CenterVertically)
+            )
+            Text(text = date, textAlign = TextAlign.Right,  modifier = Modifier.fillMaxWidth(0.3f))
+        }
+
+    }
+}
+
+@Composable
+private fun ProjectNameTextField(text: String, modifier: Modifier = Modifier, onValueChange: (String) -> Unit ) {
+    OutlinedTextField(
+        value = text,
+        onValueChange = {newValue -> onValueChange(newValue)},
+        leadingIcon = { TextFieldIcon() },
+        label = { Text(text = "Nazwa projeku")},
+        placeholder = { Text(text = "Podaj nazwę")},
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.secondary
+        ),
+        modifier = modifier
+            .fillMaxWidth(0.9f)
+            .fillMaxHeight(),
+        shape = RoundedCornerShape(8.dp)
+    )
+}
+
+@Composable
+private fun CreateProjectButton(name: String, context: Context, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Button(
+        onClick = { onClick() },
+        shape = RoundedCornerShape(8.dp),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(start = 5.dp, top = 5.5.dp)
+
+    ) {
+        Icon(
+
+            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimary
+        )
+    }
+}
+
+
+
+//@Preview(showBackground = true, showSystemUi = false)
+//@Composable
+//fun ProjectsPreview() {
+//    LogoInterpreterBetaTheme(darkTheme = false) {
+//        Scaffold(
+//            topBar = {
+//                TopBarWithMenu("Projekty")
+//            },
+//            modifier = Modifier
+//        ) { innerPadding ->
+//            ProjectsApp(Modifier.padding(innerPadding), navController = rememberNavController())
+//        }
+//
+//    }
+//}
