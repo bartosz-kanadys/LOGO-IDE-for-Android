@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.AddToDrive
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PictureAsPdf
@@ -171,11 +172,7 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { MenuElement("Otwórz projekt", icon = Icons.Filled.CreateNewFolder) }
-                )
-                DropdownMenuItem(
-                    onClick = {  },
-                    text = { MenuElement("Zapisz projekt", icon = Icons.Filled.Save) }
+                    text = { MenuElement("Projekty", icon = Icons.Filled.Folder) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Tutorials) },
@@ -288,7 +285,7 @@ fun InterpreterTopBar(
                                     )
                                 )
                             },
-                            text = { MenuElement("Zapisz program", icon = Icons.Filled.UploadFile) }
+                            text = { MenuElement("Wczytaj z pliku", icon = Icons.Filled.UploadFile) }
                         )
 
                         DropdownMenuItem(
