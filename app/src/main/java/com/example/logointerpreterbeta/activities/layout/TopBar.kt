@@ -31,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.activities.Libraries
 import com.example.logointerpreterbeta.activities.Projects
 import com.example.logointerpreterbeta.activities.Settings
-import com.example.logointerpreterbeta.activities.StartScreen
 import com.example.logointerpreterbeta.activities.Tutorials
 
 class TopBar : ComponentActivity() {

@@ -12,7 +12,6 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -51,11 +50,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Projects.createFile
-import com.example.logointerpreterbeta.Projects.deleteFile
-import com.example.logointerpreterbeta.Projects.getProjectFromDirectory
-import com.example.logointerpreterbeta.Projects.readFileContent
-import com.example.logointerpreterbeta.Projects.writeFileContent
+import com.example.logointerpreterbeta.projects.createFile
+import com.example.logointerpreterbeta.projects.deleteFile
+import com.example.logointerpreterbeta.projects.getProjectFromDirectory
+import com.example.logointerpreterbeta.projects.readFileContent
+import com.example.logointerpreterbeta.projects.writeFileContent
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
 import com.example.logointerpreterbeta.components.codeEditor.CodeEditor

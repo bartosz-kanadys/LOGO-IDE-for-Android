@@ -1,7 +1,6 @@
 package com.example.logointerpreterbeta.activities
 
 import android.annotation.SuppressLint
-import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -45,14 +44,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Projects.createProject
-import com.example.logointerpreterbeta.Projects.deleteFile
-import com.example.logointerpreterbeta.Projects.deleteProject
-import com.example.logointerpreterbeta.Projects.getProjectFoldersMap
-import com.example.logointerpreterbeta.Projects.getProjectFromDirectory
+import com.example.logointerpreterbeta.projects.createProject
+import com.example.logointerpreterbeta.projects.deleteProject
+import com.example.logointerpreterbeta.projects.getProjectFoldersMap
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import java.io.File
 
 
 //class ProjectsActivity : ComponentActivity() {
@@ -143,7 +139,7 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
                     .height(60.dp)
                     .fillMaxWidth(0.9f)){
                 ProjectNameTextField(text = projectName, Modifier.weight(0.8f)) { projectName = it }
-                CreateProjectButton(projectName, context, Modifier.weight(0.2f)) {
+                CreateProjectButton(Modifier.weight(0.2f)) {
                     isErrorWhenCreatingProject = !createProject(projectName,context)
                     viewModel.upadteAcctualProject(context,projectName)
                     navController.navigate(Interpreter)
@@ -208,7 +204,7 @@ private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
 
 @Composable
 private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController, onDelete: () -> Unit) {
-    val context = LocalContext.current
+    LocalContext.current
     OutlinedButton(
         onClick = {
             viewModel.acctualProjectName = name
@@ -267,7 +263,10 @@ private fun ProjectNameTextField(text: String, modifier: Modifier = Modifier, on
 }
 
 @Composable
-private fun CreateProjectButton(name: String, context: Context, modifier: Modifier = Modifier, onClick: () -> Unit) {
+private fun CreateProjectButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = { onClick() },
         shape = RoundedCornerShape(8.dp),
@@ -277,7 +276,6 @@ private fun CreateProjectButton(name: String, context: Context, modifier: Modifi
 
     ) {
         Icon(
-
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimary

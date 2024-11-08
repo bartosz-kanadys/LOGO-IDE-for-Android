@@ -1,9 +1,5 @@
 package com.example.logointerpreterbeta.activities
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,11 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Projects.createConfigFile
-import com.example.logointerpreterbeta.Projects.readLastModifiedProject
+import com.example.logointerpreterbeta.projects.createConfigFile
+import com.example.logointerpreterbeta.projects.readLastModifiedProject
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
 //class StartScreenActivity : ComponentActivity() {

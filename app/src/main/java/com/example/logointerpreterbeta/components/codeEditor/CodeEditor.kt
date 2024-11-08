@@ -25,9 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -38,7 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.Projects.writeFileContent
+import com.example.logointerpreterbeta.projects.writeFileContent
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
@@ -58,7 +56,6 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
     } else mutableListOf(":)")
     val errorMap = prepareErrorList(errorsList)
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
-    var suggestedInstruction by remember { mutableStateOf("") }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
