@@ -25,8 +25,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
@@ -36,15 +38,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.Projects.writeFileContent
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.replaceAnnotatedSubstring
 import com.example.logointerpreterbeta.functions.prepareErrorList
 import com.example.logointerpreterbeta.ui.theme.AppTypography
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
 @Composable
-fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
+fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
     val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
     val errorsList = if (errors.isNotEmpty()) {
@@ -57,6 +61,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
     var suggestedInstruction by remember { mutableStateOf("") }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
+    val context = LocalContext.current
     Row(
         modifier = modifier
             .height(300.dp)
@@ -94,35 +99,38 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
             Box(modifier = Modifier.fillMaxSize()) {
                 BasicTextField(
                     value = codeState,
-                    onValueChange = { newValue -> onCodeChange(newValue)
-                            cursorPosition = newValue.selection.start
-                            val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                            Log.i("wordToMatch",wordToMatch)
-                            filteredSuggestions = if(wordToMatch.isNotEmpty()){
-                                SuggestionList.suggestions.filter {it.startsWith(wordToMatch) && it!=wordToMatch}
-                            } else{
-                                emptyList()
-                            }
-                                onCodeChange(newValue)
-                                },
+                    onValueChange = { newValue ->
+                        onCodeChange(newValue)
+                        cursorPosition = newValue.selection.start
+                        val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
+                        Log.i("wordToMatch", wordToMatch)
+                        filteredSuggestions = if (wordToMatch.isNotEmpty()) {
+                            SuggestionList.suggestions.filter { it.startsWith(wordToMatch) && it != wordToMatch }
+                        } else {
+                            emptyList()
+                        }
+                        onCodeChange(newValue)
+                        writeFileContent(context,viewModel.acctualFileName!!, viewModel.acctualProjectName, viewModel.codeState.text)
+                    },
                     minLines = 10,
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 18.sp,
                         fontFamily = AppTypography.bodySmall.fontFamily,
                     ),
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(scrollState)
-                        .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(top = 15.dp, start = 10.dp, end = 10.dp),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
                         val cursorPosition = codeState.selection.start
                         if (cursorPosition >= 0) {
                             val cursorRect = textLayoutResult.getCursorRect(cursorPosition)
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
                         }
-                    }
+                    },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .padding(top = 15.dp, start = 10.dp, end = 10.dp)
+
                 )
             }
             if(filteredSuggestions.isNotEmpty()) {
@@ -150,5 +158,5 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
 @Preview
 @Composable
 fun AA() {
-    CodeEditor(codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"), errors = "", onCodeChange = {  }, modifier = Modifier)
+    CodeEditor(viewModel = InterpreterViewModel(LocalContext.current), codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"), errors = "", onCodeChange = {  }, modifier = Modifier)
 }
