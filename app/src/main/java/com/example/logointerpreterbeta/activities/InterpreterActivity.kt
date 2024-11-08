@@ -3,8 +3,6 @@ package com.example.logointerpreterbeta.activities
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
@@ -14,6 +12,8 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -55,7 +55,6 @@ import com.example.logointerpreterbeta.Projects.createFile
 import com.example.logointerpreterbeta.Projects.deleteFile
 import com.example.logointerpreterbeta.Projects.getProjectFromDirectory
 import com.example.logointerpreterbeta.Projects.readFileContent
-import com.example.logointerpreterbeta.Projects.renameFile
 import com.example.logointerpreterbeta.Projects.writeFileContent
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
@@ -85,7 +84,7 @@ fun InterpreterApp(
 ) {
     val context = LocalContext.current
     val isDark = isSystemInDarkTheme()
-    var isDarkTheme by rememberSaveable { mutableStateOf(isDark) }
+    val isDarkTheme by rememberSaveable { mutableStateOf(isDark) }
     var isAlertEmptyProjectVisable by rememberSaveable { mutableStateOf(false) }
     var isAlertNewFileVisable by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
@@ -97,7 +96,6 @@ fun InterpreterApp(
 
     var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
     var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
-    var fileToRename by rememberSaveable { mutableStateOf<String?>(null) }
     var acctualFile by rememberSaveable { mutableStateOf<String?>(project?.files?.firstOrNull()?.name) }
     viewModel.acctualFileName = acctualFile
 
@@ -117,9 +115,11 @@ fun InterpreterApp(
                 )!!
             )
             viewModel.colorCode()
+            //viewModel.interpretCode("")
         }
     }
 
+    //alert gdy pusty projekt
     AnimatedVisibility(visible = project!!.files.isEmpty()) {
         AlertDialog(
             title = {
@@ -170,6 +170,7 @@ fun InterpreterApp(
             }
             )
     }
+    //alert gdy tworzenie nowego pliku
     AnimatedVisibility(visible = isAlertNewFileVisable) {
         AlertDialog(
             title = {
@@ -212,6 +213,7 @@ fun InterpreterApp(
             }
         )
     }
+    //alert potwierdzenia usuniecia
     AnimatedVisibility(visible = fileToDelete != null) {
         AlertDialog(
             onDismissRequest = { fileToDelete = null },
@@ -243,128 +245,86 @@ fun InterpreterApp(
             }
         )
     }
-//    AnimatedVisibility(visible = fileToRename != null) {
-//        AlertDialog(
-//            title = {
-//                Text(text = "Zmiana nazwy")
-//            },
-//            text = {
-//                Column {
-//                    Text(text = "Podaj nową nazwe pliku")
-//                    TextField(value = newFileName, onValueChange = { newValue -> newFileName = newValue},Modifier.padding(top = 10.dp))
-//                }
-//
-//            },
-//            onDismissRequest = {
-//
-//            },
-//            confirmButton = {
-//                TextButton(
-//                    onClick = {
-//                        if (newFileName.isNotEmpty()) {
-//                            renameFile(context,acctualFile!!,newFileName,project!!.name)
-//
-//                            project = getProjectFromDirectory(
-//                                File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
-//                            )
-//                            acctualFile = newFileName
-//                            viewModel.acctualFileName = acctualFile
-//                            fileToRename = null
-//                            newFileName = ""
-//                        }
-//                    }
-//                ) {
-//                    Text("Dalej")
-//                }
-//            },
-//            dismissButton = {
-//                TextButton(
-//                    onClick = {
-//                        isAlertNewFileVisable = false
-//                    }
-//                ) {
-//                    Text("Wstecz")
-//                }
-//            }
-//        )
-//    }
 
-    LazyColumn {
-        item { ImagePanel() }
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {
-            LazyRow(
+            Box(
                 modifier = Modifier
+                   // .height(400.dp)
+                    .fillParentMaxHeight(0.6f)
                     .fillMaxWidth()
-                    .height(35.dp)
-                    .padding(horizontal = 2.dp, vertical = 0.dp)
-            ) {
-                items(project!!.files) { projectFile ->
-                    Box(modifier = Modifier
-                        .background(
-                            if (acctualFile == projectFile.name)
-                                MaterialTheme.colorScheme.inversePrimary
-                            else
-                                MaterialTheme.colorScheme.secondaryContainer,
-                            RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
-                        )
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onLongPress = {
-                                    visibleMenuFileName = projectFile.name
-                                },
-                                onTap = {
-                                    writeFileContent(
-                                        context,
-                                        acctualFile!!,
-                                        project!!.name,
-                                        viewModel.codeState.text
-                                    )
-                                    viewModel.codeState = TextFieldValue(
-                                        readFileContent(
-                                            context,
-                                            projectFile.name,
-                                            project!!.name
-                                        )!!
-                                    )
-                                    viewModel.colorCode()
-                                    acctualFile = projectFile.name
-                                    viewModel.acctualFileName = acctualFile!!
-                                }
-                            )
-                        }
-                        .padding(horizontal = 15.dp, vertical = 6.dp)
-                    ) {
-                        Text(text = projectFile.name)
-                        DropdownMenu(
-                            expanded = visibleMenuFileName == projectFile.name,
-                            onDismissRequest = { visibleMenuFileName = null }
-                        ) {
-//                            DropdownMenuItem(
-//                                text = { Text("Zmień nazwę") },
-//                                onClick = {
-//                                    visibleMenuFileName = null
-//                                    fileToRename = projectFile.name
-//                                }
-//                            )
-                            DropdownMenuItem(
-                                text = { Text("Usuń") },
-                                onClick = {
-                                    fileToDelete = projectFile.name
-                                    visibleMenuFileName = null
-                                }
-                            )
-                        }
-                    }
 
-                }
-                item {
-                    TextButton(
-                        onClick = { isAlertNewFileVisable = true },
-                        contentPadding = PaddingValues(0.dp),
-                        modifier = Modifier
-                            .width(30.dp)
-                    ) {
-                        Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+            ){
+                ImagePanel()
+
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.BottomStart)
+                        .height(35.dp)
+                        .padding(horizontal = 2.dp, vertical = 0.dp)
+                ) {
+                    items(project!!.files) { projectFile ->
+                        Box(modifier = Modifier
+                            .background(
+                                if (acctualFile == projectFile.name)
+                                    MaterialTheme.colorScheme.inversePrimary
+                                else
+                                    MaterialTheme.colorScheme.secondaryContainer,
+                                RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                            )
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        visibleMenuFileName = projectFile.name
+                                    },
+                                    onTap = {
+                                        writeFileContent(
+                                            context,
+                                            acctualFile!!,
+                                            project!!.name,
+                                            viewModel.codeState.text
+                                        )
+                                        viewModel.codeState = TextFieldValue(
+                                            readFileContent(
+                                                context,
+                                                projectFile.name,
+                                                project!!.name
+                                            )!!
+                                        )
+                                        viewModel.colorCode()
+                                        acctualFile = projectFile.name
+                                        viewModel.acctualFileName = acctualFile!!
+                                    }
+                                )
+                            }
+                            .padding(horizontal = 15.dp, vertical = 6.dp)
+                        ) {
+                            Text(text = projectFile.name)
+                            DropdownMenu(
+                                expanded = visibleMenuFileName == projectFile.name,
+                                onDismissRequest = { visibleMenuFileName = null }
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text("Usuń") },
+                                    onClick = {
+                                        fileToDelete = projectFile.name
+                                        visibleMenuFileName = null
+                                    }
+                                )
+                            }
+                        }
+
+                    }
+                    item {
+                        TextButton(
+                            onClick = { isAlertNewFileVisable = true },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier
+                                .width(30.dp)
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                        }
                     }
                 }
             }
