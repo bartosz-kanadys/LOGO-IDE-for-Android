@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,24 +32,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.Projects.createConfigFile
+import com.example.logointerpreterbeta.Projects.readLastModifiedProject
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
-class StartScreenActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LogoInterpreterBetaTheme {
-                StartScreenApp()
-            }
-        }
-    }
-}
+//class StartScreenActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//        enableEdgeToEdge()
+//        setContent {
+//            LogoInterpreterBetaTheme {
+//                StartScreenApp()
+//            }
+//        }
+//    }
+//}
 
 @Composable
-fun StartScreenApp(navController: NavHostController = rememberNavController()) {
+fun StartScreenApp(navController: NavHostController = rememberNavController(), viewModel: InterpreterViewModel) {
+    createConfigFile(LocalContext.current)
+    viewModel.acctualProjectName = readLastModifiedProject(LocalContext.current)!!
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxHeight()
@@ -84,8 +91,7 @@ fun StartScreenApp(navController: NavHostController = rememberNavController()) {
                     MenuButton("Kontynuuj ostatni projekt",
                         { navController.navigate(Interpreter) })
                 }
-                item { MenuButton("Nowy projekt", { navController.navigate(Interpreter) }) }
-                item { MenuButton("Otwórz projekt", { navController.navigate(Projects) }) }
+                item { MenuButton("Projekty", { navController.navigate(Projects) }) }
                 item { MenuButton("Poradniki", { navController.navigate(Tutorials) }) }
                 item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
                 item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
@@ -122,7 +128,9 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
 
-        StartScreenApp()
+        StartScreenApp(navController = rememberNavController(), viewModel = InterpreterViewModel(
+            LocalContext.current)
+        )
 
     }
 }
