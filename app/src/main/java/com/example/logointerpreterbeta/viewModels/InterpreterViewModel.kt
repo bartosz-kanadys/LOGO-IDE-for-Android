@@ -8,14 +8,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
+import com.example.logointerpreterbeta.Projects.updateLastModifiedProjectJSON
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
+
 import kotlinx.coroutines.launch
 
 class InterpreterViewModel(context: Context) : ViewModel() {
@@ -23,6 +26,9 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     private val logo = LogoInterpreter(context)
     var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     var cursorPosition by mutableStateOf(0)
+
+    var acctualProjectName by mutableStateOf("-")
+    var acctualFileName by mutableStateOf<String?>(null)
 
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
@@ -41,6 +47,11 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
         Turtle.direction = 0f
         logo.start("st")
+    }
+
+    fun upadteAcctualProject(context: Context,projectName: String) {
+        acctualProjectName = projectName
+        updateLastModifiedProjectJSON(context, acctualProjectName)
     }
 
     fun onCodeChange(newCode: TextFieldValue) {
