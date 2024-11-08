@@ -107,10 +107,14 @@ fun InterpreterApp(
         viewModel.colorCode()
     }
     LaunchedEffect(Unit) {
-
+        if (viewModel.acctualProjectName == "") {
+            navController.navigate(StartScreen)
+            return@LaunchedEffect
+        }
         project = getProjectFromDirectory(
             File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
         )
+        isAlertEmptyProjectVisable = project!!.files.isEmpty()
         acctualFile = project?.files?.firstOrNull()?.name
         viewModel.acctualFileName = acctualFile
         if (viewModel.acctualProjectName == "") {
@@ -130,7 +134,7 @@ fun InterpreterApp(
     }
 
     //alert gdy pusty projekt
-    AnimatedVisibility(visible = project!!.files.isEmpty()) {
+    AnimatedVisibility(isAlertEmptyProjectVisable) {
         AlertDialog(
             title = {
                 Text(text = "Pusty projekt")
