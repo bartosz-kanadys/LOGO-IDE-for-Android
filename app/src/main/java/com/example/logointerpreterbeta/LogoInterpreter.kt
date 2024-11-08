@@ -60,10 +60,16 @@ class LogoInterpreter(context: Context) {
         }
 
         val styledText = buildAnnotatedString {
-            tokens.tokens.forEach { token ->
-                if (token.type == logoLexer.EOF) return@forEach
+            tokens.tokens.forEachIndexed() { index, token ->
+                if (token.type == logoLexer.EOF) return@forEachIndexed
                 if(token.type == logoLexer.STRINGLITERAL) {
                     addSuggestion(token.text) // Wykonaj funkcję
+                }
+                if (token.type == logoLexer.T__0) {
+                    val nextToken = tokens.tokens.getOrNull(index + 2)
+                    if (nextToken != null) {
+                        Log.i("sprawdzam", "Nazwa zmiennej: ${nextToken.text}")
+                    }
                 }
                 Log.i("Token",token.type.toString()+" "+token.text) //Logi służące do znajdowania jaki numer ma jaki token XD
                 val color = when (token.type) {
