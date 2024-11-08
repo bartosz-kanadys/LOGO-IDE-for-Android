@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.projects
+package com.example.logointerpreterbeta.Projects
 
 import android.content.Context
 import android.util.Log
