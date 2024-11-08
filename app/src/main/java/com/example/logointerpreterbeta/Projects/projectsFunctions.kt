@@ -2,65 +2,39 @@ package com.example.logointerpreterbeta.Projects
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.util.Log
-import com.google.gson.Gson
 import java.io.File
-import com.google.gson.reflect.TypeToken
 import java.util.Date
 import java.util.Locale
 
 
-fun createProjectJSON(name: String, context: Context) : Boolean {
-   // val projectFiles = emptyList<ProjectFile>()
-
-//    val project = Project(
-//        name = name,
-//        pathToFolder = "/Projects/$name",
-//        files = projectFiles
-//    )
-
-//    val gson = Gson()
-//    val jsonFile = File(context.getExternalFilesDir(null), "projects.json")
-
-//    val projectsList: MutableList<Project> = if (jsonFile.exists()) {
-//        // Jeśli plik istnieje, odczytaj listę projektów
-//        try {
-//            val json = jsonFile.readText()
-//            val type = object : TypeToken<MutableList<Project>>() {}.type
-//            gson.fromJson(json, type) ?: mutableListOf()
-//        } catch (e: Exception) {
-//            Log.e("JSON", "Błąd podczas odczytu pliku JSON: ${e.message}")
-//            mutableListOf()
-//        }
-//    } else {
-//        // Jeśli plik nie istnieje, utwórz nową listę
-//        mutableListOf()
-//    }
-
-//    // Sprawdzenie, czy projekt o tej nazwie już istnieje
-//    if (projectsList.any { it.name == name }) {
-//        Log.i("JSON", "Projekt o nazwie '$name' już istnieje i nie zostanie dodany.")
-//        return false
-//    }
-//
-//    // Dodaj nowy projekt do listy
-//    projectsList.add(project)
-//
-//    // Zapisz zaktualizowaną listę do pliku
-//    val updatedJson = gson.toJson(projectsList)
-//    jsonFile.writeText(updatedJson)
-//
-
+fun createProject(name: String, context: Context) : Boolean {
     val projectsFolder = File(context.getExternalFilesDir(null), "Projects/$name")
     if (projectsFolder.exists()){
         return false
     }
     projectsFolder.mkdirs()
-
-
-    //Log.i("JSON", "Zapisano projekt do pliku: ${jsonFile.path}")
     return true
-
 }
+
+fun deleteProject(name: String, context: Context): Boolean {
+    val projectFolder = File(context.getExternalFilesDir(null), "Projects/$name")
+
+    if (!projectFolder.exists() || !projectFolder.isDirectory) {
+        return false
+    }
+
+    return deleteRecursively(projectFolder)
+}
+
+private fun deleteRecursively(file: File): Boolean {
+    if (file.isDirectory) {
+        file.listFiles()?.forEach { child ->
+            deleteRecursively(child)
+        }
+    }
+    return file.delete()
+}
+
 
 fun getProjectFromDirectory(directory: File): Project? {
     if (!directory.exists() || !directory.isDirectory) {

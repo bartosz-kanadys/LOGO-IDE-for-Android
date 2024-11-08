@@ -106,6 +106,15 @@ fun InterpreterApp(
         viewModel.colorCode()
     }
     LaunchedEffect(Unit) {
+        if (viewModel.acctualProjectName == "") {
+            navController.navigate(StartScreen)
+        }
+        project = getProjectFromDirectory(
+            File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
+        )
+        acctualFile = project?.files?.firstOrNull()?.name
+        viewModel.acctualFileName = acctualFile
+
         if (acctualFile != null) {
             viewModel.codeState = TextFieldValue(
                 readFileContent(
@@ -250,7 +259,7 @@ fun InterpreterApp(
         item {
             Box(
                 modifier = Modifier
-                   // .height(400.dp)
+                    // .height(400.dp)
                     .fillParentMaxHeight(0.6f)
                     .fillMaxWidth()
 

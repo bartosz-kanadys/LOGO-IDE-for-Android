@@ -71,7 +71,7 @@ fun StartScreenApp(navController: NavHostController = rememberNavController(), v
     AnimatedVisibility(isAlertVisable) {
         AlertDialog(
             title = { Text(text = "Problem") },
-            text = { Text(text = "Nie masz jeszcze żadnego projektu!") },
+            text = { Text(text = "Nie masz jeszcze żadnego projektu lub został on usunięty!") },
             onDismissRequest = { /*TODO*/ },
             confirmButton = {
                 TextButton(

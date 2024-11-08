@@ -18,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Draw
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -28,6 +30,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,12 +40,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.logointerpreterbeta.Projects.createProjectJSON
+import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.Projects.createProject
+import com.example.logointerpreterbeta.Projects.deleteFile
+import com.example.logointerpreterbeta.Projects.deleteProject
 import com.example.logointerpreterbeta.Projects.getProjectFoldersMap
+import com.example.logointerpreterbeta.Projects.getProjectFromDirectory
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import java.io.File
 
 
 //class ProjectsActivity : ComponentActivity() {
@@ -78,9 +88,42 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
     var isErrorWhenCreatingProject by rememberSaveable {
         mutableStateOf(false)
     }
-
     var projects by rememberSaveable {
         mutableStateOf(getProjectFoldersMap(context))
+    }
+    var projectToDelete by rememberSaveable {
+        mutableStateOf<String?>(null)
+    }
+
+    AnimatedVisibility(visible = projectToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { projectToDelete = null },
+            title = { Text("Potwierdzenie usunięcia") },
+            text = { Text("Czy na pewno chcesz usunąć projekt '${projectToDelete}'?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (viewModel.acctualProjectName == projectToDelete) {
+                            viewModel.acctualProjectName = ""
+                            viewModel.acctualFileName = null
+                        }
+                        deleteProject(projectToDelete!!, context)
+                        projects = getProjectFoldersMap(context)
+
+                        projectToDelete = null
+                    }
+                ) {
+                    Text("Usuń")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { projectToDelete = null } // Anuluj usunięcie
+                ) {
+                    Text("Anuluj")
+                }
+            }
+        )
     }
 
     Column(
@@ -101,7 +144,7 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
                     .fillMaxWidth(0.9f)){
                 ProjectNameTextField(text = projectName, Modifier.weight(0.8f)) { projectName = it }
                 CreateProjectButton(projectName, context, Modifier.weight(0.2f)) {
-                    isErrorWhenCreatingProject = !createProjectJSON(projectName,context)
+                    isErrorWhenCreatingProject = !createProject(projectName,context)
                     viewModel.upadteAcctualProject(context,projectName)
                     navController.navigate(Interpreter)
                 }
@@ -120,7 +163,7 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
 
         LazyColumn (Modifier.padding(top = 20.dp)){
             items(projects.entries.toList()) { (name, date) ->
-                ProjectButton(name = name, date = date, viewModel, navController)
+                ProjectButton(name = name, date = date, viewModel, navController) { projectToDelete = name }
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
@@ -164,7 +207,8 @@ private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController) {
+private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController, onDelete: () -> Unit) {
+    val context = LocalContext.current
     OutlinedButton(
         onClick = {
             viewModel.acctualProjectName = name
@@ -179,16 +223,25 @@ private fun ProjectButton(name: String, date: String, viewModel: InterpreterView
         Row(
             Modifier
                 .fillMaxWidth()
-                .padding(start = 15.dp, end = 7.dp)) {
-            Text(text = name, textAlign = TextAlign.Left, fontSize = 20.sp, modifier = Modifier.weight(0.6f))
-            HorizontalDivider(
-                thickness = 5.dp,
-                color = MaterialTheme.colorScheme.inversePrimary,
-                modifier = Modifier
-                    .weight(0.1f)
-                    .align(Alignment.CenterVertically)
-            )
-            Text(text = date, textAlign = TextAlign.Right,  modifier = Modifier.fillMaxWidth(0.3f))
+                .padding(start = 15.dp, end = 7.dp)
+                .align(Alignment.CenterVertically)
+        ) {
+            Column(modifier = Modifier.weight(0.8f)) {
+                Text(text = name, textAlign = TextAlign.Left, fontSize = 20.sp)
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.inversePrimary,
+                )
+                Text(text = date, textAlign = TextAlign.Right, fontSize = 10.sp)
+            }
+            TextButton(
+                onClick = { onDelete() },
+                modifier = Modifier.align(Alignment.CenterVertically)
+            ) {
+                Icon(imageVector = Icons.Filled.DeleteForever, contentDescription = null)
+            }
+
+
         }
 
     }
@@ -234,18 +287,11 @@ private fun CreateProjectButton(name: String, context: Context, modifier: Modifi
 
 
 
-//@Preview(showBackground = true, showSystemUi = false)
-//@Composable
-//fun ProjectsPreview() {
-//    LogoInterpreterBetaTheme(darkTheme = false) {
-//        Scaffold(
-//            topBar = {
-//                TopBarWithMenu("Projekty")
-//            },
-//            modifier = Modifier
-//        ) { innerPadding ->
-//            ProjectsApp(Modifier.padding(innerPadding), navController = rememberNavController())
-//        }
-//
-//    }
-//}
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+fun ProjectsPreview() {
+    LogoInterpreterBetaTheme(darkTheme = false) {
+
+    ProjectsApp(viewModel = InterpreterViewModel(LocalContext.current), navController = rememberNavController())
+    }
+}
