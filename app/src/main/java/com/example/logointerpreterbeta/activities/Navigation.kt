@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -41,23 +42,32 @@ class MainActivity : ComponentActivity() {
                     startDestination = StartScreen
                 ) {
                     composable<StartScreen> {
-                        StartScreenApp(navController)
+                        LogoInterpreterBetaTheme {
+                            StartScreenApp(navController, viewModel)
+                        }
                     }
                     composable<Interpreter> {
                         Scaffold(
                             topBar = {
-                                InterpreterTopBar("plik.txt", viewModel, navController)
+                                InterpreterTopBar(viewModel.acctualProjectName, viewModel, navController)
                             }
                         ) { innerPadding ->
                             Column(Modifier.padding(innerPadding)) {
-                                InterpreterApp(viewModel)
+                                InterpreterApp(viewModel,navController)
                             }
                         }
                     }
                     composable<Projects> {
-                        Layout({ modifier ->
-                            ProjectsApp(modifier = modifier)
-                        }, "Projekty", navController)
+                        LogoInterpreterBetaTheme {
+                            Scaffold(
+                                topBar = {
+                                    TopBarWithMenu("Projekty", navController)
+                                },
+                                modifier = Modifier.padding(0.dp)
+                            ) { innerPadding ->
+                                ProjectsApp(viewModel, Modifier.padding(innerPadding), navController = navController)
+                            }
+                        }
                     }
                     composable<Settings> {
                         Layout({ modifier ->
