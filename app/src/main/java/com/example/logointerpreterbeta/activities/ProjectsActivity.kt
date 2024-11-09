@@ -206,12 +206,13 @@ private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
 
 @Composable
 private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController, onDelete: () -> Unit) {
-    LocalContext.current
+    val context = LocalContext.current
     OutlinedButton(
         onClick = {
             viewModel.acctualProjectName = name
+            updateLastModifiedProjectJSON(context, name)
             navController.navigate(Interpreter)
-         },
+        },
         shape = RoundedCornerShape(8.dp),
         contentPadding = PaddingValues(0.dp),
         modifier = Modifier
