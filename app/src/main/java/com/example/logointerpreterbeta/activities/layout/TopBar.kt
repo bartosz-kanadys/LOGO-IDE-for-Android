@@ -13,8 +13,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,7 +31,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.activities.Libraries
 import com.example.logointerpreterbeta.activities.Projects
 import com.example.logointerpreterbeta.activities.Settings
-import com.example.logointerpreterbeta.activities.StartScreen
 import com.example.logointerpreterbeta.activities.Tutorials
 
 class TopBar : ComponentActivity() {
@@ -47,6 +48,13 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
     var expanded by remember { mutableStateOf(false) }
 
     TopAppBar(
+        colors = TopAppBarColors(
+            titleContentColor = MaterialTheme.colorScheme.inverseSurface,
+            navigationIconContentColor = MaterialTheme.colorScheme.inverseSurface,
+            actionIconContentColor = MaterialTheme.colorScheme.inverseSurface,
+            containerColor = MaterialTheme.colorScheme.inversePrimary,
+            scrolledContainerColor = MaterialTheme.colorScheme.inversePrimary,
+        ),
         title = {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -61,7 +69,7 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
         },
         navigationIcon = {
             // Ikona menu kontekstowego
-            IconButton(onClick = { navController.navigate(StartScreen) }) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Settings"

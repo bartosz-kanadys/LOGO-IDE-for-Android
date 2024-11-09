@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -20,9 +22,11 @@ import androidx.compose.material.icons.filled.AddToDrive
 import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.FileOpen
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
@@ -139,7 +143,8 @@ fun InterpreterTopBar(
         title = {
             Box(
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
                 Text(
                     fontSize = 20.sp,
@@ -167,7 +172,7 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { MenuElement("Otwórz projekt", icon = Icons.Filled.CreateNewFolder) }
+                    text = { MenuElement("Projekty", icon = Icons.Filled.Folder) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Tutorials) },
@@ -280,7 +285,7 @@ fun InterpreterTopBar(
                                     )
                                 )
                             },
-                            text = { MenuElement("Zapisz program", icon = Icons.Filled.UploadFile) }
+                            text = { MenuElement("Wczytaj z pliku", icon = Icons.Filled.UploadFile) }
                         )
 
                         DropdownMenuItem(
@@ -306,7 +311,8 @@ fun InterpreterTopBar(
                     contentDescription = "Settings"
                 )
             }
-        }
+        },
+        modifier = Modifier.height(60.dp)
     )
 }
 
@@ -339,6 +345,6 @@ fun InterpreterTopBarPreview() {
 @Composable
 fun InterpreterTopBarPreview2() {
     LogoInterpreterBetaTheme(darkTheme = true) {
-        //  InterpreterTopBar("Test")
+          InterpreterTopBar("Test", viewModel = InterpreterViewModel(LocalContext.current), navController = rememberNavController())
     }
 }

@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kotlin.serialization)
+    id("kotlin-parcelize")
 }
 
 android {
@@ -68,6 +69,8 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("com.google.code.gson:gson:2.7")
+
 
 
     testImplementation(libs.junit)

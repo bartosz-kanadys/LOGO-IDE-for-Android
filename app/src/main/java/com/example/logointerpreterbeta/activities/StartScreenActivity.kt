@@ -1,9 +1,6 @@
 package com.example.logointerpreterbeta.activities
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,16 +10,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,24 +35,49 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.functions.config.createConfigFile
+import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
-class StartScreenActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            LogoInterpreterBetaTheme {
-                StartScreenApp()
-            }
-        }
-    }
-}
+//class StartScreenActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//
+//        enableEdgeToEdge()
+//        setContent {
+//            LogoInterpreterBetaTheme {
+//                StartScreenApp()
+//            }
+//        }
+//    }
+//}
 
 @Composable
-fun StartScreenApp(navController: NavHostController = rememberNavController()) {
+fun StartScreenApp(navController: NavHostController = rememberNavController(), viewModel: InterpreterViewModel) {
+    val context = LocalContext.current
+    createConfigFile(context)
+    viewModel.acctualProjectName = readLastModifiedProject(LocalContext.current)!!
+
+    var isAlertVisable by rememberSaveable { mutableStateOf(false) }
+
+    AnimatedVisibility(isAlertVisable) {
+        AlertDialog(
+            title = { Text(text = "Problem") },
+            text = { Text(text = "Nie masz jeszcze żadnego projektu lub został on usunięty!") },
+            onDismissRequest = { /*TODO*/ },
+            confirmButton = {
+                TextButton(
+                    onClick = { isAlertVisable = false }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
+
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxHeight()
@@ -82,10 +111,15 @@ fun StartScreenApp(navController: NavHostController = rememberNavController()) {
             ) {
                 item {
                     MenuButton("Kontynuuj ostatni projekt",
-                        { navController.navigate(Interpreter) })
+                        {
+                            if (readLastModifiedProject(context) == "") {
+                                isAlertVisable = true
+                            } else {
+                                navController.navigate(Interpreter)
+                            }
+                        })
                 }
-                item { MenuButton("Nowy projekt", { navController.navigate(Interpreter) }) }
-                item { MenuButton("Otwórz projekt", { navController.navigate(Projects) }) }
+                item { MenuButton("Projekty", { navController.navigate(Projects) }) }
                 item { MenuButton("Poradniki", { navController.navigate(Tutorials) }) }
                 item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
                 item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
@@ -122,7 +156,9 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
 
-        StartScreenApp()
+        StartScreenApp(navController = rememberNavController(), viewModel = InterpreterViewModel(
+            LocalContext.current)
+        )
 
     }
 }
