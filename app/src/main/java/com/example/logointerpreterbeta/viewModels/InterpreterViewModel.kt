@@ -12,7 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
-import com.example.logointerpreterbeta.Projects.updateLastModifiedProjectJSON
+import com.example.logointerpreterbeta.functions.config.updateLastModifiedProjectJSON
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError

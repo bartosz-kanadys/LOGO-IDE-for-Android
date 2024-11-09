@@ -44,10 +44,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Projects.createProject
-import com.example.logointerpreterbeta.Projects.deleteProject
-import com.example.logointerpreterbeta.Projects.getProjectFoldersMap
-import com.example.logointerpreterbeta.Projects.updateLastModifiedProjectJSON
+import com.example.logointerpreterbeta.functions.project.createProject
+import com.example.logointerpreterbeta.functions.project.deleteProject
+import com.example.logointerpreterbeta.functions.project.getProjectFoldersMap
+import com.example.logointerpreterbeta.functions.config.updateLastModifiedProjectJSON
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 

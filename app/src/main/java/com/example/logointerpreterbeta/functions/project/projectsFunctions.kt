@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.Projects
+package com.example.logointerpreterbeta.functions.project
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.util.Log

@@ -35,8 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Projects.createConfigFile
-import com.example.logointerpreterbeta.Projects.readLastModifiedProject
+import com.example.logointerpreterbeta.functions.config.createConfigFile
+import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
