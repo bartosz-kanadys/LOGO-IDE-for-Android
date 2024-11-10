@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.functions
+package com.example.logointerpreterbeta.functions.errors
 
 fun prepareErrorList(errorList: MutableList<String>): MutableMap<Int, String> {
     val errorMap = mutableMapOf<Int, String>()
