@@ -1,0 +1,27 @@
+package com.example.logointerpreterbeta.viewModels
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Library(
+    val name: String,
+    val author: String,
+    val description: String,
+    val procedures: List<Procedures>
+) : Parcelable
+
+@Parcelize
+data class Procedures(
+    val name: String,
+    val description: String,
+    val parameters: List<Parameter>,
+    val code: String,
+) : Parcelable
+
+@Parcelize
+data class Parameter(
+    val name: String,
+    val type: String,
+    val description: String
+) : Parcelable

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,7 +24,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.activities.layout.InterpreterTopBar
 import com.example.logointerpreterbeta.activities.layout.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.ui.theme.screens.LibraryFormScreen
+import com.example.logointerpreterbeta.ui.theme.screens.LibraryProceduresScreen
+import com.example.logointerpreterbeta.ui.theme.screens.LibraryScreen
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
@@ -34,6 +39,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: InterpreterViewModel =
                 viewModel(factory = InterpreterViewModelFactory(this))
+            val libraryViewModel: LibraryViewModel =
+                viewModel(factory = LibraryViewModelFactory(this))
 
             LogoInterpreterBetaTheme {
                 val navController = rememberNavController()
@@ -81,8 +88,18 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<Libraries> {
                         Layout({ modifier ->
-                            LibraryApp(modifier = modifier)
+                            LibraryScreen(modifier = modifier, libraryViewModel = libraryViewModel, navController = navController)
                         }, "Biblioteki", navController)
+                    }
+                    composable<LibraryForm> {
+                        Layout({ modifier ->
+                            LibraryFormScreen(modifier = modifier, libraryViewModel = libraryViewModel, navController =  navController)
+                        }, "Dodaj biblioteke", navController)
+                    }
+                    composable<LibraryForm> {
+                        Layout({ modifier ->
+                            LibraryProceduresScreen()
+                        }, "Dodaj biblioteke", navController)
                     }
                 }
             }
@@ -95,6 +112,15 @@ class InterpreterViewModelFactory(private val context: Context) : ViewModelProvi
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(InterpreterViewModel::class.java)) {
             return InterpreterViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class LibraryViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(LibraryViewModel::class.java)) {
+            return LibraryViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
@@ -132,3 +158,9 @@ object Tutorials
 
 @Serializable
 object Libraries
+
+@Serializable
+object LibraryForm
+
+@Serializable
+object LibraryProcedures

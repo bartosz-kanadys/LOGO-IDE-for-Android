@@ -41,7 +41,7 @@ import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.Cod
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.replaceAnnotatedSubstring
-import com.example.logointerpreterbeta.functions.prepareErrorList
+import com.example.logointerpreterbeta.functions.errors.prepareErrorList
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
