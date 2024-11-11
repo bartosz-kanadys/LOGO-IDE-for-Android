@@ -8,14 +8,14 @@ data class Library(
     val name: String,
     val author: String,
     val description: String,
-    val procedures: List<Procedures>
+    val procedures: List<Procedure>
 ) : Parcelable
 
 @Parcelize
-data class Procedures(
+data class Procedure(
     val name: String,
     val description: String,
-    val parameters: List<Parameter>,
+    val parameters: List<Parameter>?,
     val code: String,
 ) : Parcelable
 

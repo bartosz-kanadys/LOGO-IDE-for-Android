@@ -3,8 +3,10 @@ package com.example.logointerpreterbeta.viewModels
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.example.logointerpreterbeta.functions.library.addProcedureToLibraryJSON
 import com.example.logointerpreterbeta.functions.library.createLibraryJSON
 import com.example.logointerpreterbeta.functions.library.deleteLibraryFromJSON
+import com.example.logointerpreterbeta.functions.library.deleteProcedureFromLibraryJSON
 import com.example.logointerpreterbeta.functions.library.loadLibraries
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -52,5 +54,28 @@ class LibraryViewModel(context: Context): ViewModel() {
         createLibraryJSON(context, library)
         addLibrary(library)
         return true
+    }
+
+    fun checkProcedureAddForm(name: String, author: String, desc: String, code: String, context: Context): Boolean{
+        if (name.isEmpty() || author.isEmpty() || desc.isEmpty() || code.isEmpty()) {
+            Toast.makeText(context, "Uzupełnij wszytskie pola", Toast.LENGTH_LONG).show()
+            return false
+        }
+        else if (_libraries.value.find { it.name == actualLibrary.value }?.procedures?.find { it.name == name } != null) {
+            Toast.makeText(context, "Procedura o takiej nazwie już istnieje w tej bibliotece", Toast.LENGTH_LONG)
+                .show()
+            return false
+        }
+        return true
+    }
+
+    fun addProcedureToLibrary(context: Context, libraryName: String, procedure: Procedure) {
+        addProcedureToLibraryJSON(context,libraryName, procedure)
+        updateLibraries(context)
+    }
+
+    fun deleteProcedureFromLibrary(context: Context, libraryName: String, procedureName: String) {
+        deleteProcedureFromLibraryJSON(context, libraryName, procedureName)
+        updateLibraries(context)
     }
 }
