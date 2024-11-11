@@ -2,6 +2,7 @@ package com.example.logointerpreterbeta.functions.library
 
 import android.content.Context
 import com.example.logointerpreterbeta.viewModels.Library
+import com.example.logointerpreterbeta.viewModels.Procedure
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -78,3 +79,71 @@ fun deleteLibraryFromJSON(context: Context, libraryName: String) {
         libraryFile.writeText(updatedJson)
     }
 }
+
+fun addProcedureToLibraryJSON(context: Context, libraryName: String, procedure: Procedure) {
+    val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+
+    if (!libraryFile.exists()) {
+        return
+    }
+
+    val jsonString = libraryFile.readText()
+
+    val gson = Gson()
+    val listType = object : TypeToken<List<Library>>() {}.type
+
+    // Deserializujemy JSON do listy obiektów Library
+    val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
+
+    // Znajdujemy bibliotekę o podanej nazwie
+    val library = libraries.find { it.name == libraryName }
+    if (library != null) {
+        // Tworzymy nową listę procedur z dodaną nową procedurą
+        val updatedProcedures = library.procedures.toMutableList().apply {
+            add(procedure)
+        }
+
+        // Tworzymy nowy obiekt Library z zaktualizowaną listą procedur
+        val updatedLibrary = library.copy(procedures = updatedProcedures)
+
+        // Aktualizujemy listę bibliotek
+        libraries[libraries.indexOf(library)] = updatedLibrary
+
+        // Przekształcamy zaktualizowaną listę bibliotek na JSON i zapisujemy do pliku
+        val updatedJson = gson.toJson(libraries)
+        libraryFile.writeText(updatedJson)
+    }
+}
+
+fun deleteProcedureFromLibraryJSON(context: Context, libraryName: String, procedureName: String) {
+    val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+
+    if (!libraryFile.exists()) {
+        return
+    }
+
+    val jsonString = libraryFile.readText()
+    val gson = Gson()
+    val listType = object : TypeToken<List<Library>>() {}.type
+
+    // Deserializujemy JSON do listy obiektów Library
+    val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
+
+    // Znajdujemy bibliotekę o podanej nazwie
+    val library = libraries.find { it.name == libraryName }
+    if (library != null) {
+        // Tworzymy nową listę procedur bez procedury o podanej nazwie
+        val updatedProcedures = library.procedures.filter { it.name != procedureName }
+
+        // Tworzymy nowy obiekt Library z zaktualizowaną listą procedur
+        val updatedLibrary = library.copy(procedures = updatedProcedures)
+
+        // Aktualizujemy listę bibliotek
+        libraries[libraries.indexOf(library)] = updatedLibrary
+
+        // Przekształcamy zaktualizowaną listę bibliotek na JSON i zapisujemy do pliku
+        val updatedJson = gson.toJson(libraries)
+        libraryFile.writeText(updatedJson)
+    }
+}
+
