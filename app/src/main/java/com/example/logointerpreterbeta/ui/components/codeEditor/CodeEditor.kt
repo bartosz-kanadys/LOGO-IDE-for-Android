@@ -46,7 +46,17 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
 @Composable
-fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors: String, onCodeChange: (TextFieldValue) -> Unit, modifier: Modifier) {
+fun CodeEditor(
+    interpreterViewModel: InterpreterViewModel?,
+    codeState: TextFieldValue,
+    errors: String,
+    onCodeChange: (TextFieldValue) -> Unit,
+    isSaveOnChange: Boolean = true,
+    isEnabled: Boolean = true,
+    isScrollable: Boolean = true,
+    lines: Int = 10,
+    modifier: Modifier
+) {
     val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
     val errorsList = if (errors.isNotEmpty()) {
@@ -72,7 +82,7 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
                 .verticalScroll(scrollState)
                 .width(33.dp)
                 .background(MaterialTheme.colorScheme.inversePrimary)
-                .padding(top = 15.dp)
+                .padding(top = 2.dp)
 
         ) {
             for (i in 1..linesCount) {
@@ -93,8 +103,9 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
         }
         Column {
             // Pole tekstowe
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = modifier.fillMaxSize()) {
                 BasicTextField(
+                    enabled = isEnabled,
                     value = codeState,
                     onValueChange = { newValue ->
                         onCodeChange(newValue)
@@ -107,9 +118,11 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
                             emptyList()
                         }
                         onCodeChange(newValue)
-                        writeFileContent(context,viewModel.acctualFileName!!, viewModel.acctualProjectName, viewModel.codeState.text)
+                        if (isSaveOnChange){
+                            writeFileContent(context,interpreterViewModel!!.acctualFileName!!, interpreterViewModel.acctualProjectName, interpreterViewModel.codeState.text)
+                        }
                     },
-                    minLines = 10,
+                    minLines = lines,
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 18.sp,
@@ -122,11 +135,12 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
                         }
                     },
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxSize()
-                        .verticalScroll(scrollState)
+                        .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)
+                        //.verticalScroll(scrollState)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
-                        .padding(top = 15.dp, start = 10.dp, end = 10.dp)
+                        .padding(top = 2.dp, start = 10.dp, end = 10.dp)
 
                 )
             }
@@ -155,5 +169,11 @@ fun CodeEditor(viewModel: InterpreterViewModel,codeState: TextFieldValue, errors
 @Preview
 @Composable
 fun AA() {
-    CodeEditor(viewModel = InterpreterViewModel(LocalContext.current), codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"), errors = "", onCodeChange = {  }, modifier = Modifier)
+    CodeEditor(
+        interpreterViewModel = InterpreterViewModel(LocalContext.current),
+        codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"),
+        errors = "",
+        onCodeChange = {  },
+        isSaveOnChange = true,
+        modifier = Modifier)
 }

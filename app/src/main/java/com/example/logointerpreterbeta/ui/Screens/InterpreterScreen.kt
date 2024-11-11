@@ -342,7 +342,7 @@ fun InterpreterApp(
         item {
             Box {
                 CodeEditor(
-                    viewModel = viewModel,
+                    interpreterViewModel = viewModel,
                     codeState = viewModel.codeState,
                     onCodeChange = viewModel::onCodeChange,
                     errors = viewModel.errors,
