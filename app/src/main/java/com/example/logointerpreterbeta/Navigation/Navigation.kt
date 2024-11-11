@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val viewModel: InterpreterViewModel =
+            val interpreterViewModel: InterpreterViewModel =
                 viewModel(factory = InterpreterViewModelFactory(this))
             val libraryViewModel: LibraryViewModel =
                 viewModel(factory = LibraryViewModelFactory(this))
@@ -55,17 +55,17 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable<StartScreen> {
                         LogoInterpreterBetaTheme {
-                            StartScreenApp(navController, viewModel)
+                            StartScreenApp(navController, interpreterViewModel)
                         }
                     }
                     composable<Interpreter> {
                         Scaffold(
                             topBar = {
-                                InterpreterTopBar(viewModel.acctualProjectName, viewModel, navController)
+                                InterpreterTopBar(interpreterViewModel.acctualProjectName, interpreterViewModel, navController)
                             }
                         ) { innerPadding ->
                             Column(Modifier.padding(innerPadding)) {
-                                InterpreterApp(viewModel,navController)
+                                InterpreterApp(interpreterViewModel,navController)
                             }
                         }
                     }
@@ -77,7 +77,7 @@ class MainActivity : ComponentActivity() {
                                 },
                                 modifier = Modifier.padding(0.dp)
                             ) { innerPadding ->
-                                ProjectsApp(viewModel, Modifier.padding(innerPadding), navController = navController)
+                                ProjectsApp(interpreterViewModel, Modifier.padding(innerPadding), navController = navController)
                             }
                         }
                     }
@@ -108,8 +108,8 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<LibraryProcedureForm> {
                         Layout({ modifier ->
-                            LibraryAddProcedureForm(libraryViewModel = libraryViewModel, navController = navController, modifier = modifier)
-                        }, "Dodaj procedure", navController)
+                            LibraryAddProcedureForm(libraryViewModel = libraryViewModel, interpreterViewModel = interpreterViewModel, navController = navController, modifier = modifier)
+                        }, "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}", navController)
                     }
                 }
             }
