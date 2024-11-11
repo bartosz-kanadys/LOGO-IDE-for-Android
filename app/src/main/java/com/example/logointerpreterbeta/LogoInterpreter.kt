@@ -22,8 +22,12 @@ class LogoInterpreter(context: Context) {
     var bitmap = MyLogoVisitor.image
 
     private val myVisitor = MyLogoVisitor(context = context)
+    private val myLogoLibraryVisitor = MyLogoLibraryVisitor()
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
+    fun getPoceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
+        return myLogoLibraryVisitor.getProcedures()
+    }
 
     fun start(input: String) {
         // Tworzenie lexer'a
@@ -46,6 +50,21 @@ class LogoInterpreter(context: Context) {
         bitmap = MyLogoVisitor.image
     }
 
+    fun processProcedure(input: String) {
+        val lexer = logoLexer(
+            CharStreams.fromString(input)
+        )
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(MyErrorListener())
+        val tokens = CommonTokenStream(lexer)
+        val parser = logoParser(tokens)
+        parser.removeErrorListeners()
+        parser.addErrorListener(MyErrorListener())
+        val tree = parser.prog()
+
+        myLogoLibraryVisitor.visit(tree)
+    }
+
     fun colorizeText(text: String): AnnotatedString {
         val lexer = logoLexer(CharStreams.fromString(text))
         val tokens = CommonTokenStream(lexer)
@@ -66,7 +85,7 @@ class LogoInterpreter(context: Context) {
                     logoLexer.STRINGLITERAL         -> stringColorDark   // stringi np "Test
                     1, 2, 3, 4                      -> functionColorDark          //deklaracja procedury
                     in 7..77, 80, 81, 82      -> cmdColorDark        //cmd fd, rt ...
-                    in 83..94                 -> functionColorDark        //funkcje repeat if random ...
+                    in 83..96                 -> functionColorDark        //funkcje repeat if random ...
                     logoLexer.NUMBER, 105, 106      -> numberColorDark             //cyfry
                     else                            -> textColor   //reszta
                 }

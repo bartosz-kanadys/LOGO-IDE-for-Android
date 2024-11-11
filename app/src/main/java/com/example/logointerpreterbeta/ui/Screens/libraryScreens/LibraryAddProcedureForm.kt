@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -43,6 +44,12 @@ fun LibraryAddProcedureForm(
         mutableStateOf("")
     }
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+         interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n\n")
+
+    }
+
     LazyColumn(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,7 +91,7 @@ fun LibraryAddProcedureForm(
                 errors = interpreterViewModel.errors,
                 isSaveOnChange = false,
                 modifier = Modifier
-                    .padding(top = 15.dp)
+                    //.padding(top = 15.dp)
 
             )
         }
