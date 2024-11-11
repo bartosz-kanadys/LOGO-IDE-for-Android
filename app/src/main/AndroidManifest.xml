@@ -17,7 +17,7 @@
         android:theme="@style/Theme.LogoInterpreterBeta"
         tools:targetApi="31">
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".Navigation.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">
@@ -28,35 +28,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.InterpreterActivity"
+            android:name=".Navigation.InterpreterActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">
 
         </activity>
         <activity
-            android:name=".activities.SettingsActivity"
+            android:name=".Navigation.SettingsActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">
 
         </activity>
         <activity
-            android:name=".activities.LibraryActivity"
+            android:name=".Navigation.LibraryActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">
 
         </activity>
         <activity
-            android:name=".activities.ProjectsActivity"
+            android:name=".Navigation.ProjectsActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">
 
         </activity>
         <activity
-            android:name=".activities.TutorialsActivity"
+            android:name=".Navigation.TutorialsActivity"
             android:exported="false"
             android:label="@string/app_name"
             android:theme="@style/Theme.LogoInterpreterBeta">

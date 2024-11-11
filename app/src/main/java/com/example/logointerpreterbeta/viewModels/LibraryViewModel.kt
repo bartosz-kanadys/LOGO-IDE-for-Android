@@ -16,7 +16,7 @@ class LibraryViewModel(context: Context): ViewModel() {
     private val _actualLibrary = MutableStateFlow<String?>(null)
     val actualLibrary: StateFlow<String?> = _actualLibrary
 
-    fun updateActualProject(name: String?) {
+    fun updateActualLibrary(name: String?) {
         _actualLibrary.value = name
     }
 
