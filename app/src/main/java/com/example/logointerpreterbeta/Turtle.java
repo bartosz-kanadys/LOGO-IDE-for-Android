@@ -16,4 +16,20 @@ public class Turtle {
         Xposition = X;
         Yposition = Y;
     }
+
+    public static void setPlusDirection(float rotate) {
+       if (direction + rotate > 360) {
+           direction = (direction + rotate) % 360;
+       } else {
+           direction += rotate;
+       }
+    }
+    public static void setMinusDirection(float rotate) {
+        if (direction - rotate < 360) {
+            direction = (direction - rotate) % 360;
+        } else {
+            direction -= rotate;
+        }
+    }
+
 }

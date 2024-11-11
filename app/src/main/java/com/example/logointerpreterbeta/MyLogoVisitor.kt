@@ -99,11 +99,11 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     override fun visitRt(ctx: logoParser.RtContext?) {
-        Turtle.direction += visit(ctx!!.expression()).toString().toFloat()
+        Turtle.setPlusDirection(visit(ctx!!.expression()).toString().toFloat())
     }
 
     override fun visitLt(ctx: logoParser.LtContext?) {
-        Turtle.direction -= visit(ctx!!.expression()).toString().toFloat()
+        Turtle.setMinusDirection(visit(ctx!!.expression()).toString().toFloat())
     }
 
     override fun visitCs(ctx: logoParser.CsContext?) {
