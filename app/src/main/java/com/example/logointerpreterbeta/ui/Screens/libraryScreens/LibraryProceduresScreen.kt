@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,19 +36,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.Navigation.LibraryProcedureForm
-import com.example.logointerpreterbeta.functions.project.createFile
-import com.example.logointerpreterbeta.functions.project.getProjectFromDirectory
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
-import java.io.File
 
 @Composable
-fun LibraryProceduresScreen(libraryViewModel: LibraryViewModel, navController: NavController, modifier: Modifier) {
+fun LibraryProceduresScreen(
+    libraryViewModel: LibraryViewModel,
+    navController: NavController,
+    modifier: Modifier
+) {
     val libraries = libraryViewModel.libraries.collectAsStateWithLifecycle()
     val actualLibrary = libraryViewModel.actualLibrary.collectAsStateWithLifecycle()
     var procedureToDelete by rememberSaveable {
@@ -70,7 +68,11 @@ fun LibraryProceduresScreen(libraryViewModel: LibraryViewModel, navController: N
             confirmButton = {
                 TextButton(
                     onClick = {
-                        libraryViewModel.deleteProcedureFromLibrary(context,library!!.name, procedureToDelete!!)
+                        libraryViewModel.deleteProcedureFromLibrary(
+                            context,
+                            library!!.name,
+                            procedureToDelete!!
+                        )
                         procedureToDelete = null
                     }
                 ) {
@@ -94,14 +96,14 @@ fun LibraryProceduresScreen(libraryViewModel: LibraryViewModel, navController: N
         modifier = modifier
             .padding(10.dp)
     ) {
-        item{
+        item {
             AddProcedureButton {
                 navController.navigate(LibraryProcedureForm)
             }
             Spacer(modifier = Modifier.height(10.dp))
         }
         if (library!!.procedures.isEmpty()) {
-            item{
+            item {
                 Text(
                     text = "Nie ma jeszcze procedur w tej bibliotece",
                     textAlign = TextAlign.Center,
@@ -132,7 +134,8 @@ fun ProcedureCard(
     procedureName: String,
     procedureDescription: String,
     code: String,
-    onDeleteClick: () -> Unit) {
+    onDeleteClick: () -> Unit
+) {
     val logo = LogoInterpreter(LocalContext.current)
     val coloredCode = logo.colorizeText(code)
     Card(
@@ -142,7 +145,7 @@ fun ProcedureCard(
     ) {
 
         val linesCount = code.lines().size
-        Column (Modifier.padding(8.dp)){
+        Column(Modifier.padding(8.dp)) {
             Row(Modifier.fillMaxWidth()) {
                 Column(Modifier.weight(1f)) {
                     Text(text = procedureName, fontSize = 26.sp)
@@ -207,7 +210,11 @@ fun PreviewLibrrayProceduresScreen() {
     LogoInterpreterBetaTheme {
         //LibraryProceduresScreen(libraryViewModel = LibraryViewModel(LocalContext.current), navController = rememberNavController(), modifier = Modifier)
         Column {
-            ProcedureCard("Kwadrat", "Opis procedury kwadratu co robi", "fd 100 rt 90\nnnn\nnn\nn\n\nnn\nnn", {})
+            ProcedureCard(
+                "Kwadrat",
+                "Opis procedury kwadratu co robi",
+                "fd 100 rt 90\nnnn\nnn\nn\n\nnn\nnn",
+                {})
         }
     }
 }

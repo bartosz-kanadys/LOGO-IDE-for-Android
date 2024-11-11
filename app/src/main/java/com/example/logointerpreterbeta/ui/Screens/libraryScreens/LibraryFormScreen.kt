@@ -30,7 +30,11 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 
 @Composable
-fun LibraryFormScreen(libraryViewModel: LibraryViewModel, modifier: Modifier = Modifier, navController: NavController) {
+fun LibraryFormScreen(
+    libraryViewModel: LibraryViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     var libraryName by rememberSaveable { mutableStateOf("") }
     var libraryDescription by rememberSaveable { mutableStateOf("") }
     var libraryAuthor by rememberSaveable { mutableStateOf("") }
@@ -41,21 +45,21 @@ fun LibraryFormScreen(libraryViewModel: LibraryViewModel, modifier: Modifier = M
     ) {
         FormTextField(
             state = libraryName,
-            onValueChange = {libraryName = it},
+            onValueChange = { libraryName = it },
             label = "Nazwa Biblioteki",
             placeholder = "Podaj nazwę"
         )
         Spacer(Modifier.height(5.dp))
         FormTextField(
             state = libraryDescription,
-            onValueChange = {libraryDescription = it},
+            onValueChange = { libraryDescription = it },
             label = "Opis",
             placeholder = "Dodaj opis"
         )
         Spacer(Modifier.height(5.dp))
         FormTextField(
             state = libraryAuthor,
-            onValueChange = {libraryAuthor = it},
+            onValueChange = { libraryAuthor = it },
             label = "Autor",
             placeholder = "Podaj Autora"
         )
@@ -64,9 +68,18 @@ fun LibraryFormScreen(libraryViewModel: LibraryViewModel, modifier: Modifier = M
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            FormButton(text = "Anuluj", MaterialTheme.colorScheme.errorContainer) { navController.popBackStack() }
+            FormButton(
+                text = "Anuluj",
+                MaterialTheme.colorScheme.errorContainer
+            ) { navController.popBackStack() }
             FormButton(text = "Zatwierdź", MaterialTheme.colorScheme.primary) {
-                if (libraryViewModel.createLibrary(context,libraryName,libraryDescription, libraryAuthor )) {
+                if (libraryViewModel.createLibrary(
+                        context,
+                        libraryName,
+                        libraryDescription,
+                        libraryAuthor
+                    )
+                ) {
                     navController.popBackStack()
                 }
             }
@@ -84,7 +97,7 @@ fun FormTextField(
 ) {
     OutlinedTextField(
         value = state,
-        onValueChange = {newValue -> onValueChange(newValue)},
+        onValueChange = { newValue -> onValueChange(newValue) },
         label = { Text(text = label) },
         placeholder = { Text(text = placeholder) },
         colors = OutlinedTextFieldDefaults.colors(
@@ -101,7 +114,7 @@ fun FormTextField(
 fun FormButton(text: String, color: Color, onClick: () -> Unit) {
     Button(
         colors = ButtonDefaults.buttonColors(color),
-        onClick = {onClick()}
+        onClick = { onClick() }
     ) {
         Text(text = text)
     }
@@ -111,6 +124,10 @@ fun FormButton(text: String, color: Color, onClick: () -> Unit) {
 @Composable
 fun PreviewLibraryFormScreen() {
     LogoInterpreterBetaTheme {
-        LibraryFormScreen(modifier = Modifier, libraryViewModel = LibraryViewModel(LocalContext.current), navController = rememberNavController())
+        LibraryFormScreen(
+            modifier = Modifier,
+            libraryViewModel = LibraryViewModel(LocalContext.current),
+            navController = rememberNavController()
+        )
     }
 }

@@ -21,15 +21,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
-import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import com.example.logointerpreterbeta.viewModels.Procedure
-import java.lang.reflect.Parameter
 
 @Composable
-fun LibraryAddProcedureForm(libraryViewModel: LibraryViewModel, interpreterViewModel: InterpreterViewModel, navController: NavController, modifier: Modifier) {
+fun LibraryAddProcedureForm(
+    libraryViewModel: LibraryViewModel,
+    interpreterViewModel: InterpreterViewModel,
+    navController: NavController,
+    modifier: Modifier
+) {
     var procedureName by rememberSaveable {
         mutableStateOf("")
     }
@@ -40,34 +43,37 @@ fun LibraryAddProcedureForm(libraryViewModel: LibraryViewModel, interpreterViewM
         mutableStateOf("")
     }
     val context = LocalContext.current
-    LazyColumn (
+    LazyColumn(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .fillMaxWidth()
             .padding(15.dp)
-    ){
-        item{
+    ) {
+        item {
             Text(text = "Uzupełnij informacje o procedurze")
             FormTextField(
                 state = procedureName,
-                onValueChange = {procedureName = it},
-                label = "Nazwa procedury" ,
-                placeholder = "Nazwa procedury")
+                onValueChange = { procedureName = it },
+                label = "Nazwa procedury",
+                placeholder = "Nazwa procedury"
+            )
         }
-        item{
+        item {
             FormTextField(
                 state = procedureDescription,
-                onValueChange = {procedureDescription= it},
-                label = "Opis procedury" ,
-                placeholder = "Opis procedury")
+                onValueChange = { procedureDescription = it },
+                label = "Opis procedury",
+                placeholder = "Opis procedury"
+            )
         }
-        item{
+        item {
             FormTextField(
                 state = procedureAuthor,
-                onValueChange = {procedureAuthor= it},
-                label = "Autor procedury" ,
-                placeholder = "Autor procedury")
+                onValueChange = { procedureAuthor = it },
+                label = "Autor procedury",
+                placeholder = "Autor procedury"
+            )
         }
         item {
             Text(text = "Podaj kod procedury", Modifier.padding(top = 15.dp))
@@ -84,28 +90,36 @@ fun LibraryAddProcedureForm(libraryViewModel: LibraryViewModel, interpreterViewM
         }
         item {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(top = 20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                FormButton(text = "Anuluj", MaterialTheme.colorScheme.errorContainer) { navController.popBackStack() }
+                FormButton(
+                    text = "Anuluj",
+                    MaterialTheme.colorScheme.errorContainer
+                ) { navController.popBackStack() }
                 FormButton(text = "Zatwierdź", MaterialTheme.colorScheme.primary) {
                     val code = interpreterViewModel.codeState.text
                     val procedure = Procedure(
                         procedureName,
                         procedureDescription,
                         null,
-                        code.trim())
+                        code.trim()
+                    )
                     if (libraryViewModel.checkProcedureAddForm(
-                        procedureName,
-                        procedureAuthor,
-                        procedureDescription,
-                        code.trim(),
-                        context
-                    )) {
+                            procedureName,
+                            procedureAuthor,
+                            procedureDescription,
+                            code.trim(),
+                            context
+                        )
+                    ) {
                         libraryViewModel.addProcedureToLibrary(
                             context,
                             libraryViewModel.actualLibrary.value!!,
-                            procedure)
+                            procedure
+                        )
                         interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n")
                         navController.popBackStack()
                     }
@@ -125,6 +139,7 @@ fun Procedurelist() {
             libraryViewModel = LibraryViewModel(LocalContext.current),
             navController = rememberNavController(),
             interpreterViewModel = InterpreterViewModel(LocalContext.current),
-            modifier = Modifier)
+            modifier = Modifier
+        )
     }
 }
