@@ -74,6 +74,7 @@ cmd
     | sety
     | setx
     | setcornerrounding
+    | use
     ;
 
 procedureInvocation
@@ -256,6 +257,11 @@ fore
 label
     : 'label' (STRINGLITERAL | deref)
     | 'LABEL' (STRINGLITERAL | deref)
+    ;
+
+use
+    : 'use' name
+    | 'USE' name
     ;
 
 //-------------- END FUNCTIONS --------------------------

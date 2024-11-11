@@ -220,6 +220,12 @@ public interface logoVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitLabel(logoParser.LabelContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link logoParser#use}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUse(logoParser.UseContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link logoParser#block}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
