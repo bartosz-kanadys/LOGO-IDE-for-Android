@@ -1,4 +1,5 @@
 package com.example.logointerpreterbeta.functions.project
+
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.util.Log
@@ -7,9 +8,9 @@ import java.util.Date
 import java.util.Locale
 
 
-fun createProject(name: String, context: Context) : Boolean {
+fun createProject(name: String, context: Context): Boolean {
     val projectsFolder = File(context.getExternalFilesDir(null), "Projects/$name")
-    if (projectsFolder.exists()){
+    if (projectsFolder.exists()) {
         return false
     }
     projectsFolder.mkdirs()
@@ -60,7 +61,7 @@ fun getProjectFromDirectory(directory: File): Project? {
     )
 }
 
-fun getProjectFoldersMap(context: Context): Map<String,String> {
+fun getProjectFoldersMap(context: Context): Map<String, String> {
     val projectsFolder = File(context.getExternalFilesDir(null), "Projects")
 
     if (!projectsFolder.exists() || !projectsFolder.isDirectory) {
@@ -69,7 +70,7 @@ fun getProjectFoldersMap(context: Context): Map<String,String> {
     }
 
     val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
-    val folderMap = emptyMap<String,String>().toMutableMap()
+    val folderMap = emptyMap<String, String>().toMutableMap()
 
     projectsFolder.listFiles()?.forEach {
         if (it.isDirectory) {

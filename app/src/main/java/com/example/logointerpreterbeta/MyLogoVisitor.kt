@@ -446,10 +446,10 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
 
         val logo = LogoInterpreter(context)
         val libraries = loadLibraries(context)
-        val library = libraries.find { it.name == libraryName}
+        val library = libraries.find { it.name == libraryName }
         val procedureList = library!!.procedures
         for (procedure in procedureList) {
-            logo.processProcedure(procedure.code+"\n")
+            logo.processProcedure(procedure.code + "\n")
         }
 
         val newProceduresCtx = logo.getPoceduresFromLibrary()

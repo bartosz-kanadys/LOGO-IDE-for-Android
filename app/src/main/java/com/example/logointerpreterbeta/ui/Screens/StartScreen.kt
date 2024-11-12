@@ -35,25 +35,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.functions.config.createConfigFile
-import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
-import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.Navigation.Interpreter
 import com.example.logointerpreterbeta.Navigation.Libraries
 import com.example.logointerpreterbeta.Navigation.Projects
 import com.example.logointerpreterbeta.Navigation.Settings
 import com.example.logointerpreterbeta.Navigation.Tutorials
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.functions.config.createConfigFile
+import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-
+import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 
 
 @Composable
-fun StartScreenApp(navController: NavHostController = rememberNavController(), viewModel: InterpreterViewModel) {
+fun StartScreenApp(
+    navController: NavHostController = rememberNavController(),
+    projectViewModel: ProjectViewModel
+) {
     val context = LocalContext.current
     createConfigFile(context)
-    viewModel.acctualProjectName = readLastModifiedProject(LocalContext.current)!!
+    projectViewModel.updateActualProjectName(
+        context,
+        readLastModifiedProject(LocalContext.current)!!
+    )
 
     var isAlertVisable by rememberSaveable { mutableStateOf(false) }
 
@@ -109,6 +114,7 @@ fun StartScreenApp(navController: NavHostController = rememberNavController(), v
                             if (readLastModifiedProject(context) == "") {
                                 isAlertVisable = true
                             } else {
+                                projectViewModel.updateProject(context)
                                 navController.navigate(Interpreter)
                             }
                         })
@@ -149,10 +155,10 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 @Composable
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
-
-        StartScreenApp(navController = rememberNavController(), viewModel = InterpreterViewModel(
-            LocalContext.current)
+        StartScreenApp(
+            navController = rememberNavController(), projectViewModel = ProjectViewModel(
+                LocalContext.current
+            )
         )
-
     }
 }

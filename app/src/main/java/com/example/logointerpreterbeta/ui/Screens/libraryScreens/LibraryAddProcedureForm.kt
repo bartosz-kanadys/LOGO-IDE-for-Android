@@ -46,8 +46,7 @@ fun LibraryAddProcedureForm(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-         interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n\n")
-
+        interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n\n")
     }
 
     LazyColumn(
@@ -85,14 +84,11 @@ fun LibraryAddProcedureForm(
         item {
             Text(text = "Podaj kod procedury", Modifier.padding(top = 15.dp))
             CodeEditor(
-                interpreterViewModel = interpreterViewModel,
                 codeState = interpreterViewModel.codeState,
                 onCodeChange = interpreterViewModel::onCodeChange,
                 errors = interpreterViewModel.errors,
                 isSaveOnChange = false,
                 modifier = Modifier
-                    //.padding(top = 15.dp)
-
             )
         }
         item {
@@ -130,11 +126,9 @@ fun LibraryAddProcedureForm(
                         interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n")
                         navController.popBackStack()
                     }
-
                 }
             }
         }
-
     }
 }
 

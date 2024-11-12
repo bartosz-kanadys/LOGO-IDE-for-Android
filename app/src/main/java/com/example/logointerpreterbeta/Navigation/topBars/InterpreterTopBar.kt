@@ -283,7 +283,12 @@ fun InterpreterTopBar(
                                     )
                                 )
                             },
-                            text = { MenuElement("Wczytaj z pliku", icon = Icons.Filled.UploadFile) }
+                            text = {
+                                MenuElement(
+                                    "Wczytaj z pliku",
+                                    icon = Icons.Filled.UploadFile
+                                )
+                            }
                         )
 
                         DropdownMenuItem(
@@ -343,6 +348,10 @@ fun InterpreterTopBarPreview() {
 @Composable
 fun InterpreterTopBarPreview2() {
     LogoInterpreterBetaTheme(darkTheme = true) {
-          InterpreterTopBar("Test", viewModel = InterpreterViewModel(LocalContext.current), navController = rememberNavController())
+        InterpreterTopBar(
+            "Test",
+            viewModel = InterpreterViewModel(LocalContext.current),
+            navController = rememberNavController()
+        )
     }
 }

@@ -38,7 +38,6 @@ fun SettingsApp(modifier: Modifier = Modifier) {
                 style = AppTypography.bodySmall,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-
         }
     }
 }

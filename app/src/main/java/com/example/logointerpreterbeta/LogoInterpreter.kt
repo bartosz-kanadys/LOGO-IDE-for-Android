@@ -71,7 +71,7 @@ class LogoInterpreter(context: Context) {
         tokens.fill()
 
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        val textColor = if(isDarkTheme) {
+        val textColor = if (isDarkTheme) {
             onSurfaceDarkMediumContrast
         } else {
             onSurfaceLightMediumContrast
@@ -82,12 +82,12 @@ class LogoInterpreter(context: Context) {
                 if (token.type == logoLexer.EOF) return@forEach
 
                 val color = when (token.type) {
-                    logoLexer.STRINGLITERAL         -> stringColorDark   // stringi np "Test
-                    1, 2, 3, 4                      -> functionColorDark          //deklaracja procedury
-                    in 7..77, 80, 81, 82      -> cmdColorDark        //cmd fd, rt ...
-                    in 83..96                 -> functionColorDark        //funkcje repeat if random ...
-                    logoLexer.NUMBER, 105, 106      -> numberColorDark             //cyfry
-                    else                            -> textColor   //reszta
+                    logoLexer.STRINGLITERAL -> stringColorDark   // stringi np "Test
+                    1, 2, 3, 4 -> functionColorDark          //deklaracja procedury
+                    in 7..77, 80, 81, 82 -> cmdColorDark        //cmd fd, rt ...
+                    in 83..96 -> functionColorDark        //funkcje repeat if random ...
+                    logoLexer.NUMBER, 105, 106 -> numberColorDark             //cyfry
+                    else -> textColor   //reszta
                 }
                 val tokenText = token.text
                 pushStyle(SpanStyle(color = color))

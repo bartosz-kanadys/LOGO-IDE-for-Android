@@ -161,7 +161,7 @@ fun ProcedureCard(
 
             Spacer(modifier = Modifier.height(10.dp))
             CodeEditor(
-                interpreterViewModel = null,
+                projectViewModel = null,
                 codeState = TextFieldValue(coloredCode),
                 errors = "",
                 onCodeChange = {},

@@ -37,7 +37,7 @@ fun readLastModifiedProject(context: Context): String? {
 
         config.lastModifiedProject
     } catch (e: FileNotFoundException) {
-        Log.e("dd","dddd")
+        Log.e("dd", "dddd")
         null
     }
 }

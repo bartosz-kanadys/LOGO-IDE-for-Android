@@ -70,6 +70,8 @@ dependencies {
     implementation("com.github.skydoves:colorpicker-compose:1.1.2")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("com.google.code.gson:gson:2.7")
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+
 
 
 

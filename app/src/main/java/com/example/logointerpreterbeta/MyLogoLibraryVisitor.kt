@@ -11,7 +11,7 @@ class MyLogoLibraryVisitor : logoBaseVisitor<Any>() {
     }
 
 
-    override fun visitProcedureDeclaration(ctx: logoParser.ProcedureDeclarationContext?):  MutableMap<String, logoParser. ProcedureDeclarationContext> {
+    override fun visitProcedureDeclaration(ctx: logoParser.ProcedureDeclarationContext?): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         val procedureName = ctx!!.name().text
         procedures[procedureName] = ctx
         return procedures

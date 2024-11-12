@@ -3,8 +3,6 @@ package com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -14,11 +12,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -28,7 +25,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun CodeSuggestionPopup(
-    suggestions:List<String>,
+    suggestions: List<String>,
     cursorOffset: Offset,
     onSuggestionClick: (String) -> Unit
 ) {
@@ -42,7 +39,10 @@ fun CodeSuggestionPopup(
         // Ustal maksymalną szerokość dla Popup
         LazyColumn(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(10.dp))
+                .background(
+                    MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(10.dp)
+                )
                 .widthIn(min = 100.dp, max = 200.dp)
                 .heightIn(max = 200.dp) // Ustal maksymalną wysokość, bez min
                 .padding(3.dp)
@@ -53,7 +53,10 @@ fun CodeSuggestionPopup(
                         text = suggestion,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.inversePrimary, shape = RoundedCornerShape(7.dp))
+                            .background(
+                                MaterialTheme.colorScheme.inversePrimary,
+                                shape = RoundedCornerShape(7.dp)
+                            )
                             .fillMaxWidth()
                             .clickable {
                                 onSuggestionClick(suggestion)
@@ -68,7 +71,7 @@ fun CodeSuggestionPopup(
 
 @Preview
 @Composable
-fun AA(){
+fun AA() {
     LogoInterpreterBetaTheme(darkTheme = false) {
         CodeSuggestionPopup(suggestions = listOf("fd", "forward"), cursorOffset = Offset.Zero) {
         }
@@ -77,7 +80,7 @@ fun AA(){
 
 @Preview
 @Composable
-fun BB(){
+fun BB() {
     LogoInterpreterBetaTheme(darkTheme = true) {
         CodeSuggestionPopup(suggestions = listOf("fd", "forward"), cursorOffset = Offset.Zero) {
         }

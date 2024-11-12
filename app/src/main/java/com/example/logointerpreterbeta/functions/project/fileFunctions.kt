@@ -67,7 +67,12 @@ fun readFileContent(context: Context, fileName: String, projectName: String): St
     }
 }
 
-fun writeFileContent(context: Context, fileName: String, projectName: String, content: String): Boolean {
+fun writeFileContent(
+    context: Context,
+    fileName: String,
+    projectName: String,
+    content: String
+): Boolean {
     val file = File(context.getExternalFilesDir(null), "Projects/$projectName/$fileName")
 
     return try {
@@ -79,14 +84,19 @@ fun writeFileContent(context: Context, fileName: String, projectName: String, co
     }
 }
 
-fun renameFile(context: Context, oldFileName: String, newFileName: String, projectName: String): Boolean {
+fun renameFile(
+    context: Context,
+    oldFileName: String,
+    newFileName: String,
+    projectName: String
+): Boolean {
     val folder = File(context.getExternalFilesDir(null), "Projects/$projectName")
     if (!folder.exists() || !folder.isDirectory) {
         return false
     }
 
     val oldFile = File(folder, oldFileName)
-    val newFile = File(folder, newFileName+".txt")
+    val newFile = File(folder, newFileName + ".txt")
 
     return try {
         if (oldFile.exists()) {

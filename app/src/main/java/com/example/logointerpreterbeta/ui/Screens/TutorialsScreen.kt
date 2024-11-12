@@ -38,7 +38,6 @@ fun TutorialsApp(modifier: Modifier = Modifier) {
                 style = AppTypography.bodySmall,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
-
         }
     }
 }
@@ -54,6 +53,5 @@ fun TutorialsPreview() {
         ) { innerPadding ->
             TutorialsApp(Modifier.padding(innerPadding))
         }
-
     }
 }

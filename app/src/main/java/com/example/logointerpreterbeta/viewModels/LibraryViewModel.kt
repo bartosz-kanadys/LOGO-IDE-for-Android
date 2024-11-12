@@ -11,7 +11,7 @@ import com.example.logointerpreterbeta.functions.library.loadLibraries
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class LibraryViewModel(context: Context): ViewModel() {
+class LibraryViewModel(context: Context) : ViewModel() {
     private val _libraries = MutableStateFlow(loadLibraries(context))
     val libraries: StateFlow<List<Library>> = _libraries
 
@@ -56,13 +56,22 @@ class LibraryViewModel(context: Context): ViewModel() {
         return true
     }
 
-    fun checkProcedureAddForm(name: String, author: String, desc: String, code: String, context: Context): Boolean{
+    fun checkProcedureAddForm(
+        name: String,
+        author: String,
+        desc: String,
+        code: String,
+        context: Context
+    ): Boolean {
         if (name.isEmpty() || author.isEmpty() || desc.isEmpty() || code.isEmpty()) {
             Toast.makeText(context, "Uzupełnij wszytskie pola", Toast.LENGTH_LONG).show()
             return false
-        }
-        else if (_libraries.value.find { it.name == actualLibrary.value }?.procedures?.find { it.name == name } != null) {
-            Toast.makeText(context, "Procedura o takiej nazwie już istnieje w tej bibliotece", Toast.LENGTH_LONG)
+        } else if (_libraries.value.find { it.name == actualLibrary.value }?.procedures?.find { it.name == name } != null) {
+            Toast.makeText(
+                context,
+                "Procedura o takiej nazwie już istnieje w tej bibliotece",
+                Toast.LENGTH_LONG
+            )
                 .show()
             return false
         }
@@ -70,7 +79,7 @@ class LibraryViewModel(context: Context): ViewModel() {
     }
 
     fun addProcedureToLibrary(context: Context, libraryName: String, procedure: Procedure) {
-        addProcedureToLibraryJSON(context,libraryName, procedure)
+        addProcedureToLibraryJSON(context, libraryName, procedure)
         updateLibraries(context)
     }
 

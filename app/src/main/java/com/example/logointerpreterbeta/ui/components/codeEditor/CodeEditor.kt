@@ -36,18 +36,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.functions.project.writeFileContent
 import com.example.logointerpreterbeta.functions.errors.prepareErrorList
+import com.example.logointerpreterbeta.functions.project.writeFileContent
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.replaceAnnotatedSubstring
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 
 @Composable
 fun CodeEditor(
-    interpreterViewModel: InterpreterViewModel?,
+    projectViewModel: ProjectViewModel? = null,
+    interpreterViewModel: InterpreterViewModel? = null,
     codeState: TextFieldValue,
     errors: String,
     onCodeChange: (TextFieldValue) -> Unit,
@@ -118,8 +120,13 @@ fun CodeEditor(
                             emptyList()
                         }
                         onCodeChange(newValue)
-                        if (isSaveOnChange){
-                            writeFileContent(context,interpreterViewModel!!.acctualFileName!!, interpreterViewModel.acctualProjectName, interpreterViewModel.codeState.text)
+                        if (isSaveOnChange) {
+                            writeFileContent(
+                                context,
+                                projectViewModel!!.actualFileName.value!!,
+                                projectViewModel.actualProjectName.value,
+                                interpreterViewModel!!.codeState.text
+                            )
                         }
                     },
                     minLines = lines,
@@ -138,13 +145,12 @@ fun CodeEditor(
                     modifier = modifier
                         .fillMaxSize()
                         .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)
-                        //.verticalScroll(scrollState)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(top = 2.dp, start = 10.dp, end = 10.dp)
 
                 )
             }
-            if(filteredSuggestions.isNotEmpty()) {
+            if (filteredSuggestions.isNotEmpty()) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
                     val newText = replaceAnnotatedSubstring(
                         codeState.annotatedString,
@@ -152,7 +158,8 @@ fun CodeEditor(
                         NearestWordFinder.nearestSpacePositionToRight,
                         suggestion
                     )
-                    val cursorPosition = NearestWordFinder.nearestSpacePositionToLeft + suggestion.length
+                    val cursorPosition =
+                        NearestWordFinder.nearestSpacePositionToLeft + suggestion.length
 
                     onCodeChange(
                         codeState.copy(
@@ -170,10 +177,12 @@ fun CodeEditor(
 @Composable
 fun AA() {
     CodeEditor(
+        projectViewModel = ProjectViewModel(LocalContext.current),
         interpreterViewModel = InterpreterViewModel(LocalContext.current),
         codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"),
         errors = "",
-        onCodeChange = {  },
+        onCodeChange = { },
         isSaveOnChange = true,
-        modifier = Modifier)
+        modifier = Modifier
+    )
 }
