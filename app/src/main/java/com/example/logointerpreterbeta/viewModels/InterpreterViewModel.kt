@@ -59,7 +59,15 @@ class InterpreterViewModel(context: Context) : ViewModel() {
             annotatedString = logo.colorizeText(codeState.text)
         )
     }
-
+    fun nextStep(){
+        logo.nextStep()
+    }
+    fun enableDebugging(){
+        logo.enableDebugging()
+    }
+    fun disableDebugging(){
+        logo.disableDebugging()
+    }
     fun interpretCode() {
         viewModelScope.launch {
             SyntaxError.errors.clear()

@@ -18,6 +18,7 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import java.util.concurrent.CountDownLatch
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -35,6 +36,32 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     private var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
 
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+
+    private var isDebugging = false
+    private var debugSignal = CountDownLatch(1)
+
+    // Włączenie trybu debugowania
+    fun enableDebugging() {
+        isDebugging = true
+    }
+
+    // Wyłączenie trybu debugowania
+    fun disableDebugging() {
+        isDebugging = false
+        debugSignal.countDown() // Upewnij się, że debuger nie czeka
+    }
+
+    // Kontynuowanie wykonania
+    fun continueExecution() {
+        debugSignal.countDown() // Wysyła sygnał do wątku debugera
+    }
+
+    private fun waitForDebugSignal() {
+        if (isDebugging) {
+            debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
+            debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
+        }
+    }
 
     init {
         paint.color = Turtle.penColor
@@ -434,7 +461,10 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
             Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
-        super.visitProg(ctx)
+        for (line in ctx!!.line()) {
+            waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+            visit(line)
+        }
         updateTurtleBitmap()
         return 0
     }

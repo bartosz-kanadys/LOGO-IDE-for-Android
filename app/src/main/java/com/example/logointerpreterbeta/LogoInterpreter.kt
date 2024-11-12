@@ -14,6 +14,10 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
@@ -26,24 +30,37 @@ class LogoInterpreter(context: Context) {
 
 
     fun start(input: String) {
-        // Tworzenie lexer'a
-        val lexer = logoLexer(
-            CharStreams.fromString(input)
-        )
-        lexer.removeErrorListeners()
-        lexer.addErrorListener(MyErrorListener())
+        // Uruchomienie kodu w tle za pomocą korutyn
+        GlobalScope.launch(Dispatchers.Default) {
+            // Tworzenie lexer'a
+            val lexer = logoLexer(
+                CharStreams.fromString(input)
+            )
+            lexer.removeErrorListeners()
+            lexer.addErrorListener(MyErrorListener())
 
-        // Tokenizacja
-        val tokens = CommonTokenStream(lexer)
-        // Parsowanie
-        val parser = logoParser(tokens)
-        parser.removeErrorListeners()
-        parser.addErrorListener(MyErrorListener())
-        // Startujemy od reguły głównej (prog)
-        val tree = parser.prog()
+            // Tokenizacja
+            val tokens = CommonTokenStream(lexer)
 
-        myVisitor.visit(tree)
-        bitmap = MyLogoVisitor.image
+            // Parsowanie
+            val parser = logoParser(tokens)
+            parser.removeErrorListeners()
+            parser.addErrorListener(MyErrorListener())
+
+            // Startujemy od reguły głównej (prog)
+            val tree = parser.prog()
+
+            // Uruchamianie wizytora
+            myVisitor.visit(tree)
+
+
+
+            // Możesz dodać kod do odświeżenia interfejsu użytkownika, jeśli to konieczne
+            withContext(Dispatchers.Main) {
+                // Aktualizowanie interfejsu użytkownika, np. wyświetlenie bitmapy
+                bitmap = MyLogoVisitor.image
+            }
+        }
     }
 
     fun colorizeText(text: String): AnnotatedString {
@@ -76,7 +93,16 @@ class LogoInterpreter(context: Context) {
                 pop()
             }
         }
-
         return styledText
+    }
+    fun nextStep(){
+        myVisitor.continueExecution()
+    }
+    fun enableDebugging(){
+        myVisitor.enableDebugging()
+    }
+    fun disableDebugging(){
+        myVisitor.disableDebugging()
+
     }
 }
