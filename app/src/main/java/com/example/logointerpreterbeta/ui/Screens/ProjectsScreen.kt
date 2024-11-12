@@ -42,21 +42,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.Interpreter
-import com.example.logointerpreterbeta.functions.project.createProject
-import com.example.logointerpreterbeta.functions.project.deleteProject
-import com.example.logointerpreterbeta.functions.project.getProjectFoldersMap
-import com.example.logointerpreterbeta.functions.config.updateLastModifiedProjectJSON
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, navController: NavController) {
+fun ProjectsApp(
+    projectViewModel: ProjectViewModel,
+    modifier: Modifier = Modifier,
+    navController: NavController
+) {
     val context = LocalContext.current
-    var projectName by rememberSaveable {
+    var newProjectName by rememberSaveable {
         mutableStateOf("")
     }
     var isTextFieldVisable by rememberSaveable {
@@ -65,12 +66,11 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
     var isErrorWhenCreatingProject by rememberSaveable {
         mutableStateOf(false)
     }
-    var projects by rememberSaveable {
-        mutableStateOf(getProjectFoldersMap(context))
-    }
     var projectToDelete by rememberSaveable {
         mutableStateOf<String?>(null)
     }
+
+    val projects by projectViewModel.projectsMap.collectAsStateWithLifecycle()
 
     AnimatedVisibility(visible = projectToDelete != null) {
         AlertDialog(
@@ -80,14 +80,7 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
             confirmButton = {
                 TextButton(
                     onClick = {
-                        if (viewModel.acctualProjectName == projectToDelete) {
-                            viewModel.acctualProjectName = ""
-                            viewModel.acctualFileName = null
-                        }
-                        deleteProject(projectToDelete!!, context)
-                        projects = getProjectFoldersMap(context)
-                        updateLastModifiedProjectJSON(context,"")
-
+                        projectViewModel.deleteProjectFromList(context, projectToDelete!!)
                         projectToDelete = null
                     }
                 ) {
@@ -116,14 +109,19 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
             if (isErrorWhenCreatingProject) isErrorWhenCreatingProject = false
         }
         AnimatedVisibility(visible = isTextFieldVisable) {
-            Row (
+            Row(
                 Modifier
                     .height(60.dp)
-                    .fillMaxWidth(0.9f)){
-                ProjectNameTextField(text = projectName, Modifier.weight(0.8f)) { projectName = it }
+                    .fillMaxWidth(0.9f)
+            ) {
+                ProjectNameTextField(
+                    text = newProjectName,
+                    Modifier.weight(0.8f)
+                ) { newProjectName = it }
                 CreateProjectButton(Modifier.weight(0.2f)) {
-                    isErrorWhenCreatingProject = !createProject(projectName,context)
-                    viewModel.upadteAcctualProject(context,projectName)
+                    isErrorWhenCreatingProject =
+                        projectViewModel.createNewProject(context, newProjectName)
+
                     navController.navigate(Interpreter)
                 }
             }
@@ -139,20 +137,27 @@ fun ProjectsApp(viewModel: InterpreterViewModel,modifier: Modifier = Modifier, n
             )
         }
 
-        LazyColumn (Modifier.padding(top = 20.dp)){
+        LazyColumn(Modifier.padding(top = 20.dp)) {
             items(projects.entries.toList()) { (name, date) ->
-                ProjectButton(name = name, date = date, viewModel, navController) { projectToDelete = name }
+                ProjectButton(
+                    name = name,
+                    date = date,
+                    projectViewModel,
+                    navController
+                ) { projectToDelete = name }
                 Spacer(modifier = Modifier.height(20.dp))
             }
         }
-
-
     }
 }
 
 @Composable
 private fun TextFieldIcon() {
-    Icon(imageVector = Icons.Filled.Draw, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+    Icon(
+        imageVector = Icons.Filled.Draw,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.primary
+    )
 }
 
 @Composable
@@ -180,17 +185,21 @@ private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
                 fontSize = 18.sp
             )
         }
-
     }
 }
 
 @Composable
-private fun ProjectButton(name: String, date: String, viewModel: InterpreterViewModel, navController: NavController, onDelete: () -> Unit) {
+private fun ProjectButton(
+    name: String,
+    date: String,
+    projectViewModel: ProjectViewModel,
+    navController: NavController,
+    onDelete: () -> Unit
+) {
     val context = LocalContext.current
     OutlinedButton(
         onClick = {
-            viewModel.acctualProjectName = name
-            updateLastModifiedProjectJSON(context, name)
+            projectViewModel.openProject(context, name)
             navController.navigate(Interpreter)
         },
         shape = RoundedCornerShape(8.dp),
@@ -219,21 +228,22 @@ private fun ProjectButton(name: String, date: String, viewModel: InterpreterView
             ) {
                 Icon(imageVector = Icons.Filled.DeleteForever, contentDescription = null)
             }
-
-
         }
-
     }
 }
 
 @Composable
-private fun ProjectNameTextField(text: String, modifier: Modifier = Modifier, onValueChange: (String) -> Unit ) {
+private fun ProjectNameTextField(
+    text: String,
+    modifier: Modifier = Modifier,
+    onValueChange: (String) -> Unit
+) {
     OutlinedTextField(
         value = text,
-        onValueChange = {newValue -> onValueChange(newValue)},
+        onValueChange = { newValue -> onValueChange(newValue) },
         leadingIcon = { TextFieldIcon() },
-        label = { Text(text = "Nazwa projeku")},
-        placeholder = { Text(text = "Podaj nazwę")},
+        label = { Text(text = "Nazwa projeku") },
+        placeholder = { Text(text = "Podaj nazwę") },
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = MaterialTheme.colorScheme.secondary
@@ -256,7 +266,6 @@ private fun CreateProjectButton(
         modifier = modifier
             .fillMaxSize()
             .padding(start = 5.dp, top = 5.5.dp)
-
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -267,12 +276,13 @@ private fun CreateProjectButton(
 }
 
 
-
 @Preview(showBackground = true, showSystemUi = false)
 @Composable
 fun ProjectsPreview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
-
-    ProjectsApp(viewModel = InterpreterViewModel(LocalContext.current), navController = rememberNavController())
+        ProjectsApp(
+            projectViewModel = ProjectViewModel(LocalContext.current),
+            navController = rememberNavController()
+        )
     }
 }

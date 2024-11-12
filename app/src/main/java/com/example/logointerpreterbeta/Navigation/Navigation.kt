@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.Navigation
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -34,9 +35,11 @@ import com.example.logointerpreterbeta.ui.Screens.libraryScreens.LibraryScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("StateFlowValueCalledInComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +49,9 @@ class MainActivity : ComponentActivity() {
                 viewModel(factory = InterpreterViewModelFactory(this))
             val libraryViewModel: LibraryViewModel =
                 viewModel(factory = LibraryViewModelFactory(this))
+            val projectViewModel: ProjectViewModel =
+                viewModel(factory = ProjectViewModelFactory(this))
+
 
             LogoInterpreterBetaTheme {
                 val navController = rememberNavController()
@@ -55,17 +61,25 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable<StartScreen> {
                         LogoInterpreterBetaTheme {
-                            StartScreenApp(navController, interpreterViewModel)
+                            StartScreenApp(navController, projectViewModel)
                         }
                     }
                     composable<Interpreter> {
                         Scaffold(
                             topBar = {
-                                InterpreterTopBar(interpreterViewModel.acctualProjectName, interpreterViewModel, navController)
+                                InterpreterTopBar(
+                                    projectViewModel.actualProjectName.value,
+                                    interpreterViewModel,
+                                    navController
+                                )
                             }
                         ) { innerPadding ->
                             Column(Modifier.padding(innerPadding)) {
-                                InterpreterApp(interpreterViewModel,navController)
+                                InterpreterApp(
+                                    interpreterViewModel,
+                                    projectViewModel,
+                                    navController
+                                )
                             }
                         }
                     }
@@ -77,7 +91,11 @@ class MainActivity : ComponentActivity() {
                                 },
                                 modifier = Modifier.padding(0.dp)
                             ) { innerPadding ->
-                                ProjectsApp(interpreterViewModel, Modifier.padding(innerPadding), navController = navController)
+                                ProjectsApp(
+                                    projectViewModel,
+                                    Modifier.padding(innerPadding),
+                                    navController = navController
+                                )
                             }
                         }
                     }
@@ -93,23 +111,44 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<Libraries> {
                         Layout({ modifier ->
-                            LibraryScreen(modifier = modifier, libraryViewModel = libraryViewModel, navController = navController)
+                            LibraryScreen(
+                                modifier = modifier,
+                                libraryViewModel = libraryViewModel,
+                                navController = navController
+                            )
                         }, "Biblioteki", navController)
                     }
                     composable<LibraryForm> {
                         Layout({ modifier ->
-                            LibraryFormScreen(modifier = modifier, libraryViewModel = libraryViewModel, navController =  navController)
+                            LibraryFormScreen(
+                                modifier = modifier,
+                                libraryViewModel = libraryViewModel,
+                                navController = navController
+                            )
                         }, "Dodaj biblioteke", navController)
                     }
                     composable<LibraryProcedures> {
                         Layout({ modifier ->
-                            LibraryProceduresScreen(libraryViewModel = libraryViewModel, navController = navController, modifier = modifier)
+                            LibraryProceduresScreen(
+                                libraryViewModel = libraryViewModel,
+                                navController = navController,
+                                modifier = modifier
+                            )
                         }, libraryViewModel.actualLibrary.value!!, navController)
                     }
                     composable<LibraryProcedureForm> {
-                        Layout({ modifier ->
-                            LibraryAddProcedureForm(libraryViewModel = libraryViewModel, interpreterViewModel = interpreterViewModel, navController = navController, modifier = modifier)
-                        }, "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}", navController)
+                        Layout(
+                            { modifier ->
+                                LibraryAddProcedureForm(
+                                    libraryViewModel = libraryViewModel,
+                                    interpreterViewModel = interpreterViewModel,
+                                    navController = navController,
+                                    modifier = modifier
+                                )
+                            },
+                            "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}",
+                            navController
+                        )
                     }
                 }
             }
@@ -131,6 +170,15 @@ class LibraryViewModelFactory(private val context: Context) : ViewModelProvider.
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(LibraryViewModel::class.java)) {
             return LibraryViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class ProjectViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ProjectViewModel::class.java)) {
+            return ProjectViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

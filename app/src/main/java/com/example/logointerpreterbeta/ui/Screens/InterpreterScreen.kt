@@ -46,26 +46,24 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.StartScreen
-import com.example.logointerpreterbeta.functions.project.createFile
-import com.example.logointerpreterbeta.functions.project.deleteFile
-import com.example.logointerpreterbeta.functions.project.getProjectFromDirectory
 import com.example.logointerpreterbeta.functions.project.readFileContent
-import com.example.logointerpreterbeta.functions.project.writeFileContent
 import com.example.logointerpreterbeta.ui.components.ErrorsList
 import com.example.logointerpreterbeta.ui.components.ImagePanel
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import java.io.File
+import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InterpreterApp(
-    viewModel: InterpreterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    interpreterViewModel: InterpreterViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    projectViewModel: ProjectViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
     navController: NavController,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -75,50 +73,45 @@ fun InterpreterApp(
     var isAlertEmptyProjectVisable by rememberSaveable { mutableStateOf(false) }
     var isAlertNewFileVisable by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
-    var project by rememberSaveable {
-        mutableStateOf(
-            getProjectFromDirectory(
-            File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
-        )
-        )
-    }
 
     var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
     var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
-    var acctualFile by rememberSaveable { mutableStateOf<String?>(project?.files?.firstOrNull()?.name) }
-    viewModel.acctualFileName = acctualFile
 
+    val actualFileName by projectViewModel.actualFileName.collectAsStateWithLifecycle()
+    val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
+    val project by projectViewModel.project.collectAsStateWithLifecycle()
 
     LaunchedEffect(isDarkTheme) {
-        viewModel.interpretCode()
-        viewModel.interpretCode()
-        viewModel.colorCode()
+        interpreterViewModel.interpretCode()
+        interpreterViewModel.interpretCode()
+        interpreterViewModel.colorCode()
     }
     LaunchedEffect(Unit) {
-        if (viewModel.acctualProjectName == "") {
+        if (actualProjectName == "") {
             navController.navigate(StartScreen)
             return@LaunchedEffect
         }
-        project = getProjectFromDirectory(
-            File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
-        )
+        projectViewModel.updateProject(context)
         isAlertEmptyProjectVisable = project!!.files.isEmpty()
-        acctualFile = project?.files?.firstOrNull()?.name
-        viewModel.acctualFileName = acctualFile
-        if (viewModel.acctualProjectName == "") {
+        projectViewModel.updateActualFileName(project?.files?.firstOrNull()?.name)
+
+        if (actualProjectName.isEmpty()) {
             navController.navigate(StartScreen)
         }
-        if (acctualFile != null) {
-            viewModel.codeState = TextFieldValue(
-                readFileContent(
-                    context,
-                    acctualFile!!,
-                    project!!.name
-                )!!
-            )
-            viewModel.colorCode()
-            //viewModel.interpretCode("")
+        val actualFile = project?.files?.firstOrNull()?.name
+
+        if (actualFile != null) {
+            val content = readFileContent(context, actualFile, project!!.name)
+            if (content != null) {
+                interpreterViewModel.codeState = TextFieldValue(content)
+                interpreterViewModel.colorCode()
+                interpreterViewModel.interpretCode("")
+            }
+        } else {
+            interpreterViewModel.codeState = TextFieldValue("")
+            isAlertEmptyProjectVisable = true
         }
+
     }
 
     //alert gdy pusty projekt
@@ -129,9 +122,15 @@ fun InterpreterApp(
             },
             text = {
                 Column {
-                    Text(text = "W projekcie '${viewModel.acctualProjectName}' nie ma jeszcze żadnego pliku! " +
-                            "Wpisz niżej nazwę pierwszego pliku aby go utworzyć.")
-                    TextField(value = newFileName, onValueChange = { newValue -> newFileName = newValue},Modifier.padding(top = 10.dp))
+                    Text(
+                        text = "W projekcie '${actualProjectName}' nie ma jeszcze żadnego pliku! " +
+                                "Wpisz niżej nazwę pierwszego pliku aby go utworzyć."
+                    )
+                    TextField(
+                        value = newFileName,
+                        onValueChange = { newValue -> newFileName = newValue },
+                        Modifier.padding(top = 10.dp)
+                    )
                 }
 
             },
@@ -142,18 +141,9 @@ fun InterpreterApp(
                 TextButton(
                     onClick = {
                         if (newFileName.isNotEmpty()) {
-                            createFile(newFileName, viewModel.acctualProjectName, "", context)
+                            projectViewModel.createFileInEmptyProject(context, newFileName)
                             isAlertEmptyProjectVisable = false
-                            project = getProjectFromDirectory(
-                                        File(
-                                            context.getExternalFilesDir(null),
-                                            "Projects/${viewModel.acctualProjectName}"
-                                        )
-                                    )
                             newFileName = ""
-                            acctualFile = project!!.files[0].name
-                            viewModel.acctualFileName = acctualFile
-
                         }
                     }
                 ) {
@@ -170,7 +160,7 @@ fun InterpreterApp(
                     Text("Wstecz")
                 }
             }
-            )
+        )
     }
     //alert gdy tworzenie nowego pliku
     AnimatedVisibility(visible = isAlertNewFileVisable) {
@@ -181,7 +171,11 @@ fun InterpreterApp(
             text = {
                 Column {
                     Text(text = "Podaj nazwę pliku, który zostanie dodany do projektu")
-                    TextField(value = newFileName, onValueChange = { newValue -> newFileName = newValue},Modifier.padding(top = 10.dp))
+                    TextField(
+                        value = newFileName,
+                        onValueChange = { newValue -> newFileName = newValue },
+                        Modifier.padding(top = 10.dp)
+                    )
                 }
 
             },
@@ -192,11 +186,8 @@ fun InterpreterApp(
                 TextButton(
                     onClick = {
                         if (newFileName.isNotEmpty()) {
-                            createFile(newFileName, viewModel.acctualProjectName, "", context)
+                            projectViewModel.createFileInProject(context, newFileName)
                             isAlertNewFileVisable = false
-                            project = getProjectFromDirectory(
-                                File(context.getExternalFilesDir(null),"Projects/${viewModel.acctualProjectName}")
-                            )
                             newFileName = ""
                         }
                     }
@@ -224,15 +215,9 @@ fun InterpreterApp(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        deleteFile(fileToDelete!!, project!!.name, context)
-                        project = getProjectFromDirectory(
-                            File(
-                                context.getExternalFilesDir(null),
-                                "Projects/${viewModel.acctualProjectName}"
-                            )
-                        )
-                        fileToDelete = null // Wyczyść nazwę po usunięciu
-                        acctualFile = project!!.files[0].name
+                        isAlertEmptyProjectVisable =
+                            projectViewModel.deleteFileFromProject(context, fileToDelete!!)
+                        fileToDelete = null
                     }
                 ) {
                     Text("Usuń")
@@ -252,11 +237,9 @@ fun InterpreterApp(
         item {
             Box(
                 modifier = Modifier
-                    // .height(400.dp)
                     .fillParentMaxHeight(0.6f)
                     .fillMaxWidth()
-
-            ){
+            ) {
                 ImagePanel()
 
                 LazyRow(
@@ -266,58 +249,53 @@ fun InterpreterApp(
                         .height(35.dp)
                         .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
-                    items(project!!.files) { projectFile ->
-                        Box(modifier = Modifier
-                            .background(
-                                if (acctualFile == projectFile.name)
-                                    MaterialTheme.colorScheme.inversePrimary
-                                else
-                                    MaterialTheme.colorScheme.secondaryContainer,
-                                RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
-                            )
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        visibleMenuFileName = projectFile.name
-                                    },
-                                    onTap = {
-                                        writeFileContent(
-                                            context,
-                                            acctualFile!!,
-                                            project!!.name,
-                                            viewModel.codeState.text
-                                        )
-                                        viewModel.codeState = TextFieldValue(
-                                            readFileContent(
-                                                context,
-                                                projectFile.name,
-                                                project!!.name
-                                            )!!
-                                        )
-                                        viewModel.colorCode()
-                                        acctualFile = projectFile.name
-                                        viewModel.acctualFileName = acctualFile!!
-                                    }
+                    project?.files?.let { files ->
+                        items(files) { projectFile ->
+                            Box(modifier = Modifier
+                                .background(
+                                    if (actualFileName == projectFile.name)
+                                        MaterialTheme.colorScheme.inversePrimary
+                                    else
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                    RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
                                 )
-                            }
-                            .padding(horizontal = 15.dp, vertical = 6.dp)
-                        ) {
-                            Text(text = projectFile.name)
-                            DropdownMenu(
-                                expanded = visibleMenuFileName == projectFile.name,
-                                onDismissRequest = { visibleMenuFileName = null }
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            visibleMenuFileName = projectFile.name
+                                        },
+                                        onTap = {
+                                            interpreterViewModel.codeState = TextFieldValue(
+                                                readFileContent(
+                                                    context,
+                                                    projectFile.name,
+                                                    project!!.name
+                                                )!!
+                                            )
+                                            interpreterViewModel.colorCode()
+                                            projectViewModel.updateActualFileName(projectFile.name)
+                                        }
+                                    )
+                                }
+                                .padding(horizontal = 15.dp, vertical = 6.dp)
                             ) {
-                                DropdownMenuItem(
-                                    text = { Text("Usuń") },
-                                    onClick = {
-                                        fileToDelete = projectFile.name
-                                        visibleMenuFileName = null
-                                    }
-                                )
+                                Text(text = projectFile.name)
+                                DropdownMenu(
+                                    expanded = visibleMenuFileName == projectFile.name,
+                                    onDismissRequest = { visibleMenuFileName = null }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Usuń") },
+                                        onClick = {
+                                            fileToDelete = projectFile.name
+                                            visibleMenuFileName = null
+                                        }
+                                    )
+                                }
                             }
                         }
-
                     }
+
                     item {
                         TextButton(
                             onClick = { isAlertNewFileVisable = true },
@@ -333,19 +311,20 @@ fun InterpreterApp(
         }
         item {
             ErrorsList(
-                errors = viewModel.errors,
-                isErrorListVisable = viewModel.isErrorListVisable,
-                isErrorListExpanded = viewModel.isErrorListExpanded,
-                onClick = { viewModel.toggleErrorListVisibility() }
+                errors = interpreterViewModel.errors,
+                isErrorListVisable = interpreterViewModel.isErrorListVisable,
+                isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
+                onClick = { interpreterViewModel.toggleErrorListVisibility() }
             )
         }
         item {
             Box {
                 CodeEditor(
-                    interpreterViewModel = viewModel,
-                    codeState = viewModel.codeState,
-                    onCodeChange = viewModel::onCodeChange,
-                    errors = viewModel.errors,
+                    projectViewModel = projectViewModel,
+                    interpreterViewModel = interpreterViewModel,
+                    codeState = interpreterViewModel.codeState,
+                    onCodeChange = interpreterViewModel::onCodeChange,
+                    errors = interpreterViewModel.errors,
                     modifier = Modifier
                 )
                 Button(
@@ -354,7 +333,7 @@ fun InterpreterApp(
                     colors = ButtonDefaults.buttonColors(
                         MaterialTheme.colorScheme.primaryContainer
                     ),
-                    onClick = { viewModel.interpretCode() },
+                    onClick = { interpreterViewModel.interpretCode() },
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(top = 15.dp, end = 5.dp)
@@ -379,6 +358,9 @@ fun InterpreterApp(
 @Composable
 fun Preview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
-        InterpreterApp(viewModel = InterpreterViewModel(context = LocalContext.current), navController = rememberNavController())
+        InterpreterApp(
+            interpreterViewModel = InterpreterViewModel(context = LocalContext.current),
+            navController = rememberNavController()
+        )
     }
 }
