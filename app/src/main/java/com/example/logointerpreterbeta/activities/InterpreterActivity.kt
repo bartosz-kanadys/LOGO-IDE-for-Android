@@ -40,6 +40,7 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
 import com.example.logointerpreterbeta.components.codeEditor.CodeEditor
+import com.example.logointerpreterbeta.components.interpreterButtons.InterpreterButtons
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
@@ -89,73 +90,8 @@ fun InterpreterApp(
                     modifier = Modifier
                 )
 
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 15.dp, end = 5.dp)
-                ) {
-                    Button(
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        onClick = { viewModel.interpretCode() },
-                        modifier = Modifier
-                            .width(45.dp)
-                            .height(45.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
 
-                    // Nowy przycisk pod pierwszym
-                    Button(
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.secondaryContainer
-                        ),
-                        onClick = { viewModel.enableDebugging() },
-                        modifier = Modifier
-                            .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                            .width(45.dp)
-                            .height(45.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Call,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
-                    Button(
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.secondaryContainer
-                        ),
-                        onClick = { viewModel.nextStep() },
-                        modifier = Modifier
-                            .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                            .width(45.dp)
-                            .height(45.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Check,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
-                }
+                 InterpreterButtons(viewModel)
             }
         }
     }

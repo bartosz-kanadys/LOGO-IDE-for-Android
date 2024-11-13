@@ -53,8 +53,6 @@ class LogoInterpreter(context: Context) {
             // Uruchamianie wizytora
             myVisitor.visit(tree)
 
-
-
             // Możesz dodać kod do odświeżenia interfejsu użytkownika, jeśli to konieczne
             withContext(Dispatchers.Main) {
                 // Aktualizowanie interfejsu użytkownika, np. wyświetlenie bitmapy
