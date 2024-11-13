@@ -34,7 +34,7 @@ fun createLibraryJSON(context: Context, library: Library) {
     libraryFile.writeText(updatedJson)
 }
 
-fun loadLibraries(context: Context): MutableList<Library> {
+fun loadLibrariesFromJSON(context: Context): MutableList<Library> {
     val libraryFile = File(context.getExternalFilesDir(null), "library.json")
 
     // Sprawdź, czy plik istnieje

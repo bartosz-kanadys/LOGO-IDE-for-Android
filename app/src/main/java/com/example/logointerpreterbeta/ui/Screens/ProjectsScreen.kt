@@ -42,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -56,7 +57,6 @@ fun ProjectsApp(
     modifier: Modifier = Modifier,
     navController: NavController
 ) {
-    val context = LocalContext.current
     var newProjectName by rememberSaveable {
         mutableStateOf("")
     }
@@ -80,7 +80,7 @@ fun ProjectsApp(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        projectViewModel.deleteProjectFromList(context, projectToDelete!!)
+                        projectViewModel.deleteProjectFromList(projectToDelete!!)
                         projectToDelete = null
                     }
                 ) {
@@ -120,7 +120,7 @@ fun ProjectsApp(
                 ) { newProjectName = it }
                 CreateProjectButton(Modifier.weight(0.2f)) {
                     isErrorWhenCreatingProject =
-                        projectViewModel.createNewProject(context, newProjectName)
+                        projectViewModel.createNewProject(newProjectName)
 
                     navController.navigate(Interpreter)
                 }
@@ -196,10 +196,9 @@ private fun ProjectButton(
     navController: NavController,
     onDelete: () -> Unit
 ) {
-    val context = LocalContext.current
     OutlinedButton(
         onClick = {
-            projectViewModel.openProject(context, name)
+            projectViewModel.openProject(name)
             navController.navigate(Interpreter)
         },
         shape = RoundedCornerShape(8.dp),
@@ -281,7 +280,7 @@ private fun CreateProjectButton(
 fun ProjectsPreview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
         ProjectsApp(
-            projectViewModel = ProjectViewModel(LocalContext.current),
+            projectViewModel = hiltViewModel(),
             navController = rememberNavController()
         )
     }

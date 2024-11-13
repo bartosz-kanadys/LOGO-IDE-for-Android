@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.logointerpreterbeta.functions.errors.prepareErrorList
 import com.example.logointerpreterbeta.functions.project.writeFileContent
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.CodeSuggestionPopup
@@ -177,7 +178,7 @@ fun CodeEditor(
 @Composable
 fun AA() {
     CodeEditor(
-        projectViewModel = ProjectViewModel(LocalContext.current),
+        projectViewModel = hiltViewModel(),
         interpreterViewModel = InterpreterViewModel(LocalContext.current),
         codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"),
         errors = "",

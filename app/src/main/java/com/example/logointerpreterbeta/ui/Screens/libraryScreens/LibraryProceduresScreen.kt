@@ -54,7 +54,6 @@ fun LibraryProceduresScreen(
     var procedureToDelete by rememberSaveable {
         mutableStateOf<String?>(null)
     }
-    val context = LocalContext.current
 
     val library = libraries.value.find { it.name == actualLibrary.value }
 
@@ -69,7 +68,6 @@ fun LibraryProceduresScreen(
                 TextButton(
                     onClick = {
                         libraryViewModel.deleteProcedureFromLibrary(
-                            context,
                             library!!.name,
                             procedureToDelete!!
                         )

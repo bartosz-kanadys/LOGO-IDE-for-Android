@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.Interpreter
@@ -47,7 +48,6 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 
-
 @Composable
 fun StartScreenApp(
     navController: NavHostController = rememberNavController(),
@@ -55,10 +55,7 @@ fun StartScreenApp(
 ) {
     val context = LocalContext.current
     createConfigFile(context)
-    projectViewModel.updateActualProjectName(
-        context,
-        readLastModifiedProject(LocalContext.current)!!
-    )
+    projectViewModel.loadLastProjectFromJSON()
 
     var isAlertVisable by rememberSaveable { mutableStateOf(false) }
 
@@ -114,7 +111,7 @@ fun StartScreenApp(
                             if (readLastModifiedProject(context) == "") {
                                 isAlertVisable = true
                             } else {
-                                projectViewModel.updateProject(context)
+                                projectViewModel.updateProject()
                                 navController.navigate(Interpreter)
                             }
                         })
@@ -156,9 +153,7 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
         StartScreenApp(
-            navController = rememberNavController(), projectViewModel = ProjectViewModel(
-                LocalContext.current
-            )
+            navController = rememberNavController(), projectViewModel = hiltViewModel()
         )
     }
 }

@@ -1,62 +1,57 @@
 package com.example.logointerpreterbeta.viewModels
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
-import com.example.logointerpreterbeta.functions.config.updateLastModifiedProjectJSON
+import com.example.logointerpreterbeta.Repository.ProjectRepository
 import com.example.logointerpreterbeta.functions.project.Project
-import com.example.logointerpreterbeta.functions.project.createFile
-import com.example.logointerpreterbeta.functions.project.createProject
-import com.example.logointerpreterbeta.functions.project.deleteFile
-import com.example.logointerpreterbeta.functions.project.deleteProject
-import com.example.logointerpreterbeta.functions.project.getProjectFoldersMap
-import com.example.logointerpreterbeta.functions.project.getProjectFromDirectory
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.io.File
+import javax.inject.Inject
 
-class ProjectViewModel(context: Context) : ViewModel() {
+@HiltViewModel
+class ProjectViewModel @Inject constructor(
+    private val projectRepository: ProjectRepository
+) : ViewModel() {
     private val _actualProjectName = MutableStateFlow("")
     val actualProjectName: StateFlow<String> = _actualProjectName
 
     private val _actualFileName = MutableStateFlow<String?>(null)
     val actualFileName: StateFlow<String?> = _actualFileName
 
-    private val _projectsMap = MutableStateFlow(getProjectFoldersMap(context))
+    private val _projectsMap = MutableStateFlow<Map<String, String>>(emptyMap())
     val projectsMap: StateFlow<Map<String, String>> = _projectsMap
 
-    private val _project = MutableStateFlow<Project?>(
-        null
-//        getProjectFromDirectory(
-        //File(context.getExternalFilesDir(null),"Projects/${_actualProjectName.value}"))
-    )
+    private val _project = MutableStateFlow<Project?>(null)
     val project: StateFlow<Project?> = _project
 
-    fun updateActualProjectName(context: Context, newProjectName: String) {
+    init {
+        updateProjectsMap()
+    }
+
+    fun updateActualProjectName(newProjectName: String) {
         _actualProjectName.value = newProjectName
-        updateLastModifiedProjectJSON(context, newProjectName)
+        projectRepository.updateLastProjectJSON(newProjectName)
+    }
+
+    fun loadLastProjectFromJSON() {
+        _actualProjectName.value = projectRepository.readLastProjectJSON()!!
     }
 
     fun updateActualFileName(newFileName: String?) {
         _actualFileName.value = newFileName
     }
 
-    fun updateProjectsMap(context: Context) {
-        _projectsMap.value = getProjectFoldersMap(context)
+    fun updateProjectsMap() {
+        _projectsMap.value = projectRepository.getProjectsMap()
     }
 
-    fun updateProject(context: Context) {
-        _project.value = getProjectFromDirectory(
-            File(context.getExternalFilesDir(null), "Projects/${_actualProjectName.value}")
-        )
+    fun updateProject() {
+        _project.value = projectRepository.getProject(_actualProjectName.value)
     }
 
-    fun deleteFileFromProject(context: Context, fileToDelete: String): Boolean {
-        deleteFile(
-            fileToDelete,
-            _project.value!!.name,
-            context
-        )
-        updateProject(context)
+    fun deleteFileFromProject(fileToDelete: String): Boolean {
+        projectRepository.deleteFile(_project.value!!.name, fileToDelete)
+        updateProject()
         // Wyczyść nazwę po usunięciu
         if (project.value!!.files.isEmpty()) {
             updateActualFileName(null)
@@ -67,13 +62,13 @@ class ProjectViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun createFileInProject(context: Context, newFileName: String) {
-        createFile(newFileName, _actualProjectName.value, "", context)
-        updateProject(context)
+    fun createFileInProject(newFileName: String) {
+        projectRepository.createFile(_actualProjectName.value, newFileName, "")
+        updateProject()
     }
 
-    fun createFileInEmptyProject(context: Context, newFileName: String) {
-        createFileInProject(context, newFileName)
+    fun createFileInEmptyProject(newFileName: String) {
+        createFileInProject(newFileName)
         if (project.value!!.files.isNotEmpty()) {
             updateActualFileName(project.value?.files?.firstOrNull()?.name)
         } else {
@@ -81,27 +76,27 @@ class ProjectViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun deleteProjectFromList(context: Context, projectToDelete: String) {
+    fun deleteProjectFromList(projectToDelete: String) {
         if (_actualProjectName.value == projectToDelete) {
-            updateActualProjectName(context, "")
+            updateActualProjectName("")
             updateActualFileName(null)
         }
-        deleteProject(projectToDelete, context)
-        updateProjectsMap(context)
-        updateLastModifiedProjectJSON(context, "")
+        projectRepository.deleteProject(projectToDelete)
+        updateProjectsMap()
+        projectRepository.updateLastProjectJSON("")
     }
 
-    fun createNewProject(context: Context, newProjectName: String): Boolean {
-        val isCreated = !createProject(newProjectName, context)
-        updateActualProjectName(context, newProjectName)
-        updateProjectsMap(context)
-        updateProject(context)
+    fun createNewProject(newProjectName: String): Boolean {
+        val isCreated = !projectRepository.createNewProject(newProjectName)
+        updateActualProjectName(newProjectName)
+        updateProjectsMap()
+        updateProject()
         return isCreated
     }
 
-    fun openProject(context: Context, name: String) {
-        updateActualProjectName(context, name)
-        updateLastModifiedProjectJSON(context, name)
-        updateProject(context)
+    fun openProject(name: String) {
+        updateActualProjectName(name)
+        projectRepository.updateLastProjectJSON(name)
+        updateProject()
     }
 }

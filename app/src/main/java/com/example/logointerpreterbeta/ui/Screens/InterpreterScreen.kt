@@ -3,12 +3,10 @@ package com.example.logointerpreterbeta.ui.Screens
 import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
@@ -51,6 +48,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.StartScreen
 import com.example.logointerpreterbeta.functions.project.readFileContent
+import com.example.logointerpreterbeta.ui.components.Alert
 import com.example.logointerpreterbeta.ui.components.ErrorsList
 import com.example.logointerpreterbeta.ui.components.ImagePanel
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
@@ -91,7 +89,7 @@ fun InterpreterApp(
             navController.navigate(StartScreen)
             return@LaunchedEffect
         }
-        projectViewModel.updateProject(context)
+        projectViewModel.updateProject()
         isAlertEmptyProjectVisable = project!!.files.isEmpty()
         projectViewModel.updateActualFileName(project?.files?.firstOrNull()?.name)
 
@@ -115,123 +113,63 @@ fun InterpreterApp(
     }
 
     //alert gdy pusty projekt
-    AnimatedVisibility(isAlertEmptyProjectVisable) {
-        AlertDialog(
-            title = {
-                Text(text = "Pusty projekt")
-            },
-            text = {
-                Column {
-                    Text(
-                        text = "W projekcie '${actualProjectName}' nie ma jeszcze żadnego pliku! " +
-                                "Wpisz niżej nazwę pierwszego pliku aby go utworzyć."
-                    )
-                    TextField(
-                        value = newFileName,
-                        onValueChange = { newValue -> newFileName = newValue },
-                        Modifier.padding(top = 10.dp)
-                    )
-                }
-
-            },
-            onDismissRequest = {
-
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (newFileName.isNotEmpty()) {
-                            projectViewModel.createFileInEmptyProject(context, newFileName)
-                            isAlertEmptyProjectVisable = false
-                            newFileName = ""
-                        }
-                    }
-                ) {
-                    Text("Dalej")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        isAlertEmptyProjectVisable = false
-                        navController.popBackStack()
-                    }
-                ) {
-                    Text("Wstecz")
-                }
+    Alert(
+        isVisible = isAlertEmptyProjectVisable,
+        title = "Pusty projekt",
+        content = "W projekcie '${actualProjectName}' nie ma jeszcze żadnego pliku! Wpisz niżej nazwę pierwszego pliku aby go utworzyć.",
+        confirmButtonAction = {
+            if (newFileName.isNotEmpty()) {
+                projectViewModel.createFileInEmptyProject(newFileName)
+                isAlertEmptyProjectVisable = false
+                newFileName = ""
             }
-        )
-    }
-    //alert gdy tworzenie nowego pliku
-    AnimatedVisibility(visible = isAlertNewFileVisable) {
-        AlertDialog(
-            title = {
-                Text(text = "Nowy plik")
-            },
-            text = {
-                Column {
-                    Text(text = "Podaj nazwę pliku, który zostanie dodany do projektu")
-                    TextField(
-                        value = newFileName,
-                        onValueChange = { newValue -> newFileName = newValue },
-                        Modifier.padding(top = 10.dp)
-                    )
-                }
+        },
+        dismissButtonAction = {
+            isAlertEmptyProjectVisable = false
+            navController.popBackStack()
+        },
+        textField = {
+            TextField(
+                value = newFileName,
+                onValueChange = { newValue -> newFileName = newValue },
+            )
+        }
+    )
 
-            },
-            onDismissRequest = {
-
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (newFileName.isNotEmpty()) {
-                            projectViewModel.createFileInProject(context, newFileName)
-                            isAlertNewFileVisable = false
-                            newFileName = ""
-                        }
-                    }
-                ) {
-                    Text("Dalej")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        isAlertNewFileVisable = false
-                    }
-                ) {
-                    Text("Wstecz")
-                }
+    //alert gdy tworznie nowego pliku
+    Alert(
+        isVisible = isAlertNewFileVisable,
+        title = "Nowy plik",
+        content = "Podaj nazwę pliku, który zostanie dodany do projektu,",
+        confirmButtonAction = {
+            if (newFileName.isNotEmpty()) {
+                projectViewModel.createFileInProject(newFileName)
+                isAlertNewFileVisable = false
+                newFileName = ""
             }
-        )
-    }
+        },
+        dismissButtonAction = { isAlertNewFileVisable = false },
+        textField = {
+            TextField(
+                value = newFileName,
+                onValueChange = { newValue -> newFileName = newValue }
+            )
+        }
+    )
+
     //alert potwierdzenia usuniecia
-    AnimatedVisibility(visible = fileToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { fileToDelete = null },
-            title = { Text("Potwierdzenie usunięcia") },
-            text = { Text("Czy na pewno chcesz usunąć plik '${fileToDelete}'?") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        isAlertEmptyProjectVisable =
-                            projectViewModel.deleteFileFromProject(context, fileToDelete!!)
-                        fileToDelete = null
-                    }
-                ) {
-                    Text("Usuń")
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { fileToDelete = null } // Anuluj usunięcie
-                ) {
-                    Text("Anuluj")
-                }
-            }
-        )
-    }
+    Alert(
+        isVisible = fileToDelete != null,
+        title = "Potwierdzenie usunięcia",
+        content = "Czy na pewno chcesz usunąć plik '${fileToDelete}'?",
+        confirmButtonAction = {
+            isAlertEmptyProjectVisable =
+                projectViewModel.deleteFileFromProject(fileToDelete!!)
+            fileToDelete = null
+        },
+        dismissButtonAction = { fileToDelete = null },
+        confirmButtonText = "Usuń"
+    )
 
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         item {

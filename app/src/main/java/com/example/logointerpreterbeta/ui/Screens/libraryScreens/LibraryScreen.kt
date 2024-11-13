@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -57,8 +58,6 @@ fun LibraryScreen(
 ) {
     val libraries by libraryViewModel.libraries.collectAsStateWithLifecycle()
     var libraryToDelete by rememberSaveable { mutableStateOf<String?>(null) }
-    val context = LocalContext.current
-
 
     AnimatedVisibility(libraryToDelete != null) {
         AlertDialog(
@@ -68,7 +67,7 @@ fun LibraryScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        libraryViewModel.deleteLibrary(libraryToDelete!!, context)
+                        libraryViewModel.deleteLibrary(libraryToDelete!!)
                         libraryToDelete = null
                     }
                 ) {
@@ -234,7 +233,7 @@ fun PreviewLibraryScreen() {
     LogoInterpreterBetaTheme {
         LibraryScreen(
             modifier = Modifier,
-            libraryViewModel = LibraryViewModel(LocalContext.current),
+            libraryViewModel = hiltViewModel(),
             navController = rememberNavController()
         )
     }

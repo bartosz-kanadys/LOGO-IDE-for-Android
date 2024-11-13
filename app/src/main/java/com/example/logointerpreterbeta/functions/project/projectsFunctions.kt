@@ -8,7 +8,7 @@ import java.util.Date
 import java.util.Locale
 
 
-fun createProject(name: String, context: Context): Boolean {
+fun createProjectFolder(name: String, context: Context): Boolean {
     val projectsFolder = File(context.getExternalFilesDir(null), "Projects/$name")
     if (projectsFolder.exists()) {
         return false
@@ -17,7 +17,7 @@ fun createProject(name: String, context: Context): Boolean {
     return true
 }
 
-fun deleteProject(name: String, context: Context): Boolean {
+fun deleteProjectFolder(name: String, context: Context): Boolean {
     val projectFolder = File(context.getExternalFilesDir(null), "Projects/$name")
 
     if (!projectFolder.exists() || !projectFolder.isDirectory) {

@@ -3,20 +3,25 @@ package com.example.logointerpreterbeta.viewModels
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.example.logointerpreterbeta.functions.library.addProcedureToLibraryJSON
-import com.example.logointerpreterbeta.functions.library.createLibraryJSON
-import com.example.logointerpreterbeta.functions.library.deleteLibraryFromJSON
-import com.example.logointerpreterbeta.functions.library.deleteProcedureFromLibraryJSON
-import com.example.logointerpreterbeta.functions.library.loadLibraries
+import com.example.logointerpreterbeta.Repository.LibraryRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import javax.inject.Inject
 
-class LibraryViewModel(context: Context) : ViewModel() {
-    private val _libraries = MutableStateFlow(loadLibraries(context))
+@HiltViewModel
+class LibraryViewModel @Inject constructor(
+    private val libraryRepository: LibraryRepository
+) : ViewModel() {
+    private val _libraries = MutableStateFlow<MutableList<Library>>(mutableListOf())
     val libraries: StateFlow<List<Library>> = _libraries
 
     private val _actualLibrary = MutableStateFlow<String?>(null)
     val actualLibrary: StateFlow<String?> = _actualLibrary
+
+    init {
+        updateLibraries()
+    }
 
     fun updateActualLibrary(name: String?) {
         _actualLibrary.value = name
@@ -26,13 +31,13 @@ class LibraryViewModel(context: Context) : ViewModel() {
         _libraries.value.add(library)
     }
 
-    fun deleteLibrary(libraryName: String, context: Context) {
+    fun deleteLibrary(libraryName: String) {
         _libraries.value = _libraries.value.filter { it.name != libraryName }.toMutableList()
-        deleteLibraryFromJSON(context, libraryName)
+        libraryRepository.deleteLibrary(libraryName)
     }
 
-    fun updateLibraries(context: Context) {
-        _libraries.value = loadLibraries(context)
+    fun updateLibraries() {
+        _libraries.value = libraryRepository.loadLibraries()
     }
 
     fun createLibrary(context: Context, name: String, desc: String, author: String): Boolean {
@@ -51,7 +56,7 @@ class LibraryViewModel(context: Context) : ViewModel() {
 
         val library =
             Library(name = name, description = desc, author = author, procedures = emptyList())
-        createLibraryJSON(context, library)
+        libraryRepository.createLibrray(library)
         addLibrary(library)
         return true
     }
@@ -78,13 +83,13 @@ class LibraryViewModel(context: Context) : ViewModel() {
         return true
     }
 
-    fun addProcedureToLibrary(context: Context, libraryName: String, procedure: Procedure) {
-        addProcedureToLibraryJSON(context, libraryName, procedure)
-        updateLibraries(context)
+    fun addProcedureToLibrary(libraryName: String, procedure: Procedure) {
+        libraryRepository.addProcedureToLibrary(libraryName, procedure)
+        updateLibraries()
     }
 
-    fun deleteProcedureFromLibrary(context: Context, libraryName: String, procedureName: String) {
-        deleteProcedureFromLibraryJSON(context, libraryName, procedureName)
-        updateLibraries(context)
+    fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) {
+        libraryRepository.deleteProcedureFromLibrray(libraryName, procedureName)
+        updateLibraries()
     }
 }

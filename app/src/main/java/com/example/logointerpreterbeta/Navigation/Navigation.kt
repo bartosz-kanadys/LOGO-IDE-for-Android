@@ -14,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,8 +37,10 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @SuppressLint("StateFlowValueCalledInComposition")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -47,11 +50,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             val interpreterViewModel: InterpreterViewModel =
                 viewModel(factory = InterpreterViewModelFactory(this))
-            val libraryViewModel: LibraryViewModel =
-                viewModel(factory = LibraryViewModelFactory(this))
-            val projectViewModel: ProjectViewModel =
-                viewModel(factory = ProjectViewModelFactory(this))
-
+            val libraryViewModel: LibraryViewModel = hiltViewModel()
+            val projectViewModel: ProjectViewModel = hiltViewModel()
 
             LogoInterpreterBetaTheme {
                 val navController = rememberNavController()
@@ -161,24 +161,6 @@ class InterpreterViewModelFactory(private val context: Context) : ViewModelProvi
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(InterpreterViewModel::class.java)) {
             return InterpreterViewModel(context) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
-
-class LibraryViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(LibraryViewModel::class.java)) {
-            return LibraryViewModel(context) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
-
-class ProjectViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(ProjectViewModel::class.java)) {
-            return ProjectViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

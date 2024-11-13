@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.kotlin.serialization)
     id("kotlin-parcelize")
+    id("kotlin-kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -63,14 +65,18 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(files("lib\\antlr-4.13.1-complete.jar"))
-    implementation("androidx.compose.material3:material3:1.3.0")
+    implementation(files("lib/antlr-4.13.1-complete.jar"))
+    implementation(libs.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
-    implementation("com.github.skydoves:colorpicker-compose:1.1.2")
-    implementation("androidx.compose.material:material-icons-extended")
-    implementation("com.google.code.gson:gson:2.7")
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation(libs.colorpicker.compose)
+    implementation(libs.androidx.material.icons.extended)
+    implementation(libs.gson)
+    implementation (libs.kotlinx.coroutines.android)
+    implementation(libs.hilt.android)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    kapt(libs.hilt.android.compiler)
 
 
 
@@ -83,4 +89,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+}
+
+// Allow references to generated code
+kapt {
+    correctErrorTypes = true
 }

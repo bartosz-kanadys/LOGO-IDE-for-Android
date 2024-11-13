@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
@@ -119,7 +120,6 @@ fun LibraryAddProcedureForm(
                         )
                     ) {
                         libraryViewModel.addProcedureToLibrary(
-                            context,
                             libraryViewModel.actualLibrary.value!!,
                             procedure
                         )
@@ -137,7 +137,7 @@ fun LibraryAddProcedureForm(
 fun Procedurelist() {
     LogoInterpreterBetaTheme {
         LibraryAddProcedureForm(
-            libraryViewModel = LibraryViewModel(LocalContext.current),
+            libraryViewModel = hiltViewModel(),
             navController = rememberNavController(),
             interpreterViewModel = InterpreterViewModel(LocalContext.current),
             modifier = Modifier

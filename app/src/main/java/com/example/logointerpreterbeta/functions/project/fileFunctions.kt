@@ -6,14 +6,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 
-fun createFile(
+fun createFileInDevice(
     fileName: String,
     projectName: String,
     fileContent: String,
     context: Context
 ) {
     val newFile = File(context.getExternalFilesDir(null), "Projects/$projectName/$fileName.txt")
-    Log.i("File", "elooo.")
 
     if (newFile.exists()) {
         Log.i("File", "Plik ${newFile.absolutePath} już istnieje.")
@@ -30,7 +29,7 @@ fun createFile(
     }
 }
 
-fun deleteFile(
+fun deleteFileInDevice(
     fileName: String,
     projectName: String,
     context: Context
@@ -83,33 +82,33 @@ fun writeFileContent(
         false
     }
 }
-
-fun renameFile(
-    context: Context,
-    oldFileName: String,
-    newFileName: String,
-    projectName: String
-): Boolean {
-    val folder = File(context.getExternalFilesDir(null), "Projects/$projectName")
-    if (!folder.exists() || !folder.isDirectory) {
-        return false
-    }
-
-    val oldFile = File(folder, oldFileName)
-    val newFile = File(folder, newFileName + ".txt")
-
-    return try {
-        if (oldFile.exists()) {
-            // Skopiowanie zawartości starego pliku do nowego
-            oldFile.copyTo(newFile, overwrite = true)
-            // Usunięcie starego pliku po skopiowaniu zawartości
-            oldFile.delete()
-        } else {
-            false // Stary plik nie istnieje
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        false // Zwróć false w przypadku błędu
-    }
-}
+//
+//fun renameFile(
+//    context: Context,
+//    oldFileName: String,
+//    newFileName: String,
+//    projectName: String
+//): Boolean {
+//    val folder = File(context.getExternalFilesDir(null), "Projects/$projectName")
+//    if (!folder.exists() || !folder.isDirectory) {
+//        return false
+//    }
+//
+//    val oldFile = File(folder, oldFileName)
+//    val newFile = File(folder, newFileName + ".txt")
+//
+//    return try {
+//        if (oldFile.exists()) {
+//            // Skopiowanie zawartości starego pliku do nowego
+//            oldFile.copyTo(newFile, overwrite = true)
+//            // Usunięcie starego pliku po skopiowaniu zawartości
+//            oldFile.delete()
+//        } else {
+//            false // Stary plik nie istnieje
+//        }
+//    } catch (e: IOException) {
+//        e.printStackTrace()
+//        false // Zwróć false w przypadku błędu
+//    }
+//}
 

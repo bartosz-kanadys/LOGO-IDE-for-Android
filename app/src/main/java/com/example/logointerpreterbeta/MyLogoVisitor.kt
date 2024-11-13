@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
-import com.example.logointerpreterbeta.functions.library.loadLibraries
+import com.example.logointerpreterbeta.functions.library.loadLibrariesFromJSON
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
@@ -445,7 +445,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         val libraryName = ctx!!.name().text
 
         val logo = LogoInterpreter(context)
-        val libraries = loadLibraries(context)
+        val libraries = loadLibrariesFromJSON(context)
         val library = libraries.find { it.name == libraryName }
         val procedureList = library!!.procedures
         for (procedure in procedureList) {
