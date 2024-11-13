@@ -5,6 +5,7 @@ import android.content.Context
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.logointerpreterbeta.errors.MyErrorListener
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoLexer
@@ -53,14 +54,14 @@ class LogoInterpreter(
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
 
-        coroutineScope.launch(Dispatchers.Default) {
+        //coroutineScope.launch(Dispatchers.Default) {
             myVisitor.visit(tree)
             // Powrót do głównego wątku i aktualizacja UI
-            withContext(Dispatchers.Main) {
+          //  withContext(Dispatchers.Main) {
                 // Aktualizacja bitmapy lub innych elementów UI
                 bitmap = MyLogoVisitor.image
-            }
-        }
+           // }
+       // }
     }
 
 

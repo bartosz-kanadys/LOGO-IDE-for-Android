@@ -20,7 +20,7 @@ class MyErrorListener : BaseErrorListener() {
         if (index != -1) {
             errorMessage = errorMessage.substring(0, index)
         }
-        SyntaxError.errors.add(errorMessage)
+        SyntaxError.addError(errorMessage)
         println(errorMessage)
     }
 }

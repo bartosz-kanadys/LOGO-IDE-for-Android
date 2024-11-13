@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,7 +76,7 @@ fun InterpreterApp(
         item { ImagePanel() }
         item {
             ErrorsList(
-                errors = viewModel.errors.toString(),
+                errors = viewModel.errors.collectAsState().value.toString(),
                 isErrorListVisable = viewModel.isErrorListVisable,
                 isErrorListExpanded = viewModel.isErrorListExpanded,
                 onClick = { viewModel.toggleErrorListVisibility() }

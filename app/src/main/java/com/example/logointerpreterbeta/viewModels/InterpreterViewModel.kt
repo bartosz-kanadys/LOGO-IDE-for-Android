@@ -3,6 +3,7 @@ package com.example.logointerpreterbeta.viewModels
 import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,8 +17,10 @@ import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class InterpreterViewModel(context: Context) : ViewModel() {
 
@@ -28,7 +31,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
 
-    var errors = MutableStateFlow(SyntaxError.errors.toString())
+    var errors = MutableStateFlow(SyntaxError.errors.value)
         private set
 
     var isErrorListVisable by mutableStateOf(false)
@@ -74,7 +77,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     }
     fun interpretCode() {
         viewModelScope.launch {
-            SyntaxError.errors.clear()
+            SyntaxError.clearErrors()
             Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
             Turtle.direction = 0f
             try {
@@ -83,8 +86,11 @@ class InterpreterViewModel(context: Context) : ViewModel() {
             } catch (e: Exception) {
                 Log.e("ERROR", "Błąd wykonywania interpretera")
             } finally {
-                errors.value = SyntaxError.errors.toString()
-                isErrorListVisable = errors.value != "[]"
+                withContext(Dispatchers.Main) {
+                    errors.value = SyntaxError.errors.value
+                    isErrorListVisable = !errors.value.isEmpty()
+                }
+//
             }
         }
     }

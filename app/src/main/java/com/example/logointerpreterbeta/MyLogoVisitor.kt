@@ -378,7 +378,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
                 variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
             }
         } else {
-            SyntaxError.errors.add("Nieznana procedura: $procedureName")
+            SyntaxError.addError("Nieznana procedura: $procedureName")
         }
 
         return 0
