@@ -16,18 +16,19 @@ import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class InterpreterViewModel(context: Context) : ViewModel() {
 
-    private val logo = LogoInterpreter(context)
+    private val logo = LogoInterpreter(context, viewModelScope)
     var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     var cursorPosition by mutableStateOf(0)
 
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
 
-    var errors by mutableStateOf(SyntaxError.errors.toString())
+    var errors = MutableStateFlow(SyntaxError.errors.toString())
         private set
 
     var isErrorListVisable by mutableStateOf(false)
@@ -35,6 +36,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
 
     var isErrorListExpanded by mutableStateOf(false)
         private set
+    var isDebugging by mutableStateOf(false)
 
     init {
         // Ustawienia początkowe pozycji i kierunku
@@ -63,9 +65,11 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.nextStep()
     }
     fun enableDebugging(){
+        isDebugging=true
         logo.enableDebugging()
     }
     fun disableDebugging(){
+        isDebugging=false
         logo.disableDebugging()
     }
     fun interpretCode() {
@@ -79,8 +83,8 @@ class InterpreterViewModel(context: Context) : ViewModel() {
             } catch (e: Exception) {
                 Log.e("ERROR", "Błąd wykonywania interpretera")
             } finally {
-                errors = SyntaxError.errors.toString()
-                isErrorListVisable = errors != "[]"
+                errors.value = SyntaxError.errors.toString()
+                isErrorListVisable = errors.value != "[]"
             }
         }
     }

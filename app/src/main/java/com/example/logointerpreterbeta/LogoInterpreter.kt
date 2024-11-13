@@ -6,6 +6,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.example.logointerpreterbeta.errors.MyErrorListener
+import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.ui.theme.cmdColorDark
@@ -14,6 +15,7 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -22,7 +24,10 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 
-class LogoInterpreter(context: Context) {
+class LogoInterpreter(
+    context: Context,
+    private val coroutineScope: CoroutineScope
+) {
     var bitmap = MyLogoVisitor.image
 
     private val myVisitor = MyLogoVisitor(context = context)
@@ -30,36 +35,34 @@ class LogoInterpreter(context: Context) {
 
 
     fun start(input: String) {
-        // Uruchomienie kodu w tle za pomocą korutyn
-        GlobalScope.launch(Dispatchers.Default) {
-            // Tworzenie lexer'a
-            val lexer = logoLexer(
-                CharStreams.fromString(input)
-            )
-            lexer.removeErrorListeners()
-            lexer.addErrorListener(MyErrorListener())
+        // Tworzenie lexer'a
+        val lexer = logoLexer(
+            CharStreams.fromString(input)
+        )
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(MyErrorListener())
 
-            // Tokenizacja
-            val tokens = CommonTokenStream(lexer)
+        // Tokenizacja
+        val tokens = CommonTokenStream(lexer)
 
-            // Parsowanie
-            val parser = logoParser(tokens)
-            parser.removeErrorListeners()
-            parser.addErrorListener(MyErrorListener())
+        // Parsowanie
+        val parser = logoParser(tokens)
+        parser.removeErrorListeners()
+        parser.addErrorListener(MyErrorListener())
 
-            // Startujemy od reguły głównej (prog)
-            val tree = parser.prog()
+        // Startujemy od reguły głównej (prog)
+        val tree = parser.prog()
 
-            // Uruchamianie wizytora
+        coroutineScope.launch(Dispatchers.Default) {
             myVisitor.visit(tree)
-
-            // Możesz dodać kod do odświeżenia interfejsu użytkownika, jeśli to konieczne
+            // Powrót do głównego wątku i aktualizacja UI
             withContext(Dispatchers.Main) {
-                // Aktualizowanie interfejsu użytkownika, np. wyświetlenie bitmapy
+                // Aktualizacja bitmapy lub innych elementów UI
                 bitmap = MyLogoVisitor.image
             }
         }
     }
+
 
     fun colorizeText(text: String): AnnotatedString {
         val lexer = logoLexer(CharStreams.fromString(text))

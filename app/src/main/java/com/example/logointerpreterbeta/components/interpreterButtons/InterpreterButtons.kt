@@ -10,9 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -30,68 +33,92 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
         Column(
             modifier = Modifier
                 .align(Alignment.TopEnd)
-                .padding(top = 15.dp, end = 5.dp)
+                .padding(top = 15.dp, end = 5.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    MaterialTheme.colorScheme.primaryContainer
-                ),
-                onClick = { viewModel.interpretCode() },
-                modifier = Modifier
-                    .width(45.dp)
-                    .height(45.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.PlayArrow,
-                    contentDescription = null,
+            if(!viewModel.isDebugging) {
+                Button(
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    onClick = { viewModel.interpretCode() },
                     modifier = Modifier
-                        .width(40.dp)
-                        .align(Alignment.CenterVertically)
-                )
-            }
+                        .width(45.dp)
+                        .height(45.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
 
-            // Nowy przycisk pod pierwszym
-            Button(
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    MaterialTheme.colorScheme.secondaryContainer
-                ),
-                onClick = { viewModel.enableDebugging() },
-                modifier = Modifier
-                    .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                    .width(45.dp)
-                    .height(45.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Call,
-                    contentDescription = null,
+                // Nowy przycisk pod pierwszym
+                Button(
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.secondaryContainer
+                    ),
+                    onClick = { viewModel.enableDebugging() },
                     modifier = Modifier
-                        .width(40.dp)
-                        .align(Alignment.CenterVertically)
-                )
+                        .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
+                        .width(30.dp)
+                        .height(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Build,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
             }
-            Button(
-                shape = CircleShape,
-                contentPadding = PaddingValues(0.dp),
-                colors = ButtonDefaults.buttonColors(
-                    MaterialTheme.colorScheme.secondaryContainer
-                ),
-                onClick = { viewModel.nextStep() },
-                modifier = Modifier
-                    .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                    .width(45.dp)
-                    .height(45.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Check,
-                    contentDescription = null,
+            else {
+                Button(
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.errorContainer
+                    ),
+                    onClick = { viewModel.disableDebugging() },
                     modifier = Modifier
-                        .width(40.dp)
-                        .align(Alignment.CenterVertically)
-                )
+                        .width(45.dp)
+                        .height(45.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.AccountBox,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
+                Button(
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.secondaryContainer
+                    ),
+                    onClick = { viewModel.nextStep() },
+                    modifier = Modifier
+                        .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
+                        .width(45.dp)
+                        .height(45.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
             }
         }
     }

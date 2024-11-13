@@ -75,7 +75,7 @@ fun InterpreterApp(
         item { ImagePanel() }
         item {
             ErrorsList(
-                errors = viewModel.errors,
+                errors = viewModel.errors.toString(),
                 isErrorListVisable = viewModel.isErrorListVisable,
                 isErrorListExpanded = viewModel.isErrorListExpanded,
                 onClick = { viewModel.toggleErrorListVisibility() }
@@ -86,7 +86,7 @@ fun InterpreterApp(
                 CodeEditor(
                     codeState = viewModel.codeState,
                     onCodeChange = viewModel::onCodeChange,
-                    errors = viewModel.errors,
+                    errors = viewModel.errors.toString(),
                     modifier = Modifier
                 )
 
