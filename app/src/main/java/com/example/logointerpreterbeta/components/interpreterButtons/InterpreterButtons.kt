@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
@@ -71,7 +72,7 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                         .height(30.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Build,
+                        imageVector = Icons.Filled.BugReport,
                         contentDescription = null,
                         modifier = Modifier
                             .width(40.dp)
@@ -80,6 +81,25 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 }
             }
             else {
+                Button(
+                    shape = CircleShape,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    onClick = { viewModel.interpretCode() },
+                    modifier = Modifier
+                        .width(45.dp)
+                        .height(45.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(40.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                }
                 Button(
                     shape = CircleShape,
                     contentPadding = PaddingValues(0.dp),
