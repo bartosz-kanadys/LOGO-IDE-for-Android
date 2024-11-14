@@ -1,11 +1,11 @@
 package com.example.logointerpreterbeta.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.example.logointerpreterbeta.Repository.ProjectRepository
+import com.example.logointerpreterbeta.repository.ProjectRepository
 import com.example.logointerpreterbeta.functions.project.Project
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -13,22 +13,22 @@ class ProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository
 ) : ViewModel() {
     private val _actualProjectName = MutableStateFlow("")
-    val actualProjectName: StateFlow<String> = _actualProjectName
+    val actualProjectName = _actualProjectName.asStateFlow()
 
     private val _actualFileName = MutableStateFlow<String?>(null)
-    val actualFileName: StateFlow<String?> = _actualFileName
+    val actualFileName = _actualFileName.asStateFlow()
 
     private val _projectsMap = MutableStateFlow<Map<String, String>>(emptyMap())
-    val projectsMap: StateFlow<Map<String, String>> = _projectsMap
+    val projectsMap = _projectsMap.asStateFlow()
 
     private val _project = MutableStateFlow<Project?>(null)
-    val project: StateFlow<Project?> = _project
+    val project = _project.asStateFlow()
 
     init {
         updateProjectsMap()
     }
 
-    fun updateActualProjectName(newProjectName: String) {
+    private fun updateActualProjectName(newProjectName: String) {
         _actualProjectName.value = newProjectName
         projectRepository.updateLastProjectJSON(newProjectName)
     }
@@ -41,7 +41,7 @@ class ProjectViewModel @Inject constructor(
         _actualFileName.value = newFileName
     }
 
-    fun updateProjectsMap() {
+    private fun updateProjectsMap() {
         _projectsMap.value = projectRepository.getProjectsMap()
     }
 

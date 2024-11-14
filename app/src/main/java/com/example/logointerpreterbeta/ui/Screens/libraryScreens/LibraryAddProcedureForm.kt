@@ -16,7 +16,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,7 +46,7 @@ fun LibraryAddProcedureForm(
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
-        interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n\n")
+        interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n\n\n")
     }
 
     LazyColumn(
@@ -85,7 +84,7 @@ fun LibraryAddProcedureForm(
         item {
             Text(text = "Podaj kod procedury", Modifier.padding(top = 15.dp))
             CodeEditor(
-                codeState = interpreterViewModel.codeState,
+                codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                 onCodeChange = interpreterViewModel::onCodeChange,
                 errors = interpreterViewModel.errors,
                 isSaveOnChange = false,
@@ -104,7 +103,7 @@ fun LibraryAddProcedureForm(
                     MaterialTheme.colorScheme.errorContainer
                 ) { navController.popBackStack() }
                 FormButton(text = "Zatwierdź", MaterialTheme.colorScheme.primary) {
-                    val code = interpreterViewModel.codeState.text
+                    val code = interpreterViewModel.getCodeStateAsString()
                     val procedure = Procedure(
                         procedureName,
                         procedureDescription,
@@ -123,7 +122,7 @@ fun LibraryAddProcedureForm(
                             libraryViewModel.actualLibrary.value!!,
                             procedure
                         )
-                        interpreterViewModel.codeState = TextFieldValue("\n\n\n\n\n\n\n\n\n\n")
+                        interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n")
                         navController.popBackStack()
                     }
                 }
@@ -139,7 +138,7 @@ fun Procedurelist() {
         LibraryAddProcedureForm(
             libraryViewModel = hiltViewModel(),
             navController = rememberNavController(),
-            interpreterViewModel = InterpreterViewModel(LocalContext.current),
+            interpreterViewModel = hiltViewModel(),
             modifier = Modifier
         )
     }

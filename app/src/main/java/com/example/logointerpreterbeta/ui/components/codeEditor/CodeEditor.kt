@@ -126,7 +126,7 @@ fun CodeEditor(
                                 context,
                                 projectViewModel!!.actualFileName.value!!,
                                 projectViewModel.actualProjectName.value,
-                                interpreterViewModel!!.codeState.text
+                                interpreterViewModel!!.getCodeStateAsString()
                             )
                         }
                     },
@@ -137,9 +137,9 @@ fun CodeEditor(
                         fontFamily = AppTypography.bodySmall.fontFamily,
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
-                        val cursorPosition = codeState.selection.start
-                        if (cursorPosition >= 0) {
-                            val cursorRect = textLayoutResult.getCursorRect(cursorPosition)
+                        val actualCursorPosition = codeState.selection.start
+                        if (actualCursorPosition >= 0) {
+                            val cursorRect = textLayoutResult.getCursorRect(actualCursorPosition)
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
                         }
                     },
@@ -159,13 +159,13 @@ fun CodeEditor(
                         NearestWordFinder.nearestSpacePositionToRight,
                         suggestion
                     )
-                    val cursorPosition =
+                    val actualCursorPosition =
                         NearestWordFinder.nearestSpacePositionToLeft + suggestion.length
 
                     onCodeChange(
                         codeState.copy(
                             annotatedString = newText,
-                            selection = TextRange(cursorPosition)
+                            selection = TextRange(actualCursorPosition)
                         )
                     )
                 }
@@ -179,7 +179,7 @@ fun CodeEditor(
 fun AA() {
     CodeEditor(
         projectViewModel = hiltViewModel(),
-        interpreterViewModel = InterpreterViewModel(LocalContext.current),
+        interpreterViewModel = hiltViewModel(),
         codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"),
         errors = "",
         onCodeChange = { },

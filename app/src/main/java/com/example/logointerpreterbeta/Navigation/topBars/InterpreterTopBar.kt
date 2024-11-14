@@ -52,6 +52,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.MyLogoVisitor
@@ -103,7 +104,7 @@ fun InterpreterTopBar(
         uri?.let {
             context.contentResolver.openOutputStream(uri)?.use { outputStream ->
                 OutputStreamWriter(outputStream).use { writer ->
-                    writer.write(viewModel.codeState.text)
+                    writer.write(viewModel.getCodeStateAsString())
                 }
                 Toast.makeText(context, "Zapisano plik: ${fileName.text} ", Toast.LENGTH_SHORT)
                     .show()
@@ -350,7 +351,7 @@ fun InterpreterTopBarPreview2() {
     LogoInterpreterBetaTheme(darkTheme = true) {
         InterpreterTopBar(
             "Test",
-            viewModel = InterpreterViewModel(LocalContext.current),
+            viewModel = hiltViewModel(),
             navController = rememberNavController()
         )
     }

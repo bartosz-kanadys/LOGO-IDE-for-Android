@@ -1,7 +1,6 @@
 package com.example.logointerpreterbeta.Navigation
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,9 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,8 +44,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val interpreterViewModel: InterpreterViewModel =
-                viewModel(factory = InterpreterViewModelFactory(this))
+            val interpreterViewModel: InterpreterViewModel = hiltViewModel()
             val libraryViewModel: LibraryViewModel = hiltViewModel()
             val projectViewModel: ProjectViewModel = hiltViewModel()
 
@@ -153,16 +148,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-    }
-}
-
-// Własna fabryka ViewModel do przekazania kontekstu
-class InterpreterViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(InterpreterViewModel::class.java)) {
-            return InterpreterViewModel(context) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

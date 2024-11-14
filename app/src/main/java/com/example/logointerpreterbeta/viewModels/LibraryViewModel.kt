@@ -3,10 +3,10 @@ package com.example.logointerpreterbeta.viewModels
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
-import com.example.logointerpreterbeta.Repository.LibraryRepository
+import com.example.logointerpreterbeta.repository.LibraryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,10 +14,10 @@ class LibraryViewModel @Inject constructor(
     private val libraryRepository: LibraryRepository
 ) : ViewModel() {
     private val _libraries = MutableStateFlow<MutableList<Library>>(mutableListOf())
-    val libraries: StateFlow<List<Library>> = _libraries
+    val libraries = _libraries.asStateFlow()
 
     private val _actualLibrary = MutableStateFlow<String?>(null)
-    val actualLibrary: StateFlow<String?> = _actualLibrary
+    val actualLibrary = _actualLibrary.asStateFlow()
 
     init {
         updateLibraries()
@@ -27,7 +27,7 @@ class LibraryViewModel @Inject constructor(
         _actualLibrary.value = name
     }
 
-    fun addLibrary(library: Library) {
+    private fun addLibrary(library: Library) {
         _libraries.value.add(library)
     }
 
@@ -36,7 +36,7 @@ class LibraryViewModel @Inject constructor(
         libraryRepository.deleteLibrary(libraryName)
     }
 
-    fun updateLibraries() {
+    private fun updateLibraries() {
         _libraries.value = libraryRepository.loadLibraries()
     }
 

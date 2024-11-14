@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.Repository
+package com.example.logointerpreterbeta.repository
 
 import android.content.Context
 import com.example.logointerpreterbeta.functions.config.readLastModifiedProject

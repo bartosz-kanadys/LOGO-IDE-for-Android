@@ -40,9 +40,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -101,12 +101,12 @@ fun InterpreterApp(
         if (actualFile != null) {
             val content = readFileContent(context, actualFile, project!!.name)
             if (content != null) {
-                interpreterViewModel.codeState = TextFieldValue(content)
+                interpreterViewModel.updateCodeState(content)
                 interpreterViewModel.colorCode()
                 interpreterViewModel.interpretCode("")
             }
         } else {
-            interpreterViewModel.codeState = TextFieldValue("")
+            interpreterViewModel.updateCodeState("")
             isAlertEmptyProjectVisable = true
         }
 
@@ -203,7 +203,7 @@ fun InterpreterApp(
                                             visibleMenuFileName = projectFile.name
                                         },
                                         onTap = {
-                                            interpreterViewModel.codeState = TextFieldValue(
+                                            interpreterViewModel.updateCodeState(
                                                 readFileContent(
                                                     context,
                                                     projectFile.name,
@@ -260,7 +260,7 @@ fun InterpreterApp(
                 CodeEditor(
                     projectViewModel = projectViewModel,
                     interpreterViewModel = interpreterViewModel,
-                    codeState = interpreterViewModel.codeState,
+                    codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                     onCodeChange = interpreterViewModel::onCodeChange,
                     errors = interpreterViewModel.errors,
                     modifier = Modifier
@@ -297,7 +297,7 @@ fun InterpreterApp(
 fun Preview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
         InterpreterApp(
-            interpreterViewModel = InterpreterViewModel(context = LocalContext.current),
+            interpreterViewModel = hiltViewModel(),
             navController = rememberNavController()
         )
     }

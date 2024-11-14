@@ -1,9 +1,9 @@
 package com.example.logointerpreterbeta.viewModels
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
@@ -15,19 +15,19 @@ import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.textDiffrence
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class InterpreterViewModel(context: Context) : ViewModel() {
+@HiltViewModel
+class InterpreterViewModel @Inject constructor(
+    private val logo: LogoInterpreter
+) : ViewModel() {
 
-    private val logo = LogoInterpreter(context)
-    var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
-    var cursorPosition by mutableStateOf(0)
+    private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
+    private var cursorPosition by mutableIntStateOf(0)
 
-//    var acctualProjectName by mutableStateOf("-")
-//    var acctualFileName by mutableStateOf<String?>(null)
-
-    var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
-        private set
+    private var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
 
     var errors by mutableStateOf(SyntaxError.errors.toString())
         private set
@@ -45,10 +45,18 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.start("st")
     }
 
-//    fun upadteAcctualProject(context: Context,projectName: String) {
-//        acctualProjectName = projectName
-//        updateLastModifiedProjectJSON(context, acctualProjectName)
-//    }
+    fun updateCodeState(newCode: String) {
+        codeState = TextFieldValue(newCode)
+    }
+
+    fun getCodeStateAsString(): String {
+        return codeState.text
+    }
+
+    fun getCodeStateAsTextFieldValue(): TextFieldValue {
+        return codeState
+    }
+
 
     fun onCodeChange(newCode: TextFieldValue) {
         cursorPosition = newCode.selection.start

@@ -14,11 +14,16 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
+import dagger.hilt.android.qualifiers.ApplicationContext
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-class LogoInterpreter(context: Context) {
+@Singleton
+class LogoInterpreter @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
     var bitmap = MyLogoVisitor.image
 
     private val myVisitor = MyLogoVisitor(context = context)
