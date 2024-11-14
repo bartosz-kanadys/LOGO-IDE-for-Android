@@ -1,15 +1,18 @@
 package com.example.logointerpreterbeta.components.interpreterButtons
 
 
+import androidx.annotation.Dimension
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Call
@@ -23,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
@@ -36,90 +41,45 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 .padding(top = 15.dp, end = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
             if(!viewModel.isDebugging) {
-                Button(
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    onClick = { viewModel.interpretCode() },
-                    modifier = Modifier
-                        .width(45.dp)
-                        .height(45.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
-
-                // Nowy przycisk pod pierwszym
-                Button(
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.secondaryContainer
-                    ),
-                    onClick = { viewModel.enableDebugging() },
-                    modifier = Modifier
-                        .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                        .width(30.dp)
-                        .height(30.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Build,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
+                CodeEditorButton(Icons.Outlined.Build, size = 30) { viewModel.enableDebugging() }
             }
             else {
-                Button(
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.errorContainer
-                    ),
-                    onClick = { viewModel.disableDebugging() },
-                    modifier = Modifier
-                        .width(45.dp)
-                        .height(45.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.AccountBox,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
-                Button(
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.secondaryContainer
-                    ),
-                    onClick = { viewModel.nextStep() },
-                    modifier = Modifier
-                        .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
-                        .width(45.dp)
-                        .height(45.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .width(40.dp)
-                            .align(Alignment.CenterVertically)
-                    )
-                }
+                CodeEditorButton(
+                    Icons.Filled.AccountBox,
+                    MaterialTheme.colorScheme.errorContainer
+                ) { viewModel.disableDebugging() }
+
+                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.nextStep() }
             }
         }
+    }
+}
+
+@Composable
+fun CodeEditorButton(
+    icon: ImageVector,
+    color: Color = MaterialTheme.colorScheme.secondaryContainer,
+    size: Int = 45,
+    onClick: () -> Unit
+
+) {
+    Button(
+        shape = CircleShape,
+        contentPadding = PaddingValues(0.dp),
+        colors = ButtonDefaults.buttonColors(color),
+        onClick = { onClick() },
+        modifier = Modifier
+            .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
+            .size(size.dp)
+    ) {
+        Icon(
+            imageVector = icon, // Icons.Outlined.Build,
+            contentDescription = null,
+            modifier = Modifier
+                .width(40.dp)
+                .align(Alignment.CenterVertically)
+        )
     }
 }

@@ -76,7 +76,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.disableDebugging()
     }
     fun interpretCode() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.Main) {
             SyntaxError.clearErrors()
             Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
             Turtle.direction = 0f

@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.components.ErrorsList
 import com.example.logointerpreterbeta.components.ImagePanel
@@ -76,7 +77,7 @@ fun InterpreterApp(
         item { ImagePanel() }
         item {
             ErrorsList(
-                errors = viewModel.errors.collectAsState().value.toString(),
+                errors = viewModel.errors.collectAsStateWithLifecycle().value.toString(),
                 isErrorListVisable = viewModel.isErrorListVisable,
                 isErrorListExpanded = viewModel.isErrorListExpanded,
                 onClick = { viewModel.toggleErrorListVisibility() }
