@@ -20,6 +20,8 @@ import com.example.logointerpreterbeta.errors.SyntaxError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class InterpreterViewModel(context: Context) : ViewModel() {
@@ -41,6 +43,7 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         private set
     var isDebugging by mutableStateOf(false)
     private var interpreterIsRunning = false
+    private val mutex = Mutex()
     init {
         // Ustawienia początkowe pozycji i kierunku
         Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
@@ -76,29 +79,24 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.disableDebugging()
     }
     fun interpretCode() {
-        if(interpreterIsRunning){
-            return
-        }
-        else {
-            interpreterIsRunning = true
             viewModelScope.launch(Dispatchers.Default) {
-                SyntaxError.clearErrors()
-                Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-                Turtle.direction = 0f
-                try {
-                    logo.start(codeState.text, isDebugging)
-                    img = logo.bitmap
-                } catch (e: Exception) {
-                    Log.e("ERROR", "Błąd wykonywania interpretera")
-                } finally {
-                    withContext(Dispatchers.Main) {
-                        errors.value = SyntaxError.errors.value
-                        isErrorListVisable = !errors.value.isEmpty()
+                mutex.withLock {
+                    SyntaxError.clearErrors()
+                    Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+                    Turtle.direction = 0f
+                    try {
+                        logo.start(codeState.text, isDebugging)
+                        img = logo.bitmap
+                    } catch (e: Exception) {
+                        Log.e("ERROR", "Błąd wykonywania interpretera")
+                    } finally {
+                        withContext(Dispatchers.Main) {
+                            errors.value = SyntaxError.errors.value
+                            isErrorListVisable = !errors.value.isEmpty()
+                        }
+    //
                     }
-//
                 }
             }
-            interpreterIsRunning = false
-        }
     }
 }
