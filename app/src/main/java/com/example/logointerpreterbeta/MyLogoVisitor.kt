@@ -25,11 +25,13 @@ import kotlin.math.sin
 open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     companion object {
         val image = MyImage
+        val turtleImage = TurtleImage
     }
 
     protected var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
 
     protected val canvas = Canvas(image)
+    protected val turtleCanvas = Canvas(turtleImage)
     protected var paint = Paint()
 
     protected var variables: MutableMap<String, Any> = HashMap()
@@ -407,13 +409,14 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
     }
 
     fun updateTurtleBitmap() {
+        turtleImage.eraseColor(android.graphics.Color.TRANSPARENT)
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
             val matrix = Matrix()
             matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f)
             turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
-            canvas.drawBitmap(
+            turtleCanvas.drawBitmap(
                 turtleBitmap!!,
                 Turtle.Xposition - turtleBitmap!!.width / 2,
                 Turtle.Yposition - turtleBitmap!!.height / 2,
