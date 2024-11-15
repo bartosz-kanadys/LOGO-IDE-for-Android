@@ -2,7 +2,10 @@ package com.example.logointerpreterbeta
 
 import android.app.UiModeManager
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.toArgb
+import com.example.logointerpreterbeta.errors.StopException
+import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
@@ -30,11 +33,71 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         debugSignal.countDown() // Wysyła sygnał do wątku debugera
     }
 
-    private fun waitForDebugSignal() {
+    private fun waitForDebugSignal(line: String) {
+        Log.i("Czekam przed:",line)
         if (isDebugging) {
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
         }
+    }
+    override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
+        val repeatCount = ctx!!.number().text.toFloat().toInt()
+        val commandsBlock = ctx.block().children
+        try {
+            for (i in 1..repeatCount) {
+                for (command in commandsBlock) {
+                    waitForDebugSignal(command.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+                    visit(command)
+                    updateTurtleBitmap()
+
+                }
+            }
+        } catch (e: StopException) {
+            return 0
+        }
+
+        return 0
+    }
+    override fun visitProcedureInvocation(ctx: logoParser.ProcedureInvocationContext?): Int {
+        val procedureName = ctx!!.name().text
+
+        // Sprawdz czy procedura istnieje
+        if (procedures.containsKey(procedureName)) {
+            val procedureCtx = procedures[procedureName]
+
+            // Obsluga parametrow procedury
+            val parameterDeclarations = procedureCtx!!.parameterDeclarations()
+            val arguments = ctx.expression()
+
+            if (parameterDeclarations.size != arguments.size) {
+                throw RuntimeException("Liczba argumentów nie pasuje do liczby parametrów.")
+            }
+
+            // Przypisz argumenty do zmiennych lokalnych
+            val previousVariables = HashMap(variables) // Zapisz poprzednie zmienne
+            for (i in parameterDeclarations.indices) {
+                val paramName = parameterDeclarations[i].name().text
+                val argumentValue = visit(arguments[i])
+                variables[paramName] = argumentValue
+            }
+
+            try {
+                // Wykonaj każdą linię ciała procedury
+                for (line in procedureCtx.line()) {
+                    waitForDebugSignal(line.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+                    visit(line)
+                    updateTurtleBitmap()
+                }
+            } catch (e: StopException) {
+                return 0
+            } finally {
+                variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
+            }
+        } else {
+            SyntaxError.addError("Nieznana procedura: $procedureName")
+        }
+
+        return 0
     }
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         paint.setColor(Turtle.penColor)
@@ -46,11 +109,12 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
-        for (line in ctx!!.line()) {
-            waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
-            visit(line)
-        }
         updateTurtleBitmap()
+        for (line in ctx!!.line()) {
+            waitForDebugSignal(line.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+            visit(line)
+            updateTurtleBitmap()
+        }
         return 0
     }
 }

@@ -88,7 +88,7 @@ fun InterpreterApp(
                 CodeEditor(
                     codeState = viewModel.codeState,
                     onCodeChange = viewModel::onCodeChange,
-                    errors = viewModel.errors.toString(),
+                    errors = viewModel.errors.collectAsStateWithLifecycle().value.toString(),
                     modifier = Modifier
                 )
 
