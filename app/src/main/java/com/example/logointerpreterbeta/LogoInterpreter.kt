@@ -32,10 +32,10 @@ class LogoInterpreter(
     var bitmap = MyLogoVisitor.image
 
     private val myVisitor = MyLogoVisitor(context = context)
+    private val DebuggerVisitor = DebuggerVisitor(context = context)
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
-
-    fun start(input: String) {
+    fun start(input: String,isDebugging: Boolean = false) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
             CharStreams.fromString(input)
@@ -53,15 +53,13 @@ class LogoInterpreter(
 
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
-
-        //coroutineScope.launch(Dispatchers.Default) {
+        if(!isDebugging) {
             myVisitor.visit(tree)
-            // Powrót do głównego wątku i aktualizacja UI
-          //  withContext(Dispatchers.Main) {
-                // Aktualizacja bitmapy lub innych elementów UI
-                bitmap = MyLogoVisitor.image
-           // }
-       // }
+        }
+        else{
+            DebuggerVisitor.visit(tree)
+        }
+        bitmap = MyLogoVisitor.image
     }
 
 
@@ -98,13 +96,13 @@ class LogoInterpreter(
         return styledText
     }
     fun nextStep(){
-        myVisitor.continueExecution()
+        DebuggerVisitor.continueExecution()
     }
     fun enableDebugging(){
-        myVisitor.enableDebugging()
+        DebuggerVisitor.enableDebugging()
     }
     fun disableDebugging(){
-        myVisitor.disableDebugging()
+        DebuggerVisitor.disableDebugging()
 
     }
 }
