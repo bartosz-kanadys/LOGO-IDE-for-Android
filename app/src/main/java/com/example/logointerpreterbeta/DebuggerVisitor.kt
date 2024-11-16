@@ -14,6 +14,7 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import org.antlr.v4.runtime.tree.TerminalNodeImpl
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
@@ -51,9 +52,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         val commandsBlock = ctx.block().children
         try {
             for (i in 1..repeatCount) {
-                for (command in commandsBlock) {
+                for (command in commandsBlock.filterIsInstance<logoParser.CmdContext>()) {
                     if(!command.text.contains("[")&&!command.text.contains("]")) {
-                        //currentLine=command.start.line
+                        currentLine=command.start.line
                         Log.i("Czekam w petli:", command.text + " krok: $stepCount")
                         waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     }
@@ -131,6 +132,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             visit(line)
             updateTurtleBitmap()
         }
+        currentLine=0;
         return 0
     }
 }
