@@ -1,5 +1,7 @@
 package com.example.logointerpreterbeta.Navigation.topBars
 
+import android.content.Intent
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -28,6 +30,7 @@ import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.SaveAs
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,6 +55,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -67,6 +71,8 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import java.io.BufferedReader
+import java.io.File
+import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.util.Date
@@ -232,6 +238,44 @@ fun InterpreterTopBar(
                                 )
                             }
                         )
+                        DropdownMenuItem(
+                            onClick = {
+                                try {
+                                    // Krok 1: Zapisanie bitmapy do pliku
+                                    val file = File(context.cacheDir, "shared_image.png")
+                                    FileOutputStream(file).use { fos ->
+                                        MyLogoVisitor.image.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                                    }
+
+                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
+                                    val uri = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.fileprovider",
+                                        file
+                                    )
+
+                                    // Krok 3: Tworzenie Intentu do udostępnienia
+                                    val shareIntent = Intent().apply {
+                                        action = Intent.ACTION_SEND
+                                        type = "image/png"
+                                        putExtra(Intent.EXTRA_STREAM, uri)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
+                                    }
+
+                                    // Uruchamianie Intentu
+                                    context.startActivity(Intent.createChooser(shareIntent, "Share image via"))
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Toast.makeText(context, "Failed to share image: ${e.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            },
+                            text = {
+                                MenuElement(
+                                    "Udostępnij",
+                                    icon = Icons.Filled.Share
+                                )
+                            }
+                        )
                     }
                 }
 
@@ -254,12 +298,20 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
+                                val shareIntent = Intent().apply {
+                                    action = Intent.ACTION_SEND
+                                    type = "text/plain" // Typ MIME dla tekstu
+                                    putExtra(Intent.EXTRA_TEXT, viewModel.getCodeStateAsString()) // Tekst do udostępnienia
+                                }
+
+                                // Utwórz chooser i uruchom Intent
+                                context.startActivity(Intent.createChooser(shareIntent, "Share via"))
 
                             },
                             text = {
                                 MenuElement(
-                                    "Zapisz na dysku",
-                                    icon = Icons.Filled.AddToDrive
+                                    "Udostępnij",
+                                    icon = Icons.Filled.Share
                                 )
                             }
                         )
