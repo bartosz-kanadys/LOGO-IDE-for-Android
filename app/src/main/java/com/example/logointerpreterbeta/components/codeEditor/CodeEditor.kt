@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.DebuggerVisitor
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
@@ -84,7 +85,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inversePrimary)
+                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else if(i==DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.inversePrimary)
                 )
             }
         }

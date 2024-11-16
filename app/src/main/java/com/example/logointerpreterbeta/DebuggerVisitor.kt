@@ -3,6 +3,9 @@ package com.example.logointerpreterbeta
 import android.app.UiModeManager
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
@@ -14,9 +17,12 @@ import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
+    companion object{
+        var currentLine by mutableStateOf(-1)
+    }
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
-
+    private var stepCount = 0
     // Włączenie trybu debugowania
     fun enableDebugging() {
         isDebugging = true
@@ -33,8 +39,8 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         debugSignal.countDown() // Wysyła sygnał do wątku debugera
     }
 
-    private fun waitForDebugSignal(line: String) {
-        Log.i("Czekam przed:",line)
+    private fun waitForDebugSignal() {
+        stepCount++
         if (isDebugging) {
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
@@ -46,7 +52,11 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         try {
             for (i in 1..repeatCount) {
                 for (command in commandsBlock) {
-                    waitForDebugSignal(command.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+                    if(!command.text.contains("[")&&!command.text.contains("]")) {
+                        //currentLine=command.start.line
+                        Log.i("Czekam w petli:", command.text + " krok: $stepCount")
+                        waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+                    }
                     visit(command)
                     updateTurtleBitmap()
 
@@ -84,7 +94,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             try {
                 // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
-                    waitForDebugSignal(line.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+                    currentLine=line.start.line
+                    Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
+                    waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     visit(line)
                     updateTurtleBitmap()
                 }
@@ -100,6 +112,8 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         return 0
     }
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
+        stepCount=0;
+        currentLine=0;
         paint.setColor(Turtle.penColor)
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
         if (isDarkTheme) {
@@ -111,7 +125,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         }
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
-            waitForDebugSignal(line.text) // Oczekiwanie na sygnał przed kolejnym krokiem
+            currentLine=line.start.line
+            Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
+            waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)
             updateTurtleBitmap()
         }
