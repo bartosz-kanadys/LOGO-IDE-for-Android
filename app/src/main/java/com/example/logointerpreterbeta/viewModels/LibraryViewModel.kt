@@ -7,6 +7,7 @@ import com.example.logointerpreterbeta.repository.LibraryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,11 +25,13 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun updateActualLibrary(name: String?) {
-        _actualLibrary.value = name
+        _actualLibrary.update { name }
     }
 
     private fun addLibrary(library: Library) {
-        _libraries.value.add(library)
+        _libraries.update { currentList ->
+            currentList.toMutableList().apply { add(library) }
+        }
     }
 
     fun deleteLibrary(libraryName: String) {
