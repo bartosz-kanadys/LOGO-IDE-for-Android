@@ -15,9 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.Navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.Navigation.topBars.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.screens.InterpreterApp
@@ -28,6 +30,7 @@ import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryAddProce
 import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryFormScreen
 import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryProceduresScreen
 import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryScreen
+import com.example.logointerpreterbeta.ui.screens.tutorialScreen.TutorialContentScreen
 import com.example.logointerpreterbeta.ui.screens.tutorialScreen.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
@@ -140,10 +143,25 @@ class MainActivity : ComponentActivity() {
                             navController
                         )
                     }
-                    composable<Tutorials> {
+                    composable<TutorialScreen> {
                         Layout({ modifier ->
-                            TutorialScreen(modifier = modifier)
+                            TutorialScreen(modifier = modifier, navController)
                         }, "Poradniki", navController)
+                    }
+                    composable(
+                        route = "TutorialContentScreen/{tutorialName}",
+                        arguments = listOf(navArgument("tutorialName"){
+                            type = NavType.StringType}
+                        )
+                    ) { backStackEntry ->
+                        val tutorialName = backStackEntry.arguments?.getString("tutorialName")
+                        Layout(
+                            content = { modifier ->
+                                TutorialContentScreen(tutorialName!!, modifier = modifier)
+                            },
+                            title = tutorialName!!,
+                            navController = navController
+                        )
                     }
                 }
             }
@@ -179,9 +197,6 @@ object Projects
 object Settings
 
 @Serializable
-object Tutorials
-
-@Serializable
 object Libraries
 
 @Serializable
@@ -195,3 +210,6 @@ object LibraryProcedureForm
 
 @Serializable
 object TutorialScreen
+
+@Serializable
+object TutorialContent

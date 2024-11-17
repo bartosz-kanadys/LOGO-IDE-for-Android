@@ -7,7 +7,7 @@
     "paragraphs" : [
       {
         "content" : "Instrukcja FD (skrót od 'forward') pozwala na przesunięcie żółwia o określoną liczbę kroków do przodu w kierunku, w którym obecnie jest zwrócony.",
-        "code" : "BK 100"
+        "code" : "FD 100"
       },
       {
         "content" : "Instrukcja BK (skrót od 'back') działa odwrotnie do FD, czyli przesuwa żółwia do tyłu o określoną liczbę kroków.",
@@ -20,6 +20,54 @@
       {
         "content" : "Instrukcja LT (skrót od 'left turn') działa odwrotnie do RT – żółw obraca się o określoną liczbę stopni w lewo (przeciwnie do ruchu wskazówek zegara).",
         "code" : "LT 90"
+      }
+    ]
+  },
+  {
+    "name" : "Pętle",
+    "author" : "Bartek",
+    "description" : "Poznaj instrukcje 'repeat' dzięki której możliwe jest wieokrotne wykonywanie podanego przez nas kodu. Ułatwia to pisanie wielu programów.",
+    "introduction" : "Pętla REPEAT w języku Logo to potężne narzędzie, które pozwala na wielokrotne wykonywanie tego samego zestawu poleceń. Dzięki niej możesz w prosty sposób rysować powtarzające się wzory, takie jak kwadraty, wielokąty czy spirale.",
+    "paragraphs" : [
+      {
+        "content" : "Składnia pętli REPEAT\n- liczba: Określa, ile razy mają być wykonane polecenia w pętli.\n- polecenia: Lista instrukcji, które mają być powtórzone.",
+        "code" : "REPEAT liczba [polecenia]"
+      },
+      {
+        "content" : "Przykład 1: Rysowanie kwadratu\nKwadrat ma 4 boki, więc chcemy powtórzyć 4 razy:\n- Narysuj linię do przodu (FORWARD lub FD).\n- Obróć się o 90 stopni w prawo (RIGHT lub RT).",
+        "code": "REPEAT 4 [FORWARD 100 RIGHT 90]"
+      },
+      {
+        "content" :"Przykład 2: Rysowanie wielokąta\nDzięki REPEAT możesz łatwo narysować wielokąt foremny (np. trójkąt, pięciokąt, sześciokąt). Wystarczy pamiętać, że kąt obrotu dla wielokąta to: 360° ÷ liczba boków.",
+        "code" : "REPEAT 6 [FORWARD 100 RIGHT 60]"
+      },
+      {
+        "content" : "Przykład 4: Gwiazda\nGwiazdy można rysować, używając ostrych kątów i powtarzających się linii.\nWyjaśnienie:\n- Gwiazda pięcioramienna wymaga 5 linii.\n- Kąt obrotu to 144°, co tworzy pożądany kształt.",
+        "code" : "REPEAT 5 [FORWARD 150 RIGHT 144]"
+      }
+    ]
+  },
+  {
+    "name" : "Procedury",
+    "author" : "Bartek",
+    "description" : "Naucz się deklarować sowje własne procedury aby wykorzystywać je wielokrotnie w swoich projektach ",
+    "introduction" : "Procedura to zestaw poleceń, które mają nazwę i można je wywołać w dowolnym momencie programu. Dzięki temu unikamy wielokrotnego pisania tego samego kodu.\n\nPrzykład: Jeśli często rysujesz kwadrat, możesz stworzyć procedurę kwadrat, która automatyzuje to zadanie.",
+    "paragraphs" : [
+      {
+        "content" : "Tworzenie procedury\nProcedurę w Logo definiujemy za pomocą słowa kluczowego TO, nazwy procedury i jej zawartości. Procedura kończy się słowem END.",
+        "code" : "TO nazwa_procedury\n   [polecenia]\nEND"
+      },
+      {
+        "content" : "Przykład: Rysowanie kwadratu\n- TO kwadrat – Rozpoczęcie definicji procedury o nazwie kwadrat.\n- REPEAT 4 [FORWARD 100 RIGHT 90] – Polecenie rysujące kwadrat.\nEND – Koniec procedury.",
+        "code": "TO kwadrat\n   REPEAT 4 [FORWARD 100 RIGHT 90]\nEND"
+      },
+      {
+        "content" :"Aby wywołać procedurę, wystarczy wpisać jej nazwę. Program narysuje kwadrat, wykonując polecenia zdefiniowane w procedurze.",
+        "code" : "kwadrat"
+      },
+      {
+        "content" : "Procedury mogą przyjmować parametry, co czyni je bardziej uniwersalnymi. Parametr to zmienna, której wartość podajemy przy wywołaniu procedury.",
+        "code" : "TO kwadrat :rozmiar\n   REPEAT 4 [FD :rozmiar RT 90]\nEND"
       }
     ]
   }

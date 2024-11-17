@@ -40,7 +40,7 @@ import com.example.logointerpreterbeta.Navigation.Interpreter
 import com.example.logointerpreterbeta.Navigation.Libraries
 import com.example.logointerpreterbeta.Navigation.Projects
 import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.Tutorials
+import com.example.logointerpreterbeta.Navigation.TutorialScreen
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.functions.config.createConfigFile
 import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
@@ -117,7 +117,7 @@ fun StartScreenApp(
                         })
                 }
                 item { MenuButton("Projekty", { navController.navigate(Projects) }) }
-                item { MenuButton("Poradniki", { navController.navigate(Tutorials) }) }
+                item { MenuButton("Poradniki", { navController.navigate(TutorialScreen) }) }
                 item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
                 item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
             }

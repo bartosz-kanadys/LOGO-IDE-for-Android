@@ -3,6 +3,7 @@ package com.example.logointerpreterbeta.ui.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +30,7 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 
 @Composable
-fun TutorialCard(title: String, description: String) {
+fun TutorialCard(title: String, description: String, onClick: () -> Unit) {
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface,
@@ -41,6 +42,7 @@ fun TutorialCard(title: String, description: String) {
                 2.dp,
                 color = MaterialTheme.colorScheme.primary,
                 shape = RoundedCornerShape(12.dp))
+            .clickable { onClick() }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -84,6 +86,6 @@ fun TutorialCard(title: String, description: String) {
 @Composable
 fun TutorialCardPreview() {
     LogoInterpreterBetaTheme {
-        TutorialCard("ddddd", "ddddddddddddddddddddddd")
+        TutorialCard("ddddd", "ddddddddddddddddddddddd", {})
     }
 }

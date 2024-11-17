@@ -159,10 +159,7 @@ fun ProcedureCard(
 
             Spacer(modifier = Modifier.height(10.dp))
             CodeEditor(
-                projectViewModel = null,
                 codeState = TextFieldValue(coloredCode),
-                errors = "",
-                onCodeChange = {},
                 isSaveOnChange = false,
                 isEnabled = false,
                 isScrollable = false,

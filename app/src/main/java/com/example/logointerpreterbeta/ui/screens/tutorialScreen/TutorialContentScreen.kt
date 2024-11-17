@@ -1,24 +1,47 @@
 package com.example.logointerpreterbeta.ui.screens.tutorialScreen
 
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.LogoInterpreter
+import com.example.logointerpreterbeta.readTutorialsFromRaw
+import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 @Composable
-fun TutorialContentScreen(content: List<String>, modifier: Modifier) {
+fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
+    val tutorial = readTutorialsFromRaw(LocalContext.current).find { it.name == tutorialName }
+    val logo = LogoInterpreter(LocalContext.current)
+
     LazyColumn(
         modifier = modifier
-            .padding(20.dp)
+            .padding(15.dp)
     ) {
-        for (paragraph in content) {
-            item { Text(text = paragraph+"\n", textAlign = TextAlign.Justify) }
+        for (paragraph in tutorial!!.paragraphs) {
+            val coloredCode = logo.colorizeText(paragraph.code)
+            item { Text(text = paragraph.content+"\n", textAlign = TextAlign.Justify) }
+            item {
+                val linesCount = paragraph.code.lines().size
+                CodeEditor(
+                    codeState = TextFieldValue(coloredCode),
+                    isSaveOnChange = false,
+                    isEnabled = false,
+                    isScrollable = false,
+                    lines = linesCount,
+                    fontSize = 15,                                    //fontSize + 5
+                    modifier = Modifier.height((30 + (linesCount - 1) * 20).dp)
+                )
+                Spacer(Modifier.height(20.dp))
+            }
         }
 
     }
@@ -35,6 +58,6 @@ fun TutorialContentScreenPreview() {
         val p4 = "Instrukcja LT (skrót od 'left turn') działa odwrotnie do RT – żółw obraca się o określoną liczbę stopni w lewo (przeciwnie do ruchu wskazówek zegara)."
 
         val content = listOf(introduce, p1, p2, p3, p4)
-        TutorialContentScreen(content, modifier = Modifier)
+        TutorialContentScreen("Pętle", modifier = Modifier)
     }
 }

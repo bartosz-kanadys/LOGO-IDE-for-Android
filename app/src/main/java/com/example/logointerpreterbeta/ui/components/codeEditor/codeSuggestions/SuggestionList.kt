@@ -20,9 +20,11 @@ object SuggestionList {
         "setxy",
         "setpos",
         "make",
-        "setcornerrounding",
+        //"setcornerrounding",
         "setcr",
         "setpc",
         "setpencolor",
+        "repeat",
+        "if"
     )
 }

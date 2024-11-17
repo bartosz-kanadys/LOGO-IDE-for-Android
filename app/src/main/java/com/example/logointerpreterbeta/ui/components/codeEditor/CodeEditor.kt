@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.components.codeEditor
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -52,13 +53,14 @@ fun CodeEditor(
     projectViewModel: ProjectViewModel? = null,
     interpreterViewModel: InterpreterViewModel? = null,
     codeState: TextFieldValue,
-    errors: String,
-    onCodeChange: (TextFieldValue) -> Unit,
+    errors: String = "",
+    onCodeChange: (TextFieldValue) -> Unit = {},
     isSaveOnChange: Boolean = true,
     isEnabled: Boolean = true,
     isScrollable: Boolean = true,
     lines: Int = 10,
-    modifier: Modifier
+    fontSize: Int = 18,
+    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
@@ -93,7 +95,7 @@ fun CodeEditor(
                     textAlign = TextAlign.Center,
                     text = i.toString(),
                     color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
+                    fontSize = fontSize.sp,
                     style = TextStyle(
                         platformStyle = PlatformTextStyle(includeFontPadding = false),
                         fontFamily = AppTypography.bodySmall.fontFamily
@@ -133,7 +135,7 @@ fun CodeEditor(
                     minLines = lines,
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 18.sp,
+                        fontSize = fontSize.sp,
                         fontFamily = AppTypography.bodySmall.fontFamily,
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->

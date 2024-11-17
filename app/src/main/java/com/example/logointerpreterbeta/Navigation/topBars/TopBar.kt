@@ -31,7 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.Libraries
 import com.example.logointerpreterbeta.Navigation.Projects
 import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.Tutorials
+import com.example.logointerpreterbeta.Navigation.TutorialScreen
 
 class TopBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -95,7 +95,7 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
                     text = { Text("Otwórz projekt") }
                 )
                 DropdownMenuItem(
-                    onClick = { navController.navigate(Tutorials) },
+                    onClick = { navController.navigate(TutorialScreen) },
                     text = { Text("Poradniki") }
                 )
                 DropdownMenuItem(

@@ -66,7 +66,7 @@ import com.example.logointerpreterbeta.MyLogoVisitor
 import com.example.logointerpreterbeta.Navigation.Libraries
 import com.example.logointerpreterbeta.Navigation.Projects
 import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.Tutorials
+import com.example.logointerpreterbeta.Navigation.TutorialScreen
 import com.example.logointerpreterbeta.ui.components.image_exporting.checkPermissions
 import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsJpg
 import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsPdf
@@ -183,7 +183,7 @@ fun InterpreterTopBar(
                     text = { MenuElement("Projekty", icon = Icons.Filled.Folder) }
                 )
                 DropdownMenuItem(
-                    onClick = { navController.navigate(Tutorials) },
+                    onClick = { navController.navigate(TutorialScreen) },
                     text = { MenuElement("Poradniki", icon = Icons.Filled.School) }
                 )
                 DropdownMenuItem(
