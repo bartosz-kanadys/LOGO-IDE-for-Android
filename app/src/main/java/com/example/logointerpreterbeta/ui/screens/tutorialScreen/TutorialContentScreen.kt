@@ -1,17 +1,29 @@
 package com.example.logointerpreterbeta.ui.screens.tutorialScreen
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
@@ -19,8 +31,9 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 @Composable
 fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
-    val tutorial = readTutorialsFromRaw(LocalContext.current).find { it.name == tutorialName }
-    val logo = LogoInterpreter(LocalContext.current)
+    val context = LocalContext.current
+    val tutorial = readTutorialsFromRaw(context).find { it.name == tutorialName }
+    val logo = LogoInterpreter(context)
 
     LazyColumn(
         modifier = modifier
@@ -40,7 +53,28 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
                     fontSize = 15,                                    //fontSize + 5
                     modifier = Modifier.height((30 + (linesCount - 1) * 20).dp)
                 )
-                Spacer(Modifier.height(20.dp))
+                Spacer(Modifier.height(5.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
+                        onClick = {
+                            val clipboard =
+                                context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+                            val clip = ClipData.newPlainText(
+                                "przykladowyKod",
+                                paragraph.code
+                            )
+                            clipboard.setPrimaryClip(clip)
+                            Toast.makeText(context, "Kod skopiowany do schowka", Toast.LENGTH_SHORT)
+                                .show()
+                        },
+                    ) {
+                        Text(text = "Kopiuj kod", color = MaterialTheme.colorScheme.onSurface)
+                    }
+                }
+
+                Spacer(Modifier.height(15.dp))
             }
         }
 
@@ -51,13 +85,6 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
 @Preview(showBackground = true, showSystemUi = true)
 fun TutorialContentScreenPreview() {
     LogoInterpreterBetaTheme {
-        val introduce = "W języku Logo podstawowe instrukcje takie jak FD, BK, RT, i LT pozwalają na precyzyjne sterowanie ruchem żółwia na ekranie. Możesz je używać w różnych kombinacjach, aby rysować różne kształty, takie jak kwadraty, trójkąty, czy bardziej złożone figury. Programowanie w Logo jest doskonałym wprowadzeniem do logicznego myślenia, a także zabawą, ponieważ możesz obserwować bezpośrednio efekty swoich działań na ekranie."
-        val p1 = "Instrukcja FD (skrót od 'forward') pozwala na przesunięcie żółwia o określoną liczbę kroków do przodu w kierunku, w którym obecnie jest zwrócony."
-        val p2 = "Instrukcja BK (skrót od 'back') działa odwrotnie do FD, czyli przesuwa żółwia do tyłu o określoną liczbę kroków."
-        val p3 = "Instrukcja RT (skrót od 'right turn') powoduje, że żółw obraca się o określoną liczbę stopni w prawo (zgodnie z ruchem wskazówek zegara)."
-        val p4 = "Instrukcja LT (skrót od 'left turn') działa odwrotnie do RT – żółw obraca się o określoną liczbę stopni w lewo (przeciwnie do ruchu wskazówek zegara)."
-
-        val content = listOf(introduce, p1, p2, p3, p4)
         TutorialContentScreen("Pętle", modifier = Modifier)
     }
 }
