@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.Screens
+package com.example.logointerpreterbeta.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight

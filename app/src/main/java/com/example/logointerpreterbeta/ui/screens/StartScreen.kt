@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.Screens
+package com.example.logointerpreterbeta.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image

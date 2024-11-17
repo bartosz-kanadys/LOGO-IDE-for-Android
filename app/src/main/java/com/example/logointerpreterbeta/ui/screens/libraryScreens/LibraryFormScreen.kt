@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.Screens.libraryScreens
+package com.example.logointerpreterbeta.ui.screens.libraryScreens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

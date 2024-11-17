@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.Screens
+package com.example.logointerpreterbeta.ui.screens
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp

@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.AddToDrive
 import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Image
@@ -173,7 +176,7 @@ fun InterpreterTopBar(
                 onDismissRequest = { dropdownExpanded = false },
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.primaryContainer)
-                    .fillMaxWidth(0.45f)
+                    //.fillMaxWidth(0.60f)
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
@@ -193,7 +196,29 @@ fun InterpreterTopBar(
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
-                    text = { MenuElement("Exportuj rysunek", icon = Icons.Filled.Image) }
+                    text = {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            MenuElement("Exportuj rysunek", icon = Icons.Filled.Image)
+                            if (exportMenuExpanded) {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandLess,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+                        }
+                    }
                 )
                 AnimatedVisibility(visible = exportMenuExpanded) {
                     Column(
@@ -281,7 +306,29 @@ fun InterpreterTopBar(
 
                 DropdownMenuItem(
                     onClick = { saevFileExpanded = !saevFileExpanded },
-                    text = { MenuElement("Zapisz program", icon = Icons.Filled.SaveAs) }
+                    text = {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            MenuElement("Zapisz program", icon = Icons.Filled.SaveAs)
+                            if (saevFileExpanded) {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandLess,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+                        }
+                    }
                 )
                 AnimatedVisibility(visible = saevFileExpanded) {
                     Column(
@@ -319,7 +366,29 @@ fun InterpreterTopBar(
                 }
                 DropdownMenuItem(
                     onClick = { openFileExpanded = !openFileExpanded },
-                    text = { MenuElement("Wczytaj program", icon = Icons.Filled.Download) }
+                    text = {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            MenuElement("Wczytaj program", icon = Icons.Filled.Download)
+                            if (openFileExpanded) {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandLess,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.ExpandMore,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.padding(start = 10.dp)
+                                )
+                            }
+                        }
+                    }
                 )
                 AnimatedVisibility(visible = openFileExpanded) {
                     Column(

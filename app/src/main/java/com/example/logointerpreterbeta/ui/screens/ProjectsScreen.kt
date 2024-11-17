@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.Screens
+package com.example.logointerpreterbeta.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility

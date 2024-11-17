@@ -20,15 +20,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.Navigation.topBars.TopBarWithMenu
-import com.example.logointerpreterbeta.ui.Screens.InterpreterApp
-import com.example.logointerpreterbeta.ui.Screens.ProjectsApp
-import com.example.logointerpreterbeta.ui.Screens.SettingsApp
-import com.example.logointerpreterbeta.ui.Screens.StartScreenApp
-import com.example.logointerpreterbeta.ui.Screens.TutorialsApp
-import com.example.logointerpreterbeta.ui.Screens.libraryScreens.LibraryAddProcedureForm
-import com.example.logointerpreterbeta.ui.Screens.libraryScreens.LibraryFormScreen
-import com.example.logointerpreterbeta.ui.Screens.libraryScreens.LibraryProceduresScreen
-import com.example.logointerpreterbeta.ui.Screens.libraryScreens.LibraryScreen
+import com.example.logointerpreterbeta.ui.screens.InterpreterApp
+import com.example.logointerpreterbeta.ui.screens.ProjectsApp
+import com.example.logointerpreterbeta.ui.screens.SettingsApp
+import com.example.logointerpreterbeta.ui.screens.StartScreenApp
+import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryAddProcedureForm
+import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryFormScreen
+import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryProceduresScreen
+import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryScreen
+import com.example.logointerpreterbeta.ui.screens.tutorialScreen.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
@@ -99,11 +99,6 @@ class MainActivity : ComponentActivity() {
                             SettingsApp(modifier = modifier)
                         }, "Ustawienia", navController)
                     }
-                    composable<Tutorials> {
-                        Layout({ modifier ->
-                            TutorialsApp(modifier = modifier)
-                        }, "Poradniki", navController)
-                    }
                     composable<Libraries> {
                         Layout({ modifier ->
                             LibraryScreen(
@@ -144,6 +139,11 @@ class MainActivity : ComponentActivity() {
                             "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}",
                             navController
                         )
+                    }
+                    composable<Tutorials> {
+                        Layout({ modifier ->
+                            TutorialScreen(modifier = modifier)
+                        }, "Poradniki", navController)
                     }
                 }
             }
@@ -192,3 +192,6 @@ object LibraryProcedures
 
 @Serializable
 object LibraryProcedureForm
+
+@Serializable
+object TutorialScreen
