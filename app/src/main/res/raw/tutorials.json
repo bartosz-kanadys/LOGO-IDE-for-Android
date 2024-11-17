@@ -1,0 +1,26 @@
+[
+  {
+    "name" : "Podstawy poruszania",
+    "author" : "Bartek",
+    "description" : "Poznaj podstawowe instrukcje języka Logo. Nauczysz się jak poruszać się swoim żółwiem po ekranie we wszystkie strony świata.",
+    "introduction" : "W języku Logo podstawowe instrukcje takie jak FD, BK, RT, i LT pozwalają na precyzyjne sterowanie ruchem żółwia na ekranie. Możesz je używać w różnych kombinacjach, aby rysować różne kształty, takie jak kwadraty, trójkąty, czy bardziej złożone figury.",
+    "paragraphs" : [
+      {
+        "content" : "Instrukcja FD (skrót od 'forward') pozwala na przesunięcie żółwia o określoną liczbę kroków do przodu w kierunku, w którym obecnie jest zwrócony.",
+        "code" : "BK 100"
+      },
+      {
+        "content" : "Instrukcja BK (skrót od 'back') działa odwrotnie do FD, czyli przesuwa żółwia do tyłu o określoną liczbę kroków.",
+        "code": "BK 100"
+      },
+      {
+        "content" :"Instrukcja RT (skrót od 'right turn') powoduje, że żółw obraca się o określoną liczbę stopni w prawo (zgodnie z ruchem wskazówek zegara).",
+        "code" : "RT 90"
+      },
+      {
+        "content" : "Instrukcja LT (skrót od 'left turn') działa odwrotnie do RT – żółw obraca się o określoną liczbę stopni w lewo (przeciwnie do ruchu wskazówek zegara).",
+        "code" : "LT 90"
+      }
+    ]
+  }
+]
