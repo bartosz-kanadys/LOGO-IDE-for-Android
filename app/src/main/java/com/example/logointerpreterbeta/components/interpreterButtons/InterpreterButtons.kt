@@ -41,11 +41,12 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 .padding(top = 15.dp, end = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
             if(!viewModel.isDebugging) {
+                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
                 CodeEditorButton(Icons.Outlined.Build, size = 30) { viewModel.enableDebugging() }
             }
             else {
+                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.debugCode() }
                 CodeEditorButton(
                     Icons.Filled.AccountBox,
                     MaterialTheme.colorScheme.errorContainer

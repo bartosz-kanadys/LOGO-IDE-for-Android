@@ -25,7 +25,11 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 class InterpreterViewModel(context: Context) : ViewModel() {
+    companion object{
+        var errors = MutableStateFlow(SyntaxError.errors.value)
+        var isErrorListVisable by mutableStateOf(false)
 
+    }
     private val logo = LogoInterpreter(context, viewModelScope)
     var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     var cursorPosition by mutableStateOf(0)
@@ -33,11 +37,6 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
         private set
 
-    var errors = MutableStateFlow(SyntaxError.errors.value)
-        private set
-
-    var isErrorListVisable by mutableStateOf(false)
-        private set
 
     var isErrorListExpanded by mutableStateOf(false)
         private set
@@ -79,13 +78,13 @@ class InterpreterViewModel(context: Context) : ViewModel() {
         logo.disableDebugging()
     }
     fun interpretCode() {
-            viewModelScope.launch(Dispatchers.Default) {
+            viewModelScope.launch {
                 mutex.withLock {
                     SyntaxError.clearErrors()
                     Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
                     Turtle.direction = 0f
                     try {
-                        logo.start(codeState.text, isDebugging)
+                        logo.start(codeState.text)
                         img = logo.bitmap
                     } catch (e: Exception) {
                         Log.e("ERROR", "Błąd wykonywania interpretera")
@@ -94,9 +93,28 @@ class InterpreterViewModel(context: Context) : ViewModel() {
                             errors.value = SyntaxError.errors.value
                             isErrorListVisable = !errors.value.isEmpty()
                         }
-    //
                     }
                 }
             }
+    }
+    fun debugCode() {
+        viewModelScope.launch(Dispatchers.Default) {
+            mutex.withLock {
+                SyntaxError.clearErrors()
+                Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+                Turtle.direction = 0f
+                try {
+                    logo.debug(codeState.text)
+                    img = logo.bitmap
+                } catch (e: Exception) {
+                    Log.e("ERROR", "Błąd wykonywania interpretera")
+                } finally {
+                    withContext(Dispatchers.Main) {
+                        errors.value = SyntaxError.errors.value
+                        isErrorListVisable = !errors.value.isEmpty()
+                    }
+                }
+            }
+        }
     }
 }

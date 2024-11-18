@@ -2,6 +2,8 @@ package com.example.logointerpreterbeta.components.codeEditor
 
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,8 +12,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +45,8 @@ import com.example.logointerpreterbeta.components.codeEditor.codeSuggestions.Sug
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.components.codeEditor.textFunctions.replaceAnnotatedSubstring
 import com.example.logointerpreterbeta.functions.prepareErrorList
+import com.example.logointerpreterbeta.functions.toggleBreakpoint
+//import com.example.logointerpreterbeta.functions.toggleBreakpoint
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
@@ -57,6 +63,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
     var suggestedInstruction by remember { mutableStateOf("") }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
             .height(300.dp)
@@ -74,19 +81,48 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
 
         ) {
             for (i in 1..linesCount) {
-                Text(
-                    textAlign = TextAlign.Center,
-                    text = i.toString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontFamily = AppTypography.bodySmall.fontFamily
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else if(i==DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.inversePrimary)
-                )
+                if (i in DebuggerVisitor.breakpoints) {
+                    // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
+                    Box(
+                        modifier = Modifier
+                            .size(23.5.dp) // Ustal rozmiar koła
+                            .background(MaterialTheme.colorScheme.error, shape = CircleShape) // Czerwone koło
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                toggleBreakpoint(i) // Przełącz breakpoint
+                                //DebuggerVisitor.breakpoints=i
+                            },
+
+                    )
+                } else {
+                    // W przeciwnym razie wyświetl numer linii
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = i.toString(),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false),
+                            fontFamily = AppTypography.bodySmall.fontFamily
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
+                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
+                                else MaterialTheme.colorScheme.inversePrimary
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                toggleBreakpoint(i) // Przełącz breakpoint
+                                //DebuggerVisitor.breakpoints=i
+                            }
+                    )
+                }
             }
         }
         Column {

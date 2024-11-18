@@ -4,6 +4,7 @@ import android.app.UiModeManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
@@ -14,19 +15,23 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.errors
+import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.isErrorListVisable
 import org.antlr.v4.runtime.tree.TerminalNodeImpl
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
     companion object{
         var currentLine by mutableStateOf(-1)
+        var breakpoints = mutableStateListOf<Int>()
     }
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
     private var stepCount = 0
     // Włączenie trybu debugowania
     fun enableDebugging() {
-        isDebugging = true
+        //isDebugging = true
     }
 
     // Wyłączenie trybu debugowania
@@ -42,6 +47,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
 
     private fun waitForDebugSignal() {
         stepCount++
+        if(currentLine in breakpoints) {
+            isDebugging = true
+        }
         if (isDebugging) {
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
@@ -108,6 +116,8 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             }
         } else {
             SyntaxError.addError("Nieznana procedura: $procedureName")
+            InterpreterViewModel.errors.value=SyntaxError.errors.value;
+            InterpreterViewModel.isErrorListVisable = !errors.value.isEmpty()
         }
 
         return 0
@@ -132,7 +142,8 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             visit(line)
             updateTurtleBitmap()
         }
-        currentLine=0;
+        currentLine=0
+        isDebugging=false
         return 0
     }
 }

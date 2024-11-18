@@ -35,7 +35,7 @@ class LogoInterpreter(
     private val DebuggerVisitor = DebuggerVisitor(context = context)
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
-    fun start(input: String,isDebugging: Boolean = false) {
+    fun start(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
             CharStreams.fromString(input)
@@ -53,15 +53,30 @@ class LogoInterpreter(
 
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
-        if(!isDebugging) {
-            myVisitor.visit(tree)
-        }
-        else{
-            DebuggerVisitor.visit(tree)
-        }
+        myVisitor.visit(tree)
         bitmap = MyLogoVisitor.image
     }
+    fun debug(input: String) {
+        // Tworzenie lexer'a
+        val lexer = logoLexer(
+            CharStreams.fromString(input)
+        )
+        lexer.removeErrorListeners()
+        lexer.addErrorListener(MyErrorListener())
 
+        // Tokenizacja
+        val tokens = CommonTokenStream(lexer)
+
+        // Parsowanie
+        val parser = logoParser(tokens)
+        parser.removeErrorListeners()
+        parser.addErrorListener(MyErrorListener())
+
+        // Startujemy od reguły głównej (prog)
+        val tree = parser.prog()
+        DebuggerVisitor.visit(tree)
+        bitmap = MyLogoVisitor.image
+    }
 
     fun colorizeText(text: String): AnnotatedString {
         val lexer = logoLexer(CharStreams.fromString(text))
