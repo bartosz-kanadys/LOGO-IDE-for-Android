@@ -27,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
@@ -145,6 +146,8 @@ fun CodeEditor(
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
                         }
                     },
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+
                     modifier = modifier
                         .fillMaxSize()
                         .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)

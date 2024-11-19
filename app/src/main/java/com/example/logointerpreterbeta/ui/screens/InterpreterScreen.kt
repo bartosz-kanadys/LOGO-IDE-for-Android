@@ -120,6 +120,7 @@ fun InterpreterApp(
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
                 projectViewModel.createFileInEmptyProject(newFileName)
+                interpreterViewModel.interpretCode("")
                 isAlertEmptyProjectVisable = false
                 newFileName = ""
             }

@@ -35,15 +35,15 @@
       },
       {
         "content" : "Przykład 1: Rysowanie kwadratu\nKwadrat ma 4 boki, więc chcemy powtórzyć 4 razy:\n- Narysuj linię do przodu (FORWARD lub FD).\n- Obróć się o 90 stopni w prawo (RIGHT lub RT).",
-        "code": "REPEAT 4 [FORWARD 100 RIGHT 90]"
+        "code": "REPEAT 4 [FD 100 RT 90]"
       },
       {
         "content" :"Przykład 2: Rysowanie wielokąta\nDzięki REPEAT możesz łatwo narysować wielokąt foremny (np. trójkąt, pięciokąt, sześciokąt). Wystarczy pamiętać, że kąt obrotu dla wielokąta to: 360° ÷ liczba boków.",
-        "code" : "REPEAT 6 [FORWARD 100 RIGHT 60]"
+        "code" : "REPEAT 6 [FD 100 RT 60]"
       },
       {
         "content" : "Przykład 4: Gwiazda\nGwiazdy można rysować, używając ostrych kątów i powtarzających się linii.\nWyjaśnienie:\n- Gwiazda pięcioramienna wymaga 5 linii.\n- Kąt obrotu to 144°, co tworzy pożądany kształt.",
-        "code" : "REPEAT 5 [FORWARD 150 RIGHT 144]"
+        "code" : "REPEAT 5 [FD 150 RT 144]"
       }
     ]
   },
@@ -59,7 +59,7 @@
       },
       {
         "content" : "Przykład: Rysowanie kwadratu\n- TO kwadrat – Rozpoczęcie definicji procedury o nazwie kwadrat.\n- REPEAT 4 [FORWARD 100 RIGHT 90] – Polecenie rysujące kwadrat.\nEND – Koniec procedury.",
-        "code": "TO kwadrat\n   REPEAT 4 [FORWARD 100 RIGHT 90]\nEND"
+        "code": "TO kwadrat\n   REPEAT 4 [FD 100 RT 90]\nEND"
       },
       {
         "content" :"Aby wywołać procedurę, wystarczy wpisać jej nazwę. Program narysuje kwadrat, wykonując polecenia zdefiniowane w procedurze.",
@@ -67,7 +67,7 @@
       },
       {
         "content" : "Procedury mogą przyjmować parametry, co czyni je bardziej uniwersalnymi. Parametr to zmienna, której wartość podajemy przy wywołaniu procedury.",
-        "code" : "TO kwadrat :rozmiar\n   REPEAT 4 [FD :rozmiar RT 90]\nEND"
+        "code" : "TO kwadrat :rozmiar\n REPEAT 4 [FD :rozmiar RT 90]\nEND"
       }
     ]
   }
