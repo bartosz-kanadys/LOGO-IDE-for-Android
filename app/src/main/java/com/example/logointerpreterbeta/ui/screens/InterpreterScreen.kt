@@ -1,13 +1,17 @@
 package com.example.logointerpreterbeta.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,9 +43,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -172,19 +178,24 @@ fun InterpreterApp(
         confirmButtonText = "Usuń"
     )
 
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        item {
-            Box(
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    if (isLandscape) {
+        Row (
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+        ){
+            Column (
                 modifier = Modifier
-                    .fillParentMaxHeight(0.6f)
-                    .fillMaxWidth()
-            ) {
-                ImagePanel()
-
+                    .fillMaxWidth(0.55f)
+                    .zIndex(2f)
+                    .background(MaterialTheme.colorScheme.surface)
+            ){
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .align(Alignment.BottomStart)
+//                        .align(Alignment.BottomEnd)
                         .height(35.dp)
                         .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
@@ -246,50 +257,178 @@ fun InterpreterApp(
                         }
                     }
                 }
+                ErrorsList(
+                    errors = interpreterViewModel.errors,
+                    isErrorListVisable = interpreterViewModel.isErrorListVisable,
+                    isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
+                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                )
+                Box {
+                    CodeEditor(
+                        projectViewModel = projectViewModel,
+                        interpreterViewModel = interpreterViewModel,
+                        codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
+                        onCodeChange = interpreterViewModel::onCodeChange,
+                        errors = interpreterViewModel.errors,
+                        modifier = Modifier
+                    )
+                    Button(
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        onClick = { interpreterViewModel.interpretCode() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 15.dp, end = 5.dp)
+                            .width(45.dp)
+                            .height(45.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .width(40.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+            }
+            Box(
+                modifier = Modifier
+                    //.fillMaxWidth(0.5f)
+                    .zIndex(1f)
+            ) {
+                ImagePanel()
             }
         }
-        item {
-            ErrorsList(
-                errors = interpreterViewModel.errors,
-                isErrorListVisable = interpreterViewModel.isErrorListVisable,
-                isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
-                onClick = { interpreterViewModel.toggleErrorListVisibility() }
-            )
-        }
-        item {
-            Box {
-                CodeEditor(
-                    projectViewModel = projectViewModel,
-                    interpreterViewModel = interpreterViewModel,
-                    codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
-                    onCodeChange = interpreterViewModel::onCodeChange,
-                    errors = interpreterViewModel.errors,
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            item {
+                Box(
                     modifier = Modifier
-                )
-                Button(
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(0.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        MaterialTheme.colorScheme.primaryContainer
-                    ),
-                    onClick = { interpreterViewModel.interpretCode() },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 15.dp, end = 5.dp)
-                        .width(45.dp)
-                        .height(45.dp)
+                        .fillParentMaxHeight(0.6f)
+                        .fillMaxWidth()
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.PlayArrow,
-                        contentDescription = null,
+                    ImagePanel()
+
+                    LazyRow(
                         modifier = Modifier
-                            .width(40.dp)
-                            .align(Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart)
+                            .height(35.dp)
+                            .padding(horizontal = 2.dp, vertical = 0.dp)
+                    ) {
+                        project?.files?.let { files ->
+                            items(files) { projectFile ->
+                                Box(modifier = Modifier
+                                    .background(
+                                        if (actualFileName == projectFile.name)
+                                            MaterialTheme.colorScheme.inversePrimary
+                                        else
+                                            MaterialTheme.colorScheme.secondaryContainer,
+                                        RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                                    )
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onLongPress = {
+                                                visibleMenuFileName = projectFile.name
+                                            },
+                                            onTap = {
+                                                interpreterViewModel.updateCodeState(
+                                                    readFileContent(
+                                                        context,
+                                                        projectFile.name,
+                                                        project!!.name
+                                                    )!!
+                                                )
+                                                interpreterViewModel.colorCode()
+                                                projectViewModel.updateActualFileName(projectFile.name)
+                                            }
+                                        )
+                                    }
+                                    .padding(horizontal = 15.dp, vertical = 6.dp)
+                                ) {
+                                    Text(text = projectFile.name)
+                                    DropdownMenu(
+                                        expanded = visibleMenuFileName == projectFile.name,
+                                        onDismissRequest = { visibleMenuFileName = null }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("Usuń") },
+                                            onClick = {
+                                                fileToDelete = projectFile.name
+                                                visibleMenuFileName = null
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            TextButton(
+                                onClick = { isAlertNewFileVisable = true },
+                                contentPadding = PaddingValues(0.dp),
+                                modifier = Modifier
+                                    .width(30.dp)
+                            ) {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                ErrorsList(
+                    errors = interpreterViewModel.errors,
+                    isErrorListVisable = interpreterViewModel.isErrorListVisable,
+                    isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
+                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                )
+            }
+            item {
+                Box {
+                    CodeEditor(
+                        projectViewModel = projectViewModel,
+                        interpreterViewModel = interpreterViewModel,
+                        codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
+                        onCodeChange = interpreterViewModel::onCodeChange,
+                        errors = interpreterViewModel.errors,
+                        modifier = Modifier
                     )
+                    Button(
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            MaterialTheme.colorScheme.primaryContainer
+                        ),
+                        onClick = { interpreterViewModel.interpretCode() },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(top = 15.dp, end = 5.dp)
+                            .width(45.dp)
+                            .height(45.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .width(40.dp)
+                                .align(Alignment.CenterVertically)
+                        )
+                    }
                 }
             }
         }
     }
+
+    
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
