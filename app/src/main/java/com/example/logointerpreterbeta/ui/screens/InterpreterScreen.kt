@@ -204,7 +204,7 @@ fun InterpreterApp(
                             Box(modifier = Modifier
                                 .background(
                                     if (actualFileName == projectFile.name)
-                                        MaterialTheme.colorScheme.inversePrimary
+                                        MaterialTheme.colorScheme.tertiaryContainer
                                     else
                                         MaterialTheme.colorScheme.secondaryContainer,
                                     RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)

@@ -1,9 +1,12 @@
 package com.example.logointerpreterbeta.ui.screens
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +28,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -73,55 +78,40 @@ fun StartScreenApp(
             }
         )
     }
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
     Surface(
         color = MaterialTheme.colorScheme.surface,
         modifier = Modifier.fillMaxHeight()
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(top = 40.dp)
-        ) {
-            Image(
-                painterResource(id = R.drawable.logo),
-                contentDescription = "logo",
-                contentScale = ContentScale.FillWidth,
+        if (isLandscape) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
-                    .size(180.dp)
-                //.padding(top = 40.dp)
-            )
-            Text(
-                text = "LOGO IDE",
-                fontSize = 34.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = AppTypography.bodySmall,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                modifier = Modifier.fillMaxHeight()
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(top = 40.dp)
             ) {
-                item {
-                    MenuButton("Kontynuuj ostatni projekt",
-                        {
-                            if (readLastModifiedProject(context) == "") {
-                                isAlertVisable = true
-                            } else {
-                                projectViewModel.updateProject()
-                                navController.navigate(Interpreter)
-                            }
-                        })
+                AppLogo(Modifier.fillMaxWidth(0.5f))
+                StartScreenMenu(projectViewModel = projectViewModel, navController = navController) {
+                    isAlertVisable = true
                 }
-                item { MenuButton("Projekty", { navController.navigate(Projects) }) }
-                item { MenuButton("Poradniki", { navController.navigate(TutorialScreen) }) }
-                item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
-                item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
             }
-
+        } else {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+                    .padding(top = 40.dp)
+            ) {
+                AppLogo()
+                StartScreenMenu(projectViewModel = projectViewModel, navController = navController) {
+                    isAlertVisable = true
+                }
+            }
         }
     }
 }
@@ -143,6 +133,61 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
                 textAlign = TextAlign.Center // dostosowanie wyrównania tekstu
             ),
             modifier = modifier
+        )
+    }
+
+}
+
+@Composable
+fun StartScreenMenu(
+    projectViewModel: ProjectViewModel,
+    navController: NavHostController,
+    onEmptyProjectAction: () -> Unit
+) {
+    val context = LocalContext.current
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxHeight()
+    ) {
+        item {
+            MenuButton("Kontynuuj ostatni projekt",
+                {
+                    if (readLastModifiedProject(context) == "") {
+                        onEmptyProjectAction()
+                    } else {
+                        projectViewModel.updateProject()
+                        navController.navigate(Interpreter)
+                    }
+                })
+        }
+        item { MenuButton("Projekty", { navController.navigate(Projects) }) }
+        item { MenuButton("Poradniki", { navController.navigate(TutorialScreen) }) }
+        item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
+        item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
+    }
+}
+
+@Composable
+fun AppLogo(modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Image(
+            painterResource(id = R.drawable.logo),
+            contentDescription = "logo",
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier
+                .size(180.dp)
+            //.padding(top = 40.dp)
+        )
+        Text(
+            text = "LOGO IDE",
+            fontSize = 34.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSurface,
+            style = AppTypography.bodySmall,
+            modifier = Modifier.padding(bottom = 12.dp)
         )
     }
 
