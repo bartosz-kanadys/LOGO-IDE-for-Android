@@ -2,6 +2,7 @@ package com.example.logointerpreterbeta.ui.components
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -71,7 +72,9 @@ fun ImagePanel() {
         modifier = Modifier
             .pointerInput(Unit) {
                 detectTransformGestures { _, pan, zoom, _ ->
-                    scale *= zoom
+                    if (scale in 0.19999985..11.8) {
+                        scale *= zoom
+                    }
                     if (!isBlocked) {
                         offset = Offset(
                             x = offset.x + pan.x,
@@ -106,8 +109,8 @@ fun ImagePanel() {
             ImageButton(Icons.Filled.Info) { isInfoVisable = !isInfoVisable }
             ImageButton(Icons.Filled.Palette) { isPickerVisable = !isPickerVisable }
             Spacer(modifier = Modifier.weight(1f))
-            ImageButton(Icons.Filled.ZoomIn) { scale += 0.2f }
-            ImageButton(Icons.Filled.ZoomOut) { scale -= 0.2f }
+            ImageButton(Icons.Filled.ZoomIn) { if (scale+0.2f in 0.19999985..11.8) scale += 0.2f }
+            ImageButton(Icons.Filled.ZoomOut) { if (scale-0.2f in 0.19999985..11.8) scale -= 0.2f }
             if (isBlocked) {
                 ImageButton(Icons.Filled.Lock) { isBlocked = !isBlocked }
             } else {
