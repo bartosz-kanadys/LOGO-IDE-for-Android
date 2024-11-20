@@ -54,6 +54,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             currentLine=0
             stepByStepMode =false
         }
+        if(currentLine in breakpoints && isDebugging) {
+            stepByStepMode = true
+        }
         if (stepByStepMode) {
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
@@ -139,9 +142,6 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
             currentLine=line.start.line
-            if(currentLine in breakpoints && isDebugging) {
-                stepByStepMode = true
-            }
             Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)
