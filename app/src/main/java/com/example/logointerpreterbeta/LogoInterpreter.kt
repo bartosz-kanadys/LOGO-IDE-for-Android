@@ -111,13 +111,16 @@ class LogoInterpreter(
         return styledText
     }
     fun nextStep(){
-        DebuggerVisitor.continueExecution()
+        DebuggerVisitor.nextStep()
     }
     fun enableDebugging(){
         DebuggerVisitor.enableDebugging()
     }
     fun disableDebugging(){
         DebuggerVisitor.disableDebugging()
-
+    }
+    fun continueExecution(){
+        DebuggerVisitor.continueExecution()
+        DebuggerVisitor.nextStep()
     }
 }

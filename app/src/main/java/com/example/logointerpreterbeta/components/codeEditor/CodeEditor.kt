@@ -85,8 +85,18 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                     // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
                     Box(
                         modifier = Modifier
+                            .fillMaxSize() // Ustal wymiary tła
+                            .background(
+                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
+                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
+                                else MaterialTheme.colorScheme.inversePrimary
+                            )
+                    ) {
+                    Box(
+                        modifier = Modifier
                             .size(23.5.dp) // Ustal rozmiar koła
-                            .background(MaterialTheme.colorScheme.error, shape = CircleShape) // Czerwone koło
+                            .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape) // Czerwone koło
+                            .align(Alignment.Center)
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = null
@@ -96,6 +106,7 @@ fun CodeEditor(codeState: TextFieldValue, errors: String, onCodeChange: (TextFie
                             },
 
                     )
+                        }
                 } else {
                     // W przeciwnym razie wyświetl numer linii
                     Text(

@@ -26,12 +26,13 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         var currentLine by mutableStateOf(-1)
         var breakpoints = mutableStateListOf<Int>()
     }
+    private var stepByStepMode = false
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
     private var stepCount = 0
     // Włączenie trybu debugowania
     fun enableDebugging() {
-        //isDebugging = true
+        isDebugging = true
     }
 
     // Wyłączenie trybu debugowania
@@ -42,15 +43,18 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
 
     // Kontynuowanie wykonania
     fun continueExecution() {
-        debugSignal.countDown() // Wysyła sygnał do wątku debugera
+        stepByStepMode=false // Wysyła sygnał do wątku debugera
     }
-
+    fun nextStep(){
+        debugSignal.countDown()
+    }
     private fun waitForDebugSignal() {
         stepCount++
-        if(currentLine in breakpoints) {
-            isDebugging = true
+        if(!isDebugging){
+            currentLine=0
+            stepByStepMode =false
         }
-        if (isDebugging) {
+        if (stepByStepMode) {
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
         }
@@ -61,11 +65,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         try {
             for (i in 1..repeatCount) {
                 for (command in commandsBlock.filterIsInstance<logoParser.CmdContext>()) {
-                    if(!command.text.contains("[")&&!command.text.contains("]")) {
-                        currentLine=command.start.line
-                        Log.i("Czekam w petli:", command.text + " krok: $stepCount")
-                        waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
-                    }
+                    currentLine=command.start.line
+                    Log.i("Czekam w petli:", command.text + " krok: $stepCount")
+                    waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     visit(command)
                     updateTurtleBitmap()
 
@@ -103,9 +105,9 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             try {
                 // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
-                    currentLine=line.start.line
-                    Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
-                    waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+                        currentLine = line.start.line
+                        Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
+                        waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     visit(line)
                     updateTurtleBitmap()
                 }
@@ -137,13 +139,16 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
             currentLine=line.start.line
+            if(currentLine in breakpoints && isDebugging) {
+                stepByStepMode = true
+            }
             Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)
             updateTurtleBitmap()
         }
         currentLine=0
-        isDebugging=false
+        stepByStepMode =false
         return 0
     }
 }

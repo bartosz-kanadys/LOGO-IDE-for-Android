@@ -46,7 +46,7 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 CodeEditorButton(Icons.Outlined.Build, size = 30) { viewModel.enableDebugging() }
             }
             else {
-                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.debugCode() }
+                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.continueExecution() }
                 CodeEditorButton(
                     Icons.Filled.AccountBox,
                     MaterialTheme.colorScheme.errorContainer

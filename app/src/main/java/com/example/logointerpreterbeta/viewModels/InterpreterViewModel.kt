@@ -72,14 +72,17 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     fun enableDebugging(){
         isDebugging=true
         logo.enableDebugging()
+        debugCode()
     }
     fun disableDebugging(){
         isDebugging=false
         logo.disableDebugging()
     }
+    fun continueExecution(){
+        logo.continueExecution()
+    }
     fun interpretCode() {
             viewModelScope.launch {
-                mutex.withLock {
                     SyntaxError.clearErrors()
                     Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
                     Turtle.direction = 0f
@@ -94,7 +97,6 @@ class InterpreterViewModel(context: Context) : ViewModel() {
                             isErrorListVisable = !errors.value.isEmpty()
                         }
                     }
-                }
             }
     }
     fun debugCode() {
