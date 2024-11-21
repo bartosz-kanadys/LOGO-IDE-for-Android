@@ -14,10 +14,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.ArrowDownward
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -44,21 +50,21 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
         ) {
             if(!viewModel.isDebugging) {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
-                CodeEditorButton(Icons.Outlined.Build, size = 30) { viewModel.enableDebugging() }
+                CodeEditorButton(Icons.Filled.BugReport, size = 30) { viewModel.enableDebugging() }
             }
             else {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.continueExecution() }
                 CodeEditorButton(
-                    Icons.Filled.AccountBox,
+                    Icons.Filled.Stop,
                     MaterialTheme.colorScheme.errorContainer
                 ) { viewModel.disableDebugging() }
 
-                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.nextStep() }
+                CodeEditorButton(Icons.Filled.ArrowForward) { viewModel.nextStep() }
                 if(DebuggerVisitor.showStepInButton) {
-                    CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.stepIn() }
+                    CodeEditorButton(Icons.Filled.ArrowDownward) { viewModel.stepIn() }
                 }
                 if(DebuggerVisitor.showStepOutButton) {
-                    CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.stepOut() }
+                    CodeEditorButton(Icons.Filled.ArrowUpward) { viewModel.stepOut() }
                 }
             }
         }
