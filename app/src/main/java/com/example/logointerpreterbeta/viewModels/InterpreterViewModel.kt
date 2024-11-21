@@ -81,6 +81,12 @@ class InterpreterViewModel(context: Context) : ViewModel() {
     fun continueExecution(){
         logo.continueExecution()
     }
+    fun stepIn(){
+        logo.stepIn()
+    }
+    fun stepOut(){
+        logo.stepOut()
+    }
     fun interpretCode() {
             viewModelScope.launch {
                     SyntaxError.clearErrors()

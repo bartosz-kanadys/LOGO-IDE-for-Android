@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.DebuggerVisitor
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 
 
@@ -53,6 +54,12 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 ) { viewModel.disableDebugging() }
 
                 CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.nextStep() }
+                if(DebuggerVisitor.showStepInButton) {
+                    CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.stepIn() }
+                }
+                if(DebuggerVisitor.showStepOutButton) {
+                    CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.stepOut() }
+                }
             }
         }
     }

@@ -25,11 +25,15 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
     companion object{
         var currentLine by mutableStateOf(-1)
         var breakpoints = mutableStateListOf<Int>()
+        var showStepInButton by mutableStateOf(false)
+        var showStepOutButton by mutableStateOf(false)
     }
     private var stepByStepMode = false
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
     private var stepCount = 0
+    private var isSteppingIn = false
+    private var isSteppingOut = false
     // Włączenie trybu debugowania
     fun enableDebugging() {
         isDebugging = true
@@ -62,6 +66,17 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
         }
     }
+    fun stepIn(){
+        isSteppingIn = true
+        nextStep()
+    }
+    fun stepOut(){
+        showStepOutButton = false
+        isSteppingOut = true
+        isSteppingIn = false
+        stepByStepMode = false
+        nextStep()
+    }
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
         val repeatCount = ctx!!.number().text.toFloat().toInt()
         val commandsBlock = ctx.block().children
@@ -88,7 +103,13 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         // Sprawdz czy procedura istnieje
         if (procedures.containsKey(procedureName)) {
             val procedureCtx = procedures[procedureName]
-
+            var steppedIn = isSteppingIn
+            val temp = stepByStepMode
+            if(!steppedIn){
+                stepByStepMode = false
+            }
+            showStepOutButton = true
+            showStepInButton = false
             // Obsluga parametrow procedury
             val parameterDeclarations = procedureCtx!!.parameterDeclarations()
             val arguments = ctx.expression()
@@ -109,8 +130,11 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
                 // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
                         currentLine = line.start.line
+                    //if(currentLine in breakpoints && isDebugging) steppedIn = true
+                    if(steppedIn) {
                         Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
                         waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+                    }
                     visit(line)
                     updateTurtleBitmap()
                 }
@@ -119,12 +143,16 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             } finally {
                 variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
             }
+            showStepOutButton = false
+            stepByStepMode = temp
+            if(steppedIn&&isSteppingOut) {
+                stepByStepMode = true
+            }
         } else {
             SyntaxError.addError("Nieznana procedura: $procedureName")
             InterpreterViewModel.errors.value=SyntaxError.errors.value;
             InterpreterViewModel.isErrorListVisable = !errors.value.isEmpty()
         }
-
         return 0
     }
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
@@ -143,6 +171,10 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         for (line in ctx!!.line()) {
             currentLine=line.start.line
             Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
+            if(procedures.containsKey(line.start.text)){
+                showStepInButton = true
+            }
+            else showStepInButton = false
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)
             updateTurtleBitmap()

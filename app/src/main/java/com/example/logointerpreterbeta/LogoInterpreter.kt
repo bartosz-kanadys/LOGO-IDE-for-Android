@@ -123,4 +123,10 @@ class LogoInterpreter(
         DebuggerVisitor.continueExecution()
         DebuggerVisitor.nextStep()
     }
+    fun stepIn(){
+        DebuggerVisitor.stepIn()
+    }
+    fun stepOut(){
+        DebuggerVisitor.stepOut()
+    }
 }

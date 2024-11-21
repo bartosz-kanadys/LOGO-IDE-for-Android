@@ -444,4 +444,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
         updateTurtleBitmap()
         return 0
     }
+//    fun getProcedures(): MutableMap<String, logoParser.ProcedureDeclarationContext>{
+//        return procedures
+//    }
 }
