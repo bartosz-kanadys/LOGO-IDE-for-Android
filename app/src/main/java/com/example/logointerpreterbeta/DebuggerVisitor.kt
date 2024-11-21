@@ -125,12 +125,11 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
                 val argumentValue = visit(arguments[i])
                 variables[paramName] = argumentValue
             }
-
+            if(breakpoints.any { it in procedureCtx.start.line..procedureCtx.stop.line} && isDebugging) steppedIn = true
             try {
                 // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
                         currentLine = line.start.line
-                    //if(currentLine in breakpoints && isDebugging) steppedIn = true
                     if(steppedIn) {
                         Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
                         waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
