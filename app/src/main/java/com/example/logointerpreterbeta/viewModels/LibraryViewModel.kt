@@ -1,6 +1,8 @@
 package com.example.logointerpreterbeta.viewModels
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.example.logointerpreterbeta.repository.LibraryRepository
@@ -28,7 +30,7 @@ class LibraryViewModel @Inject constructor(
         _actualLibrary.update { name }
     }
 
-    private fun addLibrary(library: Library) {
+    fun addLibrary(library: Library) {
         _libraries.update { currentList ->
             currentList.toMutableList().apply { add(library) }
         }
@@ -39,13 +41,13 @@ class LibraryViewModel @Inject constructor(
         libraryRepository.deleteLibrary(libraryName)
     }
 
-    private fun updateLibraries() {
+    fun updateLibraries() {
         _libraries.value = libraryRepository.loadLibraries()
     }
 
     fun createLibrary(context: Context, name: String, desc: String, author: String): Boolean {
         if (name.isEmpty() || desc.isEmpty() || author.isEmpty()) {
-            Toast.makeText(context, "Uzupełnij wszytskie pola", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Uzupełnij wszystkie pola", Toast.LENGTH_LONG).show()
             return false
         } else if (desc.length > 50) {
             Toast.makeText(context, "Opis nie może być dłuższy niż 50 znaków", Toast.LENGTH_LONG)
