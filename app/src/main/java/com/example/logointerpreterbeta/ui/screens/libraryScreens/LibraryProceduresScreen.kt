@@ -37,7 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.logointerpreterbeta.LogoInterpreter
-import com.example.logointerpreterbeta.Navigation.LibraryProcedureForm
+import com.example.logointerpreterbeta.navigation.LibraryProcedureForm
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme

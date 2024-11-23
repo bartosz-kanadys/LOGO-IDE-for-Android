@@ -7,7 +7,6 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,13 +19,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -52,7 +47,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Navigation.StartScreen
+import com.example.logointerpreterbeta.navigation.StartScreen
 import com.example.logointerpreterbeta.functions.project.readFileContent
 import com.example.logointerpreterbeta.ui.components.Alert
 import com.example.logointerpreterbeta.ui.components.ErrorsList
@@ -183,17 +178,17 @@ fun InterpreterApp(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     if (isLandscape) {
-        Row (
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.surface)
-        ){
-            Column (
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth(0.55f)
                     .zIndex(2f)
                     .background(MaterialTheme.colorScheme.surface)
-            ){
+            ) {
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -332,7 +327,9 @@ fun InterpreterApp(
                                                     )!!
                                                 )
                                                 interpreterViewModel.colorCode()
-                                                projectViewModel.updateActualFileName(projectFile.name)
+                                                projectViewModel.updateActualFileName(
+                                                    projectFile.name
+                                                )
                                             }
                                         )
                                     }
@@ -392,7 +389,7 @@ fun InterpreterApp(
         }
     }
 
-    
+
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

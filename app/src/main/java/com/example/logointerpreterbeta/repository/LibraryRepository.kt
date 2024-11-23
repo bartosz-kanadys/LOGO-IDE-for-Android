@@ -19,7 +19,7 @@ class LibraryRepository @Inject constructor(
     fun addProcedureToLibrary(libraryName: String, procedure: Procedure) =
         addProcedureToLibraryJSON(context, libraryName, procedure)
 
-    fun deleteProcedureFromLibrray(libraryName: String, procedureName: String) =
+    fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) =
         deleteProcedureFromLibraryJSON(context, libraryName, procedureName)
 
     fun loadLibraries(): MutableList<Library> {
@@ -28,7 +28,7 @@ class LibraryRepository @Inject constructor(
 
     fun deleteLibrary(libraryName: String) = deleteLibraryFromJSON(context, libraryName)
 
-    fun createLibrray(library: Library) = createLibraryJSON(context, library)
+    fun createLibrary(library: Library) = createLibraryJSON(context, library)
 
 
 }

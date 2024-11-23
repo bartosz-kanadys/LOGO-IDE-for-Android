@@ -41,7 +41,8 @@ fun TutorialCard(title: String, description: String, onClick: () -> Unit) {
             .border(
                 2.dp,
                 color = MaterialTheme.colorScheme.primary,
-                shape = RoundedCornerShape(12.dp))
+                shape = RoundedCornerShape(12.dp)
+            )
             .clickable { onClick() }
     ) {
         Column(
@@ -66,7 +67,9 @@ fun TutorialCard(title: String, description: String, onClick: () -> Unit) {
                     text = title,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
-                    modifier = Modifier.background(MaterialTheme.colorScheme.surface).padding(horizontal = 20.dp)
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .padding(horizontal = 20.dp)
                 )
 
             }

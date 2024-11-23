@@ -3,7 +3,6 @@ package com.example.logointerpreterbeta.ui.screens
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -41,11 +39,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Navigation.Interpreter
-import com.example.logointerpreterbeta.Navigation.Libraries
-import com.example.logointerpreterbeta.Navigation.Projects
-import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.TutorialScreen
+import com.example.logointerpreterbeta.navigation.Interpreter
+import com.example.logointerpreterbeta.navigation.Libraries
+import com.example.logointerpreterbeta.navigation.Projects
+import com.example.logointerpreterbeta.navigation.Settings
+import com.example.logointerpreterbeta.navigation.TutorialScreen
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.functions.config.createConfigFile
 import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
@@ -95,7 +93,10 @@ fun StartScreenApp(
                     .padding(top = 40.dp)
             ) {
                 AppLogo(Modifier.fillMaxWidth(0.5f))
-                StartScreenMenu(projectViewModel = projectViewModel, navController = navController) {
+                StartScreenMenu(
+                    projectViewModel = projectViewModel,
+                    navController = navController
+                ) {
                     isAlertVisable = true
                 }
             }
@@ -108,7 +109,10 @@ fun StartScreenApp(
                     .padding(top = 40.dp)
             ) {
                 AppLogo()
-                StartScreenMenu(projectViewModel = projectViewModel, navController = navController) {
+                StartScreenMenu(
+                    projectViewModel = projectViewModel,
+                    navController = navController
+                ) {
                     isAlertVisable = true
                 }
             }

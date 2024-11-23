@@ -59,7 +59,7 @@ class LibraryViewModel @Inject constructor(
 
         val library =
             Library(name = name, description = desc, author = author, procedures = emptyList())
-        libraryRepository.createLibrray(library)
+        libraryRepository.createLibrary(library)
         addLibrary(library)
         return true
     }
@@ -92,7 +92,7 @@ class LibraryViewModel @Inject constructor(
     }
 
     fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) {
-        libraryRepository.deleteProcedureFromLibrray(libraryName, procedureName)
+        libraryRepository.deleteProcedureFromLibrary(libraryName, procedureName)
         updateLibraries()
     }
 }

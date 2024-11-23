@@ -17,13 +17,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.toColor
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
@@ -41,7 +39,7 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
     ) {
         for (paragraph in tutorial!!.paragraphs) {
             val coloredCode = logo.colorizeText(paragraph.code)
-            item { Text(text = paragraph.content+"\n", textAlign = TextAlign.Justify) }
+            item { Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify) }
             item {
                 val linesCount = paragraph.code.lines().size
                 CodeEditor(

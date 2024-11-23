@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.Navigation.topBars
+package com.example.logointerpreterbeta.navigation.topBars
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -28,10 +28,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Navigation.Libraries
-import com.example.logointerpreterbeta.Navigation.Projects
-import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.TutorialScreen
+import com.example.logointerpreterbeta.navigation.Libraries
+import com.example.logointerpreterbeta.navigation.Projects
+import com.example.logointerpreterbeta.navigation.Settings
+import com.example.logointerpreterbeta.navigation.TutorialScreen
 
 class TopBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

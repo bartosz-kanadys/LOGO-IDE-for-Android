@@ -4,6 +4,7 @@ import android.app.UiModeManager
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -20,19 +21,21 @@ import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.errors
 import java.util.concurrent.CountDownLatch
 
-class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
-    companion object{
-        var currentLine by mutableStateOf(-1)
+class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
+    companion object {
+        var currentLine by mutableIntStateOf(-1)
         var breakpoints = mutableStateListOf<Int>()
         var showStepInButton by mutableStateOf(false)
         var showStepOutButton by mutableStateOf(false)
     }
+
     private var stepByStepMode = false
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
     private var stepCount = 0
     private var isSteppingIn = false
     private var isSteppingOut = false
+
     // Włączenie trybu debugowania
     fun enableDebugging() {
         isDebugging = true
@@ -46,18 +49,20 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
 
     // Kontynuowanie wykonania
     fun continueExecution() {
-        stepByStepMode=false // Wysyła sygnał do wątku debugera
+        stepByStepMode = false // Wysyła sygnał do wątku debugera
     }
-    fun nextStep(){
+
+    fun nextStep() {
         debugSignal.countDown()
     }
+
     private fun waitForDebugSignal() {
         stepCount++
-        if(!isDebugging){
-            currentLine =0
-            stepByStepMode =false
+        if (!isDebugging) {
+            currentLine = 0
+            stepByStepMode = false
         }
-        if(currentLine in breakpoints && isDebugging) {
+        if (currentLine in breakpoints && isDebugging) {
             stepByStepMode = true
         }
         if (stepByStepMode) {
@@ -65,24 +70,27 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
         }
     }
-    fun stepIn(){
+
+    fun stepIn() {
         isSteppingIn = true
         nextStep()
     }
-    fun stepOut(){
+
+    fun stepOut() {
         showStepOutButton = false
         isSteppingOut = true
         isSteppingIn = false
         stepByStepMode = false
         nextStep()
     }
+
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
         val repeatCount = ctx!!.number().text.toFloat().toInt()
         val commandsBlock = ctx.block().children
         try {
             for (i in 1..repeatCount) {
                 for (command in commandsBlock.filterIsInstance<logoParser.CmdContext>()) {
-                    currentLine =command.start.line
+                    currentLine = command.start.line
                     Log.i("Czekam w petli:", command.text + " krok: $stepCount")
                     waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     visit(command)
@@ -96,6 +104,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
 
         return 0
     }
+
     override fun visitProcedureInvocation(ctx: logoParser.ProcedureInvocationContext?): Int {
         val procedureName = ctx!!.name().text
 
@@ -104,7 +113,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             val procedureCtx = procedures[procedureName]
             var steppedIn = isSteppingIn
             val temp = stepByStepMode
-            if(!steppedIn){
+            if (!steppedIn) {
                 stepByStepMode = false
             }
             showStepOutButton = true
@@ -124,12 +133,13 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
                 val argumentValue = visit(arguments[i])
                 variables[paramName] = argumentValue
             }
-            if(breakpoints.any { it in procedureCtx.start.line..procedureCtx.stop.line} && isDebugging) steppedIn = true
+            if (breakpoints.any { it in procedureCtx.start.line..procedureCtx.stop.line } && isDebugging) steppedIn =
+                true
             try {
                 // Wykonaj każdą linię ciała procedury
                 for (line in procedureCtx.line()) {
-                        currentLine = line.start.line
-                    if(steppedIn) {
+                    currentLine = line.start.line
+                    if (steppedIn) {
                         Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
                         waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     }
@@ -143,19 +153,20 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             }
             showStepOutButton = false
             stepByStepMode = temp
-            if(steppedIn&&isSteppingOut) {
+            if (steppedIn && isSteppingOut) {
                 stepByStepMode = true
             }
         } else {
             SyntaxError.addError("Nieznana procedura: $procedureName")
-            InterpreterViewModel.errors.value=SyntaxError.errors.value;
-            InterpreterViewModel.isErrorListVisable = !errors.value.isEmpty()
+            errors.value = SyntaxError.errors.value
+            InterpreterViewModel.isErrorListVisable = errors.value.isNotEmpty()
         }
         return 0
     }
+
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
-        stepCount=0;
-        currentLine =0;
+        stepCount = 0
+        currentLine = 0
         paint.setColor(Turtle.penColor)
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
         if (isDarkTheme) {
@@ -167,18 +178,15 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         }
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
-            currentLine =line.start.line
-            Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
-            if(procedures.containsKey(line.start.text)){
-                showStepInButton = true
-            }
-            else showStepInButton = false
+            currentLine = line.start.line
+            Log.i("Czekam przed poleceniem:", line.text + " krok: $stepCount")
+            showStepInButton = procedures.containsKey(line.start.text)
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)
             updateTurtleBitmap()
         }
-        currentLine =0
-        stepByStepMode =false
+        currentLine = 0
+        stepByStepMode = false
         return 0
     }
 }

@@ -2,12 +2,10 @@ package com.example.logointerpreterbeta.viewModels
 
 import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,10 +19,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
@@ -44,8 +42,8 @@ class InterpreterViewModel @Inject constructor(
     var isErrorListExpanded by mutableStateOf(false)
         private set
     var isDebugging by mutableStateOf(false)
-    private var interpreterIsRunning = false
     private val mutex = Mutex()
+
     init {
         // Ustawienia początkowe pozycji i kierunku
         Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
@@ -87,25 +85,30 @@ class InterpreterViewModel @Inject constructor(
         )
     }
 
-    fun nextStep(){
+    fun nextStep() {
         logo.nextStep()
     }
-    fun enableDebugging(){
-        isDebugging=true
+
+    fun enableDebugging() {
+        isDebugging = true
         logo.enableDebugging()
         debugCode()
     }
-    fun disableDebugging(){
-        isDebugging=false
+
+    fun disableDebugging() {
+        isDebugging = false
         logo.disableDebugging()
     }
-    fun continueExecution(){
+
+    fun continueExecution() {
         logo.continueExecution()
     }
-    fun stepIn(){
+
+    fun stepIn() {
         logo.stepIn()
     }
-    fun stepOut(){
+
+    fun stepOut() {
         logo.stepOut()
     }
 
@@ -121,12 +124,12 @@ class InterpreterViewModel @Inject constructor(
                 Log.e("ERROR", "Błąd wykonywania interpretera")
             } finally {
                 errors.value = SyntaxError.errors.value
-                isErrorListVisable = !errors.value.isEmpty()
+                isErrorListVisable = errors.value.isNotEmpty()
             }
         }
     }
 
-    fun debugCode() {
+    private fun debugCode() {
         viewModelScope.launch(Dispatchers.Default) {
             mutex.withLock {
                 SyntaxError.clearErrors()
@@ -140,7 +143,7 @@ class InterpreterViewModel @Inject constructor(
                 } finally {
                     withContext(Dispatchers.Main) {
                         errors.value = SyntaxError.errors.value
-                        isErrorListVisable = !errors.value.isEmpty()
+                        isErrorListVisable = errors.value.isNotEmpty()
                     }
                 }
             }

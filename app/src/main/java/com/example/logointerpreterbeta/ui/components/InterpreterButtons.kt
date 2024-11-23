@@ -26,12 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 
 
 @Composable
-fun InterpreterButtons(viewModel: InterpreterViewModel){
+fun InterpreterButtons(viewModel: InterpreterViewModel) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -39,11 +39,10 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 .padding(top = 15.dp, end = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if(!viewModel.isDebugging) {
+            if (!viewModel.isDebugging) {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
                 CodeEditorButton(Icons.Filled.BugReport, size = 30) { viewModel.enableDebugging() }
-            }
-            else {
+            } else {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.continueExecution() }
                 CodeEditorButton(
                     Icons.Filled.Stop,
@@ -51,10 +50,10 @@ fun InterpreterButtons(viewModel: InterpreterViewModel){
                 ) { viewModel.disableDebugging() }
 
                 CodeEditorButton(Icons.Filled.ArrowForward) { viewModel.nextStep() }
-                if(DebuggerVisitor.showStepInButton) {
+                if (DebuggerVisitor.showStepInButton) {
                     CodeEditorButton(Icons.Filled.ArrowDownward) { viewModel.stepIn() }
                 }
-                if(DebuggerVisitor.showStepOutButton) {
+                if (DebuggerVisitor.showStepOutButton) {
                     CodeEditorButton(Icons.Filled.ArrowUpward) { viewModel.stepOut() }
                 }
             }

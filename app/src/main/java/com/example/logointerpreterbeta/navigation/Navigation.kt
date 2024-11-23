@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.Navigation
+package com.example.logointerpreterbeta.navigation
 
 import android.annotation.SuppressLint
 import android.os.Build
@@ -20,8 +20,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.logointerpreterbeta.Navigation.topBars.InterpreterTopBar
-import com.example.logointerpreterbeta.Navigation.topBars.TopBarWithMenu
+import com.example.logointerpreterbeta.navigation.topBars.InterpreterTopBar
+import com.example.logointerpreterbeta.navigation.topBars.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.screens.InterpreterApp
 import com.example.logointerpreterbeta.ui.screens.ProjectsApp
 import com.example.logointerpreterbeta.ui.screens.SettingsApp
@@ -150,8 +150,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable(
                         route = "TutorialContentScreen/{tutorialName}",
-                        arguments = listOf(navArgument("tutorialName"){
-                            type = NavType.StringType}
+                        arguments = listOf(navArgument("tutorialName") {
+                            type = NavType.StringType
+                        }
                         )
                     ) { backStackEntry ->
                         val tutorialName = backStackEntry.arguments?.getString("tutorialName")
@@ -210,6 +211,3 @@ object LibraryProcedureForm
 
 @Serializable
 object TutorialScreen
-
-@Serializable
-object TutorialContent

@@ -43,8 +43,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Navigation.LibraryForm
-import com.example.logointerpreterbeta.Navigation.LibraryProcedures
+import com.example.logointerpreterbeta.navigation.LibraryForm
+import com.example.logointerpreterbeta.navigation.LibraryProcedures
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel

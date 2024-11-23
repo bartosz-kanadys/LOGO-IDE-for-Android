@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.Navigation.topBars
+package com.example.logointerpreterbeta.navigation.topBars
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -62,17 +62,17 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.visitors.MyLogoVisitor
-import com.example.logointerpreterbeta.Navigation.Libraries
-import com.example.logointerpreterbeta.Navigation.Projects
-import com.example.logointerpreterbeta.Navigation.Settings
-import com.example.logointerpreterbeta.Navigation.TutorialScreen
+import com.example.logointerpreterbeta.navigation.Libraries
+import com.example.logointerpreterbeta.navigation.Projects
+import com.example.logointerpreterbeta.navigation.Settings
+import com.example.logointerpreterbeta.navigation.TutorialScreen
 import com.example.logointerpreterbeta.ui.components.image_exporting.checkPermissions
 import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsJpg
 import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsPdf
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileOutputStream
@@ -176,7 +176,7 @@ fun InterpreterTopBar(
                 onDismissRequest = { dropdownExpanded = false },
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.primaryContainer)
-                    //.fillMaxWidth(0.60f)
+                //.fillMaxWidth(0.60f)
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
@@ -269,7 +269,11 @@ fun InterpreterTopBar(
                                     // Krok 1: Zapisanie bitmapy do pliku
                                     val file = File(context.cacheDir, "shared_image.png")
                                     FileOutputStream(file).use { fos ->
-                                        MyLogoVisitor.image.compress(Bitmap.CompressFormat.PNG, 100, fos)
+                                        MyLogoVisitor.image.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            fos
+                                        )
                                     }
 
                                     // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
@@ -288,10 +292,19 @@ fun InterpreterTopBar(
                                     }
 
                                     // Uruchamianie Intentu
-                                    context.startActivity(Intent.createChooser(shareIntent, "Share image via"))
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            shareIntent,
+                                            "Share image via"
+                                        )
+                                    )
                                 } catch (e: Exception) {
                                     e.printStackTrace()
-                                    Toast.makeText(context, "Failed to share image: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to share image: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
                                 }
                             },
                             text = {
@@ -348,11 +361,19 @@ fun InterpreterTopBar(
                                 val shareIntent = Intent().apply {
                                     action = Intent.ACTION_SEND
                                     type = "text/plain" // Typ MIME dla tekstu
-                                    putExtra(Intent.EXTRA_TEXT, viewModel.getCodeStateAsString()) // Tekst do udostępnienia
+                                    putExtra(
+                                        Intent.EXTRA_TEXT,
+                                        viewModel.getCodeStateAsString()
+                                    ) // Tekst do udostępnienia
                                 }
 
                                 // Utwórz chooser i uruchom Intent
-                                context.startActivity(Intent.createChooser(shareIntent, "Share via"))
+                                context.startActivity(
+                                    Intent.createChooser(
+                                        shareIntent,
+                                        "Share via"
+                                    )
+                                )
 
                             },
                             text = {

@@ -31,8 +31,8 @@ class LogoInterpreter @Inject constructor(
 
     private val myVisitor = MyLogoVisitor(context = context)
     private val myLogoLibraryVisitor = MyLogoLibraryVisitor()
-    private val DebuggerVisitor = DebuggerVisitor(context = context)
-    val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
+    private val debuggerVisitor = DebuggerVisitor(context = context)
+    private val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
     fun getPoceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         return myLogoLibraryVisitor.getProcedures()
@@ -60,6 +60,7 @@ class LogoInterpreter @Inject constructor(
         myVisitor.visit(tree)
         bitmap = MyLogoVisitor.image
     }
+
     fun debug(input: String) {
         // Tworzenie lexer'a
         val lexer = logoLexer(
@@ -78,7 +79,7 @@ class LogoInterpreter @Inject constructor(
 
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
-        DebuggerVisitor.visit(tree)
+        debuggerVisitor.visit(tree)
         bitmap = MyLogoVisitor.image
     }
 
@@ -129,23 +130,29 @@ class LogoInterpreter @Inject constructor(
         }
         return styledText
     }
-    fun nextStep(){
-        DebuggerVisitor.nextStep()
+
+    fun nextStep() {
+        debuggerVisitor.nextStep()
     }
-    fun enableDebugging(){
-        DebuggerVisitor.enableDebugging()
+
+    fun enableDebugging() {
+        debuggerVisitor.enableDebugging()
     }
-    fun disableDebugging(){
-        DebuggerVisitor.disableDebugging()
+
+    fun disableDebugging() {
+        debuggerVisitor.disableDebugging()
     }
-    fun continueExecution(){
-        DebuggerVisitor.continueExecution()
-        DebuggerVisitor.nextStep()
+
+    fun continueExecution() {
+        debuggerVisitor.continueExecution()
+        debuggerVisitor.nextStep()
     }
-    fun stepIn(){
-        DebuggerVisitor.stepIn()
+
+    fun stepIn() {
+        debuggerVisitor.stepIn()
     }
-    fun stepOut(){
-        DebuggerVisitor.stepOut()
+
+    fun stepOut() {
+        debuggerVisitor.stepOut()
     }
 }

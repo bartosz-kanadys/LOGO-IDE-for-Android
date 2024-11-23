@@ -49,9 +49,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
-import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import kotlin.math.roundToInt
 
 
@@ -70,7 +70,7 @@ fun ImagePanel() {
     var isInfoVisable by rememberSaveable { mutableStateOf(false) }
     var isDarkTheme by rememberSaveable { mutableStateOf(false) }
     isDarkTheme = isSystemInDarkTheme()
-    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_4444)
+    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_8888)
     emptyBitmap.eraseColor(android.graphics.Color.TRANSPARENT)
     Box(
         modifier = Modifier
@@ -120,8 +120,8 @@ fun ImagePanel() {
             ImageButton(Icons.Filled.Info) { isInfoVisable = !isInfoVisable }
             ImageButton(Icons.Filled.Palette) { isPickerVisable = !isPickerVisable }
             Spacer(modifier = Modifier.weight(1f))
-            ImageButton(Icons.Filled.ZoomIn) { if (scale+0.2f in 0.19999985..11.8) scale += 0.2f }
-            ImageButton(Icons.Filled.ZoomOut) { if (scale-0.2f in 0.19999985..11.8) scale -= 0.2f }
+            ImageButton(Icons.Filled.ZoomIn) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
+            ImageButton(Icons.Filled.ZoomOut) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
             if (isBlocked) {
                 ImageButton(Icons.Filled.Lock) { isBlocked = !isBlocked }
             } else {

@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.logointerpreterbeta.functions.errors.prepareErrorList
 import com.example.logointerpreterbeta.functions.project.writeFileContent
@@ -54,6 +53,7 @@ import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.re
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 
 @Composable
 fun CodeEditor(
@@ -110,21 +110,24 @@ fun CodeEditor(
                                 else MaterialTheme.colorScheme.inversePrimary
                             )
                     ) {
-                    Box(
-                        modifier = Modifier
-                            .size(23.5.dp) // Ustal rozmiar koła
-                            .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape) // Czerwone koło
-                            .align(Alignment.Center)
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {
-                                toggleBreakpoint(i) // Przełącz breakpoint
-                                //DebuggerVisitor.breakpoints=i
-                            },
+                        Box(
+                            modifier = Modifier
+                                .size(23.5.dp) // Ustal rozmiar koła
+                                .background(
+                                    MaterialTheme.colorScheme.errorContainer,
+                                    shape = CircleShape
+                                ) // Czerwone koło
+                                .align(Alignment.Center)
+                                .clickable(
+                                    interactionSource = interactionSource,
+                                    indication = null
+                                ) {
+                                    toggleBreakpoint(i) // Przełącz breakpoint
+                                    //DebuggerVisitor.breakpoints=i
+                                },
 
-                    )
-                        }
+                            )
+                    }
                 } else {
                     // W przeciwnym razie wyświetl numer linii
                     Text(
