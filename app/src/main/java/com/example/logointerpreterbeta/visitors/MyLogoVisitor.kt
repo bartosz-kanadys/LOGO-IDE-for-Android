@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.visitors
 
 import android.app.UiModeManager
 import android.content.Context
@@ -10,16 +10,23 @@ import android.graphics.Paint
 import android.graphics.RectF
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
+import com.example.logointerpreterbeta.LogoInterpreter
+import com.example.logointerpreterbeta.MyImage
+import com.example.logointerpreterbeta.MyImageHeight
+import com.example.logointerpreterbeta.MyImageWidth
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.TurtleImage
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.functions.library.loadLibrariesFromJSON
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
+import com.example.logointerpreterbeta.penColors
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import java.util.concurrent.CountDownLatch
 import kotlin.math.cos
 import kotlin.math.sin
 

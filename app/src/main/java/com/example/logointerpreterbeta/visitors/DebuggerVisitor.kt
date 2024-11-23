@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.visitors
 
 import android.app.UiModeManager
 import android.content.Context
@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
+import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoParser
@@ -17,8 +18,6 @@ import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.errors
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.isErrorListVisable
-import org.antlr.v4.runtime.tree.TerminalNodeImpl
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
@@ -55,7 +54,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
     private fun waitForDebugSignal() {
         stepCount++
         if(!isDebugging){
-            currentLine=0
+            currentLine =0
             stepByStepMode =false
         }
         if(currentLine in breakpoints && isDebugging) {
@@ -83,7 +82,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         try {
             for (i in 1..repeatCount) {
                 for (command in commandsBlock.filterIsInstance<logoParser.CmdContext>()) {
-                    currentLine=command.start.line
+                    currentLine =command.start.line
                     Log.i("Czekam w petli:", command.text + " krok: $stepCount")
                     waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     visit(command)
@@ -156,7 +155,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
     }
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         stepCount=0;
-        currentLine=0;
+        currentLine =0;
         paint.setColor(Turtle.penColor)
         val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
         if (isDarkTheme) {
@@ -168,7 +167,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
         }
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
-            currentLine=line.start.line
+            currentLine =line.start.line
             Log.i("Czekam przed poleceniem:",line.text + " krok: $stepCount")
             if(procedures.containsKey(line.start.text)){
                 showStepInButton = true
@@ -178,7 +177,7 @@ class DebuggerVisitor(private val context: Context): MyLogoVisitor(context) {
             visit(line)
             updateTurtleBitmap()
         }
-        currentLine=0
+        currentLine =0
         stepByStepMode =false
         return 0
     }

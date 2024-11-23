@@ -5,9 +5,7 @@ import android.content.Context
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.logointerpreterbeta.errors.MyErrorListener
-import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.interpreter.logoLexer
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.ui.theme.cmdColorDark
@@ -16,12 +14,10 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.visitors.MyLogoLibraryVisitor
+import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import javax.inject.Inject
@@ -29,8 +25,7 @@ import javax.inject.Singleton
 
 @Singleton
 class LogoInterpreter @Inject constructor(
-    @ApplicationContext private val context: Context
-    private val coroutineScope: CoroutineScope
+    @ApplicationContext private val context: Context,
 ) {
     var bitmap = MyLogoVisitor.image
 

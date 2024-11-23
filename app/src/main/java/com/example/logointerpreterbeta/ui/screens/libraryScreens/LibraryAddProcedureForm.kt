@@ -19,6 +19,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
@@ -86,7 +87,7 @@ fun LibraryAddProcedureForm(
             CodeEditor(
                 codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                 onCodeChange = interpreterViewModel::onCodeChange,
-                errors = interpreterViewModel.errors,
+                errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
                 isSaveOnChange = false,
                 modifier = Modifier
             )

@@ -48,6 +48,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.Navigation.Interpreter
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -197,6 +198,7 @@ private fun ProjectButton(
 ) {
     OutlinedButton(
         onClick = {
+            DebuggerVisitor.breakpoints.clear()
             projectViewModel.openProject(name)
             navController.navigate(Interpreter)
         },

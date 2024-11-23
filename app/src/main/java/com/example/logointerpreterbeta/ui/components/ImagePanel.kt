@@ -3,7 +3,6 @@ package com.example.logointerpreterbeta.ui.components
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -48,10 +47,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.MyImage
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
-import com.example.logointerpreterbeta.MyLogoVisitor
+import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlin.math.roundToInt

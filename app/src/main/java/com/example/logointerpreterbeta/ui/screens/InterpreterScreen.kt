@@ -57,10 +57,12 @@ import com.example.logointerpreterbeta.functions.project.readFileContent
 import com.example.logointerpreterbeta.ui.components.Alert
 import com.example.logointerpreterbeta.ui.components.ErrorsList
 import com.example.logointerpreterbeta.ui.components.ImagePanel
+import com.example.logointerpreterbeta.ui.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -215,6 +217,7 @@ fun InterpreterApp(
                                             visibleMenuFileName = projectFile.name
                                         },
                                         onTap = {
+                                            DebuggerVisitor.breakpoints.clear()
                                             interpreterViewModel.updateCodeState(
                                                 readFileContent(
                                                     context,
@@ -258,8 +261,8 @@ fun InterpreterApp(
                     }
                 }
                 ErrorsList(
-                    errors = interpreterViewModel.errors,
-                    isErrorListVisable = interpreterViewModel.isErrorListVisable,
+                    errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
+                    isErrorListVisable = InterpreterViewModel.isErrorListVisable,
                     isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
@@ -269,30 +272,10 @@ fun InterpreterApp(
                         interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = interpreterViewModel.errors,
+                        errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
                         modifier = Modifier
                     )
-                    Button(
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        onClick = { interpreterViewModel.interpretCode() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(top = 15.dp, end = 5.dp)
-                            .width(45.dp)
-                            .height(45.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
+                    InterpreterButtons(interpreterViewModel)
                 }
             }
             Box(
@@ -386,8 +369,8 @@ fun InterpreterApp(
             }
             item {
                 ErrorsList(
-                    errors = interpreterViewModel.errors,
-                    isErrorListVisable = interpreterViewModel.isErrorListVisable,
+                    errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
+                    isErrorListVisable = InterpreterViewModel.isErrorListVisable,
                     isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
@@ -399,30 +382,10 @@ fun InterpreterApp(
                         interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = interpreterViewModel.errors,
+                        errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
                         modifier = Modifier
                     )
-                    Button(
-                        shape = CircleShape,
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            MaterialTheme.colorScheme.primaryContainer
-                        ),
-                        onClick = { interpreterViewModel.interpretCode() },
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(top = 15.dp, end = 5.dp)
-                            .width(45.dp)
-                            .height(45.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .width(40.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    }
+                    InterpreterButtons(interpreterViewModel)
                 }
             }
         }

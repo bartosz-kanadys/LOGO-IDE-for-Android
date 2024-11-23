@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.functions
 
 import android.util.Log
-import com.example.logointerpreterbeta.DebuggerVisitor
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 
 fun toggleBreakpoint(lineNumber: Int) {
     Log.i("Breakpoint", "Toggled breakpoint at line $lineNumber")

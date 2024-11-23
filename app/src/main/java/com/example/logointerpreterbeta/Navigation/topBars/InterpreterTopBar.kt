@@ -62,7 +62,7 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.MyLogoVisitor
+import com.example.logointerpreterbeta.visitors.MyLogoVisitor
 import com.example.logointerpreterbeta.Navigation.Libraries
 import com.example.logointerpreterbeta.Navigation.Projects
 import com.example.logointerpreterbeta.Navigation.Settings

@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.visitors
 
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser

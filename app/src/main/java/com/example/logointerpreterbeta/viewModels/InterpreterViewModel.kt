@@ -15,7 +15,6 @@ import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.MyImageHeight
 import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.Turtle
-import com.example.logointerpreterbeta.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.errors.SyntaxError
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.textDiffrence
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +30,7 @@ import kotlinx.coroutines.withContext
 class InterpreterViewModel @Inject constructor(
     private val logo: LogoInterpreter
 ) : ViewModel() {
-    companion object{
+    companion object {
         var errors = MutableStateFlow(SyntaxError.errors.value)
         var isErrorListVisable by mutableStateOf(false)
     }
