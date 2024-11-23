@@ -19,21 +19,24 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import java.util.concurrent.CountDownLatch
 import kotlin.math.cos
 import kotlin.math.sin
 
-class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
+open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     companion object {
         val image = MyImage
+        val turtleImage = TurtleImage
     }
 
-    private var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
+    protected var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
 
-    private val canvas = Canvas(image)
-    private var paint = Paint()
+    protected val canvas = Canvas(image)
+    protected val turtleCanvas = Canvas(turtleImage)
+    protected var paint = Paint()
 
-    private var variables: MutableMap<String, Any> = HashMap()
-    private var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
+    protected var variables: MutableMap<String, Any> = HashMap()
+    protected var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
 
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
@@ -315,7 +318,6 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         val procedureName = ctx!!.name().text
         // przechowuj procedure w mapie
         procedures[procedureName] = ctx
-        //Log.i("procedures", procedures["kw"]!!.line().toString())
         return 0
     }
 
@@ -353,7 +355,7 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
                 variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
             }
         } else {
-            SyntaxError.errors.add("Nieznana procedura: $procedureName")
+            SyntaxError.addError("Nieznana procedura: $procedureName")
         }
 
         return 0
@@ -408,13 +410,14 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
     }
 
     fun updateTurtleBitmap() {
+        turtleImage.eraseColor(android.graphics.Color.TRANSPARENT)
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
             val matrix = Matrix()
             matrix.postRotate(Turtle.direction, arrow.width / 2f, arrow.height / 2f)
             turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
-            canvas.drawBitmap(
+            turtleCanvas.drawBitmap(
                 turtleBitmap!!,
                 Turtle.Xposition - turtleBitmap!!.width / 2,
                 Turtle.Yposition - turtleBitmap!!.height / 2,
@@ -436,7 +439,9 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
             Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
-        super.visitProg(ctx)
+        for (line in ctx!!.line()) {
+            visit(line)
+        }
         updateTurtleBitmap()
         return 0
     }
@@ -456,4 +461,8 @@ class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
         procedures.putAll(newProceduresCtx)
         return 0
     }
+
+//    fun getProcedures(): MutableMap<String, logoParser.ProcedureDeclarationContext>{
+//        return procedures
+//    }
 }

@@ -3,6 +3,8 @@ package com.example.logointerpreterbeta.ui.components.codeEditor
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
@@ -38,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.DebuggerVisitor
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.logointerpreterbeta.functions.errors.prepareErrorList
 import com.example.logointerpreterbeta.functions.project.writeFileContent
@@ -75,6 +80,7 @@ fun CodeEditor(
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
             .height(300.dp)
@@ -105,6 +111,59 @@ fun CodeEditor(
                         .fillMaxWidth()
                         .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inversePrimary)
                 )
+                if (i in DebuggerVisitor.breakpoints) {
+                    // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize() // Ustal wymiary tła
+                            .background(
+                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
+                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
+                                else MaterialTheme.colorScheme.inversePrimary
+                            )
+                    ) {
+                    Box(
+                        modifier = Modifier
+                            .size(23.5.dp) // Ustal rozmiar koła
+                            .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape) // Czerwone koło
+                            .align(Alignment.Center)
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                toggleBreakpoint(i) // Przełącz breakpoint
+                                //DebuggerVisitor.breakpoints=i
+                            },
+
+                    )
+                        }
+                } else {
+                    // W przeciwnym razie wyświetl numer linii
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = i.toString(),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 18.sp,
+                        style = TextStyle(
+                            platformStyle = PlatformTextStyle(includeFontPadding = false),
+                            fontFamily = AppTypography.bodySmall.fontFamily
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
+                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
+                                else MaterialTheme.colorScheme.inversePrimary
+                            )
+                            .clickable(
+                                interactionSource = interactionSource,
+                                indication = null
+                            ) {
+                                toggleBreakpoint(i) // Przełącz breakpoint
+                                //DebuggerVisitor.breakpoints=i
+                            }
+                    )
+                }
             }
         }
         Column {

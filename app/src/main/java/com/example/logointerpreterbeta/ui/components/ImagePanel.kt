@@ -1,6 +1,7 @@
 package com.example.logointerpreterbeta.ui.components
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -47,6 +48,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.MyImage
+import com.example.logointerpreterbeta.MyImageHeight
+import com.example.logointerpreterbeta.MyImageWidth
 import com.example.logointerpreterbeta.MyLogoVisitor
 import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
@@ -68,6 +72,8 @@ fun ImagePanel() {
     var isInfoVisable by rememberSaveable { mutableStateOf(false) }
     var isDarkTheme by rememberSaveable { mutableStateOf(false) }
     isDarkTheme = isSystemInDarkTheme()
+    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_4444)
+    emptyBitmap.eraseColor(android.graphics.Color.TRANSPARENT)
     Box(
         modifier = Modifier
             .pointerInput(Unit) {
@@ -88,6 +94,13 @@ fun ImagePanel() {
         Image(
             bitmap = MyLogoVisitor.image.asImageBitmap(),
             contentDescription = null,
+            modifier = Modifier
+                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                .scale(scale)
+        )
+        Image(
+            bitmap = MyLogoVisitor.turtleImage.asImageBitmap(),
+            contentDescription = "Empty Bitmap",
             modifier = Modifier
                 .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
                 .scale(scale)
