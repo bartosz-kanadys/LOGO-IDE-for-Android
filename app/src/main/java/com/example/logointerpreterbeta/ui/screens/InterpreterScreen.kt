@@ -323,6 +323,7 @@ fun InterpreterApp(
                                                 visibleMenuFileName = projectFile.name
                                             },
                                             onTap = {
+                                                DebuggerVisitor.breakpoints.clear()
                                                 interpreterViewModel.updateCodeState(
                                                     readFileContent(
                                                         context,
