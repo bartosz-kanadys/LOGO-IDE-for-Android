@@ -99,19 +99,6 @@ fun CodeEditor(
 
         ) {
             for (i in 1..linesCount) {
-                Text(
-                    textAlign = TextAlign.Center,
-                    text = i.toString(),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = fontSize.sp,
-                    style = TextStyle(
-                        platformStyle = PlatformTextStyle(includeFontPadding = false),
-                        fontFamily = AppTypography.bodySmall.fontFamily
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(if (i in errorMap) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.inversePrimary)
-                )
                 if (i in DebuggerVisitor.breakpoints) {
                     // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
                     Box(
