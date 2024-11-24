@@ -36,6 +36,7 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -50,6 +51,7 @@ class MainActivity : ComponentActivity() {
             val interpreterViewModel: InterpreterViewModel = hiltViewModel()
             val libraryViewModel: LibraryViewModel = hiltViewModel()
             val projectViewModel: ProjectViewModel = hiltViewModel()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
 
             LogoInterpreterBetaTheme {
                 val navController = rememberNavController()
@@ -99,7 +101,9 @@ class MainActivity : ComponentActivity() {
                     }
                     composable<Settings> {
                         Layout({ modifier ->
-                            SettingsApp(modifier = modifier)
+                            SettingsApp(
+                                settingsViewModel = settingsViewModel,
+                                modifier = modifier)
                         }, "Ustawienia", navController)
                     }
                     composable<Libraries> {

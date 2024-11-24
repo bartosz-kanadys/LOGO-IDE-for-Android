@@ -25,13 +25,14 @@ import com.example.logointerpreterbeta.ui.components.settings.Select
 import com.example.logointerpreterbeta.ui.components.settings.SettingsOption
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 
 @Composable
-fun SettingsApp(modifier: Modifier = Modifier) {
-    var selectedTheme by remember { mutableStateOf("Systemowy") }
-    val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
-    var selectedFont by remember { mutableStateOf("JetBrains Mono") }
-    val fontOptions = listOf("JetBrains Mono", "Comic Sans MS")
+fun SettingsApp(
+    settingsViewModel: SettingsViewModel = androidx.lifecycle.viewmodel.compose.viewModel(),
+    modifier: Modifier = Modifier
+) {
+
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -54,8 +55,8 @@ fun SettingsApp(modifier: Modifier = Modifier) {
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
-            SettingsOption("Motyw", themeOptions, selectedTheme,{ selectedTheme = it })
-            SettingsOption("Czcionka",fontOptions, selectedFont,{ selectedFont = it })
+            SettingsOption("Motyw", settingsViewModel.themeOptions, settingsViewModel.selectedTheme,{ settingsViewModel.selectedTheme = it })
+            SettingsOption("Czcionka",settingsViewModel.fontOptions, settingsViewModel.selectedFont,{ settingsViewModel.selectedFont = it })
         }
     }
 }
@@ -71,7 +72,7 @@ fun SettingsPreview() {
                 TopBarWithMenu("Ustawienia")
             }
         ) { innerPadding ->
-            SettingsApp(Modifier.padding(innerPadding))
+           // SettingsApp(Modifier.padding(innerPadding))
         }
     }
 }
