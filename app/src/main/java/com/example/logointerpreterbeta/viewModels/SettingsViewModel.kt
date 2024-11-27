@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.viewModels
 
+import android.app.UiModeManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,9 +14,21 @@ import javax.inject.Inject
 class SettingsViewModel @Inject constructor() : ViewModel() {
     var selectedTheme by mutableStateOf("Systemowy")
     val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
+    var darkMode = false
     var selectedFont by  mutableStateOf("JetBrains Mono")
     val fontOptions = listOf("JetBrains Mono", "Comic Sans MS")
     init {
 
+    }
+    fun changeSelectedTheme(theme: String){
+        if(selectedTheme=="Systemowy"){
+            //darkMode = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
+        }
+        else if(selectedTheme=="Jasny"){
+
+        }
+        else{
+
+        }
     }
 }

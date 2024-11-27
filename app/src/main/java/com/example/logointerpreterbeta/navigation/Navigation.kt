@@ -53,16 +53,16 @@ class MainActivity : ComponentActivity() {
             val projectViewModel: ProjectViewModel = hiltViewModel()
             val settingsViewModel: SettingsViewModel = hiltViewModel()
 
-            LogoInterpreterBetaTheme {
+            LogoInterpreterBetaTheme(
+                darkTheme = true
+            ) {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
                     startDestination = StartScreen
                 ) {
                     composable<StartScreen> {
-                        LogoInterpreterBetaTheme {
                             StartScreenApp(navController, projectViewModel)
-                        }
                     }
                     composable<Interpreter> {
                         Scaffold(
@@ -84,7 +84,6 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable<Projects> {
-                        LogoInterpreterBetaTheme {
                             Scaffold(
                                 topBar = {
                                     TopBarWithMenu("Projekty", navController)
@@ -97,7 +96,6 @@ class MainActivity : ComponentActivity() {
                                     navController = navController
                                 )
                             }
-                        }
                     }
                     composable<Settings> {
                         Layout({ modifier ->
