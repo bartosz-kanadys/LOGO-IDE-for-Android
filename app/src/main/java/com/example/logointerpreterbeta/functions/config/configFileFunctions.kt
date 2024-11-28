@@ -2,7 +2,7 @@ package com.example.logointerpreterbeta.functions.config
 
 import android.content.Context
 import android.util.Log
-import com.example.logointerpreterbeta.Config
+import com.example.logointerpreterbeta.models.Config
 import com.google.gson.Gson
 import java.io.File
 import java.io.FileNotFoundException

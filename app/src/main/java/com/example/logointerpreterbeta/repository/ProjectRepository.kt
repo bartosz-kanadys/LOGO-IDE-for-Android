@@ -3,7 +3,7 @@ package com.example.logointerpreterbeta.repository
 import android.content.Context
 import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
 import com.example.logointerpreterbeta.functions.config.updateLastModifiedProjectJSON
-import com.example.logointerpreterbeta.functions.project.Project
+import com.example.logointerpreterbeta.models.Project
 import com.example.logointerpreterbeta.functions.project.createFileInDevice
 import com.example.logointerpreterbeta.functions.project.createProjectFolder
 import com.example.logointerpreterbeta.functions.project.deleteFileInDevice

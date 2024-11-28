@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.viewModels
+package com.example.logointerpreterbeta.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

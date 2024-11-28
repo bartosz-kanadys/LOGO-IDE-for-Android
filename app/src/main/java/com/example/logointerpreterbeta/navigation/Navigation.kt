@@ -51,16 +51,16 @@ class MainActivity : ComponentActivity() {
             val libraryViewModel: LibraryViewModel = hiltViewModel()
             val projectViewModel: ProjectViewModel = hiltViewModel()
 
-            LogoInterpreterBetaTheme {
+            LogoInterpreterBetaTheme(
+
+            ) {
                 val navController = rememberNavController()
                 NavHost(
                     navController = navController,
                     startDestination = StartScreen
                 ) {
                     composable<StartScreen> {
-                        LogoInterpreterBetaTheme {
-                            StartScreenApp(navController, projectViewModel)
-                        }
+                        StartScreenApp(navController, projectViewModel)
                     }
                     composable<Interpreter> {
                         Scaffold(
@@ -82,20 +82,19 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                     composable<Projects> {
-                        LogoInterpreterBetaTheme {
-                            Scaffold(
-                                topBar = {
-                                    TopBarWithMenu("Projekty", navController)
-                                },
-                                modifier = Modifier.padding(0.dp)
-                            ) { innerPadding ->
-                                ProjectsApp(
-                                    projectViewModel,
-                                    Modifier.padding(innerPadding),
-                                    navController = navController
-                                )
-                            }
+                        Scaffold(
+                            topBar = {
+                                TopBarWithMenu("Projekty", navController)
+                            },
+                            modifier = Modifier.padding(0.dp)
+                        ) { innerPadding ->
+                            ProjectsApp(
+                                projectViewModel,
+                                Modifier.padding(innerPadding),
+                                navController = navController
+                            )
                         }
+
                     }
                     composable<Settings> {
                         Layout({ modifier ->

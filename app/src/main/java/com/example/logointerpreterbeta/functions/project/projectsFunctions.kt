@@ -3,6 +3,8 @@ package com.example.logointerpreterbeta.functions.project
 import android.content.Context
 import android.icu.text.SimpleDateFormat
 import android.util.Log
+import com.example.logointerpreterbeta.models.Project
+import com.example.logointerpreterbeta.models.ProjectFile
 import java.io.File
 import java.util.Date
 import java.util.Locale

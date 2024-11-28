@@ -118,7 +118,7 @@ fun ProjectsApp(
                     text = newProjectName,
                     Modifier.weight(0.8f)
                 ) { newProjectName = it }
-                CreateProjectButton(Modifier.weight(0.2f)) {
+                CreateProjectButton(Modifier.weight(0.2f).height(60.dp)) {
                     isErrorWhenCreatingProject =
                         projectViewModel.createNewProject(newProjectName)
 

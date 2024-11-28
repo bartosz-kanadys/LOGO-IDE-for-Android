@@ -1,8 +1,8 @@
 package com.example.logointerpreterbeta.functions.library
 
 import android.content.Context
-import com.example.logointerpreterbeta.viewModels.Library
-import com.example.logointerpreterbeta.viewModels.Procedure
+import com.example.logointerpreterbeta.models.Library
+import com.example.logointerpreterbeta.models.Procedure
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

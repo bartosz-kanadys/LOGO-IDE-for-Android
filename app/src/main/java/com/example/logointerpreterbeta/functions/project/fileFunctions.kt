@@ -82,33 +82,3 @@ fun writeFileContent(
         false
     }
 }
-//
-//fun renameFile(
-//    context: Context,
-//    oldFileName: String,
-//    newFileName: String,
-//    projectName: String
-//): Boolean {
-//    val folder = File(context.getExternalFilesDir(null), "Projects/$projectName")
-//    if (!folder.exists() || !folder.isDirectory) {
-//        return false
-//    }
-//
-//    val oldFile = File(folder, oldFileName)
-//    val newFile = File(folder, newFileName + ".txt")
-//
-//    return try {
-//        if (oldFile.exists()) {
-//            // Skopiowanie zawartości starego pliku do nowego
-//            oldFile.copyTo(newFile, overwrite = true)
-//            // Usunięcie starego pliku po skopiowaniu zawartości
-//            oldFile.delete()
-//        } else {
-//            false // Stary plik nie istnieje
-//        }
-//    } catch (e: IOException) {
-//        e.printStackTrace()
-//        false // Zwróć false w przypadku błędu
-//    }
-//}
-

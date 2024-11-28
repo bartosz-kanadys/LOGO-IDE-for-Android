@@ -3,6 +3,8 @@ package com.example.logointerpreterbeta.viewModels
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import com.example.logointerpreterbeta.models.Library
+import com.example.logointerpreterbeta.models.Procedure
 import com.example.logointerpreterbeta.repository.LibraryRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

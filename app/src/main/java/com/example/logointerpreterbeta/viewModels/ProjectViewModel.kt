@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.viewModels
 
 import androidx.lifecycle.ViewModel
-import com.example.logointerpreterbeta.functions.project.Project
+import com.example.logointerpreterbeta.models.Project
 import com.example.logointerpreterbeta.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

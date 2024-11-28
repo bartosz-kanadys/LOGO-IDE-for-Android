@@ -6,8 +6,8 @@ import com.example.logointerpreterbeta.functions.library.createLibraryJSON
 import com.example.logointerpreterbeta.functions.library.deleteLibraryFromJSON
 import com.example.logointerpreterbeta.functions.library.deleteProcedureFromLibraryJSON
 import com.example.logointerpreterbeta.functions.library.loadLibrariesFromJSON
-import com.example.logointerpreterbeta.viewModels.Library
-import com.example.logointerpreterbeta.viewModels.Procedure
+import com.example.logointerpreterbeta.models.Library
+import com.example.logointerpreterbeta.models.Procedure
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton

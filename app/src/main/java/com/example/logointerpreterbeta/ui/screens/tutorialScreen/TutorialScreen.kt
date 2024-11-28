@@ -8,7 +8,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.readTutorialsFromRaw
+import com.example.logointerpreterbeta.models.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.components.TutorialCard
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 

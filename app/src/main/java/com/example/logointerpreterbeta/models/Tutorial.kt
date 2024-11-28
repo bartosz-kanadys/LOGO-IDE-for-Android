@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta
+package com.example.logointerpreterbeta.models
 
 import android.annotation.SuppressLint
 import android.content.Context
