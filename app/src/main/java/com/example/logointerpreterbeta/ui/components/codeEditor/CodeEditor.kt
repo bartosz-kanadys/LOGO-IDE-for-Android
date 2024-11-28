@@ -43,9 +43,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.logointerpreterbeta.functions.errors.prepareErrorList
-import com.example.logointerpreterbeta.functions.project.writeFileContent
-import com.example.logointerpreterbeta.functions.toggleBreakpoint
+import com.example.logointerpreterbeta.errors.prepareErrorList
+import com.example.logointerpreterbeta.repository.FileRepository
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.NearestWordFinder
@@ -54,11 +53,13 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 import com.example.logointerpreterbeta.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.visitors.DebuggerVisitor.Companion.toggleBreakpoint
 
 @Composable
 fun CodeEditor(
     projectViewModel: ProjectViewModel? = null,
     interpreterViewModel: InterpreterViewModel? = null,
+    fileRepository: FileRepository? = null,
     codeState: TextFieldValue,
     errors: String = "",
     onCodeChange: (TextFieldValue) -> Unit = {},
@@ -105,9 +106,11 @@ fun CodeEditor(
                         modifier = Modifier
                             .fillMaxSize() // Ustal wymiary tła
                             .background(
-                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
-                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
-                                else MaterialTheme.colorScheme.inversePrimary
+                                when (i) {
+                                    in errorMap -> MaterialTheme.colorScheme.errorContainer
+                                    DebuggerVisitor.currentLine -> MaterialTheme.colorScheme.secondary
+                                    else -> MaterialTheme.colorScheme.inversePrimary
+                                }
                             )
                     ) {
                         Box(
@@ -142,9 +145,11 @@ fun CodeEditor(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (i in errorMap) MaterialTheme.colorScheme.errorContainer
-                                else if (i == DebuggerVisitor.currentLine) MaterialTheme.colorScheme.secondary
-                                else MaterialTheme.colorScheme.inversePrimary
+                                when (i) {
+                                    in errorMap -> MaterialTheme.colorScheme.errorContainer
+                                    DebuggerVisitor.currentLine -> MaterialTheme.colorScheme.secondary
+                                    else -> MaterialTheme.colorScheme.inversePrimary
+                                }
                             )
                             .clickable(
                                 interactionSource = interactionSource,
@@ -175,7 +180,7 @@ fun CodeEditor(
                         }
                         onCodeChange(newValue)
                         if (isSaveOnChange) {
-                            writeFileContent(
+                            fileRepository!!.writeFileContent(
                                 context,
                                 projectViewModel!!.actualFileName.value!!,
                                 projectViewModel.actualProjectName.value,

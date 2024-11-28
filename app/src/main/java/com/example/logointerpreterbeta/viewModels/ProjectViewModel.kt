@@ -2,6 +2,8 @@ package com.example.logointerpreterbeta.viewModels
 
 import androidx.lifecycle.ViewModel
 import com.example.logointerpreterbeta.models.Project
+import com.example.logointerpreterbeta.repository.ConfigRepository
+import com.example.logointerpreterbeta.repository.FileRepository
 import com.example.logointerpreterbeta.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,7 +12,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProjectViewModel @Inject constructor(
-    private val projectRepository: ProjectRepository
+    private val projectRepository: ProjectRepository,
+    private val configRepository: ConfigRepository,
+    private val fileRepository: FileRepository
 ) : ViewModel() {
     private val _actualProjectName = MutableStateFlow("")
     val actualProjectName = _actualProjectName.asStateFlow()
@@ -30,11 +34,11 @@ class ProjectViewModel @Inject constructor(
 
     private fun updateActualProjectName(newProjectName: String) {
         _actualProjectName.value = newProjectName
-        projectRepository.updateLastProjectJSON(newProjectName)
+        configRepository.updateLastProjectJSON(newProjectName)
     }
 
     fun loadLastProjectFromJSON() {
-        _actualProjectName.value = projectRepository.readLastProjectJSON()!!
+        _actualProjectName.value = configRepository.readLastProjectJSON()!!
     }
 
     fun updateActualFileName(newFileName: String?) {
@@ -50,7 +54,7 @@ class ProjectViewModel @Inject constructor(
     }
 
     fun deleteFileFromProject(fileToDelete: String): Boolean {
-        projectRepository.deleteFile(_project.value!!.name, fileToDelete)
+        fileRepository.deleteFile(_project.value!!.name, fileToDelete)
         updateProject()
         // Wyczyść nazwę po usunięciu
         if (project.value!!.files.isEmpty()) {
@@ -63,7 +67,7 @@ class ProjectViewModel @Inject constructor(
     }
 
     fun createFileInProject(newFileName: String) {
-        projectRepository.createFile(_actualProjectName.value, newFileName, "")
+        fileRepository.createFile(_actualProjectName.value, newFileName, "")
         updateProject()
     }
 
@@ -83,7 +87,7 @@ class ProjectViewModel @Inject constructor(
         }
         projectRepository.deleteProject(projectToDelete)
         updateProjectsMap()
-        projectRepository.updateLastProjectJSON("")
+        configRepository.updateLastProjectJSON("")
     }
 
     fun createNewProject(newProjectName: String): Boolean {
@@ -96,7 +100,7 @@ class ProjectViewModel @Inject constructor(
 
     fun openProject(name: String) {
         updateActualProjectName(name)
-        projectRepository.updateLastProjectJSON(name)
+        configRepository.updateLastProjectJSON(name)
         updateProject()
     }
 }
