@@ -38,6 +38,8 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -46,6 +48,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.errors.prepareErrorList
 import com.example.logointerpreterbeta.repository.FileRepository
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.CodeSuggestionPopup
@@ -55,6 +58,7 @@ import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.re
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.visitors.DebuggerVisitor.Companion.toggleBreakpoint
 
@@ -159,7 +163,6 @@ fun CodeEditor(
                                 indication = null
                             ) {
                                 toggleBreakpoint(i) // Przełącz breakpoint
-                                //DebuggerVisitor.breakpoints=i
                             }
                     )
                 }
@@ -195,7 +198,8 @@ fun CodeEditor(
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize.sp,
-                        fontFamily = AppTypography.bodySmall.fontFamily,
+                        //fontFamily = AppTypography.bodySmall.fontFamily,
+                        fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
                         val actualCursorPosition = codeState.selection.start

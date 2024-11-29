@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -18,7 +19,8 @@ fun SettingsOption(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fonts: List<FontFamily?> = emptyList()
 ){
     Column (
         modifier = Modifier
@@ -36,7 +38,8 @@ fun SettingsOption(
         Select(
             options = options,
             selectedOption = selectedOption,
-            onOptionSelected = onOptionSelected
+            onOptionSelected = onOptionSelected,
+            fonts = fonts
         )
     }
 }

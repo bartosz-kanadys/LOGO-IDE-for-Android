@@ -8,7 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -16,7 +19,8 @@ fun Select(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fonts: List<FontFamily?> = emptyList()
 ) {
     var expanded by remember { mutableStateOf(false) } // Kontroluje widoczność menu
 
@@ -42,9 +46,15 @@ fun Select(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
+            var i=0;
             options.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(
+                        text = option,
+                        style = TextStyle(
+                            fontFamily = if(fonts.isNotEmpty()) fonts[i++] else AppTypography.bodySmall.fontFamily
+                        )
+                    ) },
                     onClick = {
                         onOptionSelected(option) // Wybranie opcji
                         expanded = false // Zamknięcie menu

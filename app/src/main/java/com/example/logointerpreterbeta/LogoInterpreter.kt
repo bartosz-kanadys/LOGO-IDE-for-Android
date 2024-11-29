@@ -14,6 +14,7 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 import com.example.logointerpreterbeta.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.visitors.MyLogoLibraryVisitor
 import com.example.logointerpreterbeta.visitors.MyLogoVisitor
@@ -32,7 +33,6 @@ class LogoInterpreter @Inject constructor(
     private val myVisitor = MyLogoVisitor(context = context)
     private val myLogoLibraryVisitor = MyLogoLibraryVisitor()
     private val debuggerVisitor = DebuggerVisitor(context = context)
-    private val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
     fun getPoceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         return myLogoLibraryVisitor.getProcedures()
@@ -103,8 +103,7 @@ class LogoInterpreter @Inject constructor(
         val tokens = CommonTokenStream(lexer)
         tokens.fill()
 
-        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        val textColor = if (isDarkTheme) {
+        val textColor = if (SettingsViewModel.darkMode) {
             onSurfaceDarkMediumContrast
         } else {
             onSurfaceLightMediumContrast

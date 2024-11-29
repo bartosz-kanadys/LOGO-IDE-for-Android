@@ -19,6 +19,7 @@ import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel.Companion.errors
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
@@ -176,8 +177,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
         stepCount = 0
         currentLine = 0
         paint.setColor(Turtle.penColor)
-        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        if (isDarkTheme) {
+        if (SettingsViewModel.darkMode) {
             Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
             canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
         } else {
