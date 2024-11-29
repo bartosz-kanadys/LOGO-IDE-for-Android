@@ -63,8 +63,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-
 @SuppressLint("NewApi", "StateFlowValueCalledInComposition")
 @Composable
 fun AppNavHost(
@@ -82,9 +80,8 @@ fun AppNavHost(
         startDestination = startDestination
     ) {
         composable<StartScreen> {
-            LogoInterpreterBetaTheme {
                 StartScreenApp(navController, projectViewModel)
-            }
+
         }
         composable<Interpreter> {
             Scaffold(
@@ -106,7 +103,6 @@ fun AppNavHost(
             }
         }
         composable<Projects> {
-            LogoInterpreterBetaTheme {
                 Scaffold(
                     topBar = {
                         TopBarWithMenu("Projekty", navController)
@@ -119,11 +115,11 @@ fun AppNavHost(
                         navController = navController
                     )
                 }
-            }
+
         }
         composable<Settings> {
             Layout({ modifier ->
-                SettingsApp(modifier = modifier)
+                SettingsApp(modifier = modifier, settingsViewModel = settingsViewModel)
             }, "Ustawienia", navController)
         }
         composable<Libraries> {

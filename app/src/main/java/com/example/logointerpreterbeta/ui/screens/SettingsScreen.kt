@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -66,17 +67,17 @@ fun SettingsApp(
 }
 
 
-
-@Preview(showBackground = true, showSystemUi = false)
-@Composable
-fun SettingsPreview() {
-    LogoInterpreterBetaTheme {
-        Scaffold(
-            topBar = {
-                TopBarWithMenu("Ustawienia")
-            }
-        ) { innerPadding ->
-           // SettingsApp(Modifier.padding(innerPadding))
-        }
-    }
-}
+//
+//@Preview(showBackground = true, showSystemUi = false)
+//@Composable
+//fun SettingsPreview() {
+//    LogoInterpreterBetaTheme {
+//        Scaffold(
+//            topBar = {
+//                TopBarWithMenu("Ustawienia")
+//            }
+//        ) { @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") innerPadding ->
+//           // SettingsApp(Modifier.padding(innerPadding))
+//        }
+//    }
+//}
