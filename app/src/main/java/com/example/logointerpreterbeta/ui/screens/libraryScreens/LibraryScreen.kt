@@ -124,7 +124,7 @@ fun LibraryCard(
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
         modifier = Modifier
-            .height(150.dp)
+            .height(160.dp)
             .clickable { onClick() }
     ) {
         Box(
@@ -145,7 +145,7 @@ fun LibraryCard(
                     text = libraryDescription,
                     style = AppTypography.bodySmall,
                     fontSize = 10.sp,
-                    modifier = Modifier.height(50.dp)
+                    modifier = Modifier.height(55.dp)
                 )
                 Spacer(Modifier.height(5.dp))
                 Row(
@@ -206,7 +206,7 @@ fun AddNewLibraryButton(onAddLibraryClick: () -> Unit) {
             contentColor = MaterialTheme.colorScheme.onSurface
         ),
         modifier = Modifier
-            .height(150.dp)
+            .height(160.dp)
             .fillMaxSize()
             .clickable { onAddLibraryClick() }
     ) {

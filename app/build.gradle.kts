@@ -20,10 +20,12 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.example.logointerpreterbeta.CustomTestRunner"
         vectorDrawables {
             useSupportLibrary = true
         }
     }
+
 
     buildTypes {
         release {
@@ -49,7 +51,7 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/*"
         }
     }
 }
@@ -75,20 +77,44 @@ dependencies {
     implementation (libs.kotlinx.coroutines.android)
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
-
+    implementation(libs.androidx.navigation.testing)
     kapt(libs.hilt.android.compiler)
 
-
-
-
-    testImplementation(libs.junit)
+    //Zależności do testów Androidowych i UI:
+    androidTestImplementation(libs.dagger.hilt.android.testing)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.mockk.mockk.android)
+    androidTestImplementation(libs.androidx.core)
+    androidTestImplementation(libs.androidx.runner)
+    androidTestImplementation (libs.androidx.rules)
+    androidTestImplementation (libs.androidx.navigation.testing) // do testowania nawigacji
+
+
     debugImplementation(libs.androidx.ui.tooling)
+    testImplementation (libs.androidx.core.testing)
+
+
+    //Zależności do testów jednostkowych:
+    testImplementation(libs.dagger.hilt.android.testing)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    androidTestImplementation (libs.androidx.navigation.compose) // Sprawdź aktualną wersję
+
+
+    //Zależności do mockowania obiektów:
+    testImplementation(libs.mockk)
+
+    //Dodatkowe zależności debugujące:
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //Zależności do używania Hilt:
+    kaptAndroidTest(libs.hilt.compiler)
+    kaptTest(libs.hilt.compiler)
+//    kaptAndroidTest(libs.hilt.android.compiler.v2xx)
 }
 
 // Allow references to generated code

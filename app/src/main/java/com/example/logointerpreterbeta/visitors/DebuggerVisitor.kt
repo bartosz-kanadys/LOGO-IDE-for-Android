@@ -27,6 +27,14 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
         var breakpoints = mutableStateListOf<Int>()
         var showStepInButton by mutableStateOf(false)
         var showStepOutButton by mutableStateOf(false)
+        fun toggleBreakpoint(lineNumber: Int) {
+            Log.i("Breakpoint", "Toggled breakpoint at line $lineNumber")
+            if (DebuggerVisitor.breakpoints.contains(lineNumber)) {
+                DebuggerVisitor.breakpoints.remove(lineNumber)
+            } else {
+                DebuggerVisitor.breakpoints.add(lineNumber)
+            }
+        }
     }
 
     private var stepByStepMode = false

@@ -62,13 +62,11 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.ImageExportManager
 import com.example.logointerpreterbeta.navigation.Libraries
 import com.example.logointerpreterbeta.navigation.Projects
 import com.example.logointerpreterbeta.navigation.Settings
 import com.example.logointerpreterbeta.navigation.TutorialScreen
-import com.example.logointerpreterbeta.ui.components.image_exporting.checkPermissions
-import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsJpg
-import com.example.logointerpreterbeta.ui.components.image_exporting.saveBitmapAsPdf
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
@@ -105,6 +103,7 @@ fun InterpreterTopBar(
     val menuTextStyle = AppTypography.bodySmall // Ustawiona globalna czcionka
 
     val context = LocalContext.current
+    val exportManager = ImageExportManager()
 
     // Launcher do wyboru pliku do zapisu
     val saveFileLauncher = rememberLauncherForActivityResult(
@@ -228,8 +227,8 @@ fun InterpreterTopBar(
                     ) {
                         DropdownMenuItem(
                             onClick = {
-                                checkPermissions(context)
-                                val jpgFile = saveBitmapAsJpg(
+                                exportManager.checkPermissions(context)
+                                val jpgFile = exportManager.saveBitmapAsJpg(
                                     context,
                                     MyLogoVisitor.image,
                                     "LogoImage" + Date()
@@ -246,9 +245,9 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                                checkPermissions(context)
+                                exportManager.checkPermissions(context)
                                 val pdfFile =
-                                    saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
+                                    exportManager.saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
                                 Toast.makeText(
                                     context,
                                     if (pdfFile) "Zapisano PDF 👌" else "Nie udało się zapisać PDF 😯",

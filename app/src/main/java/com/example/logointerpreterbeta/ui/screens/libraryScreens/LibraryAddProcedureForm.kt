@@ -26,7 +26,7 @@ import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
-import com.example.logointerpreterbeta.viewModels.Procedure
+import com.example.logointerpreterbeta.models.Procedure
 
 @Composable
 fun LibraryAddProcedureForm(

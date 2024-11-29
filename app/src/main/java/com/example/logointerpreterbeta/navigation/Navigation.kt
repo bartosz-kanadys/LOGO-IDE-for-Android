@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -44,17 +45,11 @@ import kotlinx.serialization.Serializable
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    @SuppressLint("StateFlowValueCalledInComposition")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val interpreterViewModel: InterpreterViewModel = hiltViewModel()
-            val libraryViewModel: LibraryViewModel = hiltViewModel()
-            val projectViewModel: ProjectViewModel = hiltViewModel()
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
-
             LogoInterpreterBetaTheme(
                 darkTheme = when(SettingsViewModel.darkMode){
                     themeMode.SYSTEM_THEME -> isSystemInDarkTheme()
@@ -62,118 +57,135 @@ class MainActivity : ComponentActivity() {
                     themeMode.DARK_THEME -> true
                 }
             ) {
-                val navController = rememberNavController()
-                NavHost(
-                    navController = navController,
-                    startDestination = StartScreen
-                ) {
-                    composable<StartScreen> {
-                            StartScreenApp(navController, projectViewModel)
-                    }
-                    composable<Interpreter> {
-                        Scaffold(
-                            topBar = {
-                                InterpreterTopBar(
-                                    projectViewModel.actualProjectName.value,
-                                    interpreterViewModel,
-                                    navController
-                                )
-                            }
-                        ) { innerPadding ->
-                            Column(Modifier.padding(innerPadding)) {
-                                InterpreterApp(
-                                    interpreterViewModel,
-                                    projectViewModel,
-                                    navController
-                                )
-                            }
-                        }
-                    }
-                    composable<Projects> {
-                            Scaffold(
-                                topBar = {
-                                    TopBarWithMenu("Projekty", navController)
-                                },
-                                modifier = Modifier.padding(0.dp)
-                            ) { innerPadding ->
-                                ProjectsApp(
-                                    projectViewModel,
-                                    Modifier.padding(innerPadding),
-                                    navController = navController
-                                )
-                            }
-                    }
-                    composable<Settings> {
-                        Layout({ modifier ->
-                            SettingsApp(
-                                settingsViewModel = settingsViewModel,
-                                modifier = modifier)
-                        }, "Ustawienia", navController)
-                    }
-                    composable<Libraries> {
-                        Layout({ modifier ->
-                            LibraryScreen(
-                                modifier = modifier,
-                                libraryViewModel = libraryViewModel,
-                                navController = navController
-                            )
-                        }, "Biblioteki", navController)
-                    }
-                    composable<LibraryForm> {
-                        Layout({ modifier ->
-                            LibraryFormScreen(
-                                modifier = modifier,
-                                libraryViewModel = libraryViewModel,
-                                navController = navController
-                            )
-                        }, "Dodaj biblioteke", navController)
-                    }
-                    composable<LibraryProcedures> {
-                        Layout({ modifier ->
-                            LibraryProceduresScreen(
-                                libraryViewModel = libraryViewModel,
-                                navController = navController,
-                                modifier = modifier
-                            )
-                        }, libraryViewModel.actualLibrary.value!!, navController)
-                    }
-                    composable<LibraryProcedureForm> {
-                        Layout(
-                            { modifier ->
-                                LibraryAddProcedureForm(
-                                    libraryViewModel = libraryViewModel,
-                                    interpreterViewModel = interpreterViewModel,
-                                    navController = navController,
-                                    modifier = modifier
-                                )
-                            },
-                            "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}",
-                            navController
-                        )
-                    }
-                    composable<TutorialScreen> {
-                        Layout({ modifier ->
-                            TutorialScreen(modifier = modifier, navController)
-                        }, "Poradniki", navController)
-                    }
-                    composable(
-                        route = "TutorialContentScreen/{tutorialName}",
-                        arguments = listOf(navArgument("tutorialName") {
-                            type = NavType.StringType
-                        }
-                        )
-                    ) { backStackEntry ->
-                        val tutorialName = backStackEntry.arguments?.getString("tutorialName")
-                        Layout(
-                            content = { modifier ->
-                                TutorialContentScreen(tutorialName!!, modifier = modifier)
-                            },
-                            title = tutorialName!!,
-                            navController = navController
-                        )
-                    }
+                AppNavHost()
+            }
+        }
+    }
+}
+
+
+
+@SuppressLint("NewApi", "StateFlowValueCalledInComposition")
+@Composable
+fun AppNavHost(
+    navController: NavHostController = rememberNavController(),
+    startDestination: Any = StartScreen
+) {
+    val interpreterViewModel: InterpreterViewModel = hiltViewModel()
+    val libraryViewModel: LibraryViewModel = hiltViewModel()
+    val projectViewModel: ProjectViewModel = hiltViewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
+
+    //  val navController = rememberNavController()
+    NavHost(
+        navController = navController,
+        startDestination = startDestination
+    ) {
+        composable<StartScreen> {
+            LogoInterpreterBetaTheme {
+                StartScreenApp(navController, projectViewModel)
+            }
+        }
+        composable<Interpreter> {
+            Scaffold(
+                topBar = {
+                    InterpreterTopBar(
+                        projectViewModel.actualProjectName.value,
+                        interpreterViewModel,
+                        navController
+                    )
+                }
+            ) { innerPadding ->
+                Column(Modifier.padding(innerPadding)) {
+                    InterpreterApp(
+                        interpreterViewModel,
+                        projectViewModel,
+                        navController
+                    )
                 }
             }
+        }
+        composable<Projects> {
+            LogoInterpreterBetaTheme {
+                Scaffold(
+                    topBar = {
+                        TopBarWithMenu("Projekty", navController)
+                    },
+                    modifier = Modifier.padding(0.dp)
+                ) { innerPadding ->
+                    ProjectsApp(
+                        projectViewModel,
+                        Modifier.padding(innerPadding),
+                        navController = navController
+                    )
+                }
+            }
+        }
+        composable<Settings> {
+            Layout({ modifier ->
+                SettingsApp(modifier = modifier)
+            }, "Ustawienia", navController)
+        }
+        composable<Libraries> {
+            Layout({ modifier ->
+                LibraryScreen(
+                    modifier = modifier,
+                    libraryViewModel = libraryViewModel,
+                    navController = navController
+                )
+            }, "Biblioteki", navController)
+        }
+        composable<LibraryForm> {
+            Layout({ modifier ->
+                LibraryFormScreen(
+                    modifier = modifier,
+                    libraryViewModel = libraryViewModel,
+                    navController = navController
+                )
+            }, "Dodaj biblioteke", navController)
+        }
+        composable<LibraryProcedures> {
+            Layout({ modifier ->
+                LibraryProceduresScreen(
+                    libraryViewModel = libraryViewModel,
+                    navController = navController,
+                    modifier = modifier
+                )
+            }, libraryViewModel.actualLibrary.value!!, navController)
+        }
+        composable<LibraryProcedureForm> {
+            Layout(
+                { modifier ->
+                    LibraryAddProcedureForm(
+                        libraryViewModel = libraryViewModel,
+                        interpreterViewModel = interpreterViewModel,
+                        navController = navController,
+                        modifier = modifier
+                    )
+                },
+                "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}",
+                navController
+            )
+        }
+        composable<TutorialScreen> {
+            Layout({ modifier ->
+                TutorialScreen(modifier = modifier, navController)
+            }, "Poradniki", navController)
+        }
+        composable(
+            route = "TutorialContentScreen/{tutorialName}",
+            arguments = listOf(navArgument("tutorialName"){
+                type = NavType.StringType}
+            )
+        ) { backStackEntry ->
+            val tutorialName = backStackEntry.arguments?.getString("tutorialName")
+            Layout(
+                content = { modifier ->
+                    TutorialContentScreen(tutorialName!!, modifier = modifier)
+                },
+                title = tutorialName!!,
+                navController = navController
+            )
         }
     }
 }

@@ -45,8 +45,7 @@ import com.example.logointerpreterbeta.navigation.Projects
 import com.example.logointerpreterbeta.navigation.Settings
 import com.example.logointerpreterbeta.navigation.TutorialScreen
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.functions.config.createConfigFile
-import com.example.logointerpreterbeta.functions.config.readLastModifiedProject
+import com.example.logointerpreterbeta.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
@@ -57,7 +56,8 @@ fun StartScreenApp(
     projectViewModel: ProjectViewModel
 ) {
     val context = LocalContext.current
-    createConfigFile(context)
+    val configRepository = ConfigRepository(context)
+    configRepository.createConfigFile(context)
     projectViewModel.loadLastProjectFromJSON()
 
     var isAlertVisable by rememberSaveable { mutableStateOf(false) }
@@ -95,6 +95,7 @@ fun StartScreenApp(
                 AppLogo(Modifier.fillMaxWidth(0.5f))
                 StartScreenMenu(
                     projectViewModel = projectViewModel,
+                    configRepository = configRepository,
                     navController = navController
                 ) {
                     isAlertVisable = true
@@ -111,6 +112,7 @@ fun StartScreenApp(
                 AppLogo()
                 StartScreenMenu(
                     projectViewModel = projectViewModel,
+                    configRepository = configRepository,
                     navController = navController
                 ) {
                     isAlertVisable = true
@@ -146,9 +148,9 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun StartScreenMenu(
     projectViewModel: ProjectViewModel,
     navController: NavHostController,
+    configRepository: ConfigRepository,
     onEmptyProjectAction: () -> Unit
 ) {
-    val context = LocalContext.current
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxHeight()
@@ -156,7 +158,7 @@ fun StartScreenMenu(
         item {
             MenuButton("Kontynuuj ostatni projekt",
                 {
-                    if (readLastModifiedProject(context) == "") {
+                    if (configRepository.readLastProjectJSON() == "") {
                         onEmptyProjectAction()
                     } else {
                         projectViewModel.updateProject()

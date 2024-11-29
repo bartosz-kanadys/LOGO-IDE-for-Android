@@ -19,10 +19,10 @@ import com.example.logointerpreterbeta.Turtle
 import com.example.logointerpreterbeta.TurtleImage
 import com.example.logointerpreterbeta.errors.StopException
 import com.example.logointerpreterbeta.errors.SyntaxError
-import com.example.logointerpreterbeta.functions.library.loadLibrariesFromJSON
 import com.example.logointerpreterbeta.interpreter.logoBaseVisitor
 import com.example.logointerpreterbeta.interpreter.logoParser
 import com.example.logointerpreterbeta.penColors
+import com.example.logointerpreterbeta.repository.LibraryRepository
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
@@ -46,6 +46,8 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
 
     protected var variables: MutableMap<String, Any> = HashMap()
     protected var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
+
+    private val libraryRepository = LibraryRepository(context)
 
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
@@ -458,7 +460,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
         val libraryName = ctx!!.name().text
 
         val logo = LogoInterpreter(context)
-        val libraries = loadLibrariesFromJSON(context)
+        val libraries = libraryRepository.loadLibraries()
         val library = libraries.find { it.name == libraryName }
         val procedureList = library!!.procedures
         for (procedure in procedureList) {

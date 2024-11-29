@@ -48,7 +48,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.navigation.StartScreen
-import com.example.logointerpreterbeta.functions.project.readFileContent
+import com.example.logointerpreterbeta.repository.FileRepository
 import com.example.logointerpreterbeta.ui.components.Alert
 import com.example.logointerpreterbeta.ui.components.ErrorsList
 import com.example.logointerpreterbeta.ui.components.ImagePanel
@@ -82,6 +82,8 @@ fun InterpreterApp(
     val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
     val project by projectViewModel.project.collectAsStateWithLifecycle()
 
+    val fileRepository = FileRepository(context)
+
     LaunchedEffect(isDarkTheme) {
         interpreterViewModel.interpretCode()
         interpreterViewModel.interpretCode()
@@ -102,7 +104,7 @@ fun InterpreterApp(
         val actualFile = project?.files?.firstOrNull()?.name
 
         if (actualFile != null) {
-            val content = readFileContent(context, actualFile, project!!.name)
+            val content = fileRepository.readFileContent(context, actualFile, project!!.name)
             if (content != null) {
                 interpreterViewModel.updateCodeState(content)
                 interpreterViewModel.colorCode()
@@ -214,7 +216,7 @@ fun InterpreterApp(
                                         onTap = {
                                             DebuggerVisitor.breakpoints.clear()
                                             interpreterViewModel.updateCodeState(
-                                                readFileContent(
+                                                fileRepository.readFileContent(
                                                     context,
                                                     projectFile.name,
                                                     project!!.name
@@ -320,7 +322,7 @@ fun InterpreterApp(
                                             onTap = {
                                                 DebuggerVisitor.breakpoints.clear()
                                                 interpreterViewModel.updateCodeState(
-                                                    readFileContent(
+                                                    fileRepository.readFileContent(
                                                         context,
                                                         projectFile.name,
                                                         project!!.name
@@ -378,6 +380,7 @@ fun InterpreterApp(
                     CodeEditor(
                         projectViewModel = projectViewModel,
                         interpreterViewModel = interpreterViewModel,
+                        fileRepository = fileRepository,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
