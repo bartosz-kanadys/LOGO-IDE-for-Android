@@ -2,10 +2,10 @@ package com.example.logointerpreterbeta
 
 import android.content.Context
 import android.widget.Toast
+import com.example.logointerpreterbeta.models.Library
+import com.example.logointerpreterbeta.models.Procedure
 import com.example.logointerpreterbeta.repository.LibraryRepository
-import com.example.logointerpreterbeta.viewModels.Library
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
-import com.example.logointerpreterbeta.viewModels.Procedure
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -41,7 +41,7 @@ class LibraryViewModelTest {
         )
 
         assertTrue(result)
-        verify { mockLibraryRepository.createLibrray(any()) }
+        verify { mockLibraryRepository.createLibrary(any()) }
         assertEquals(1, libraryViewModel.libraries.value.size)
         assertEquals("Test Library", libraryViewModel.libraries.value.first().name)
     }
@@ -207,7 +207,7 @@ class LibraryViewModelTest {
         assertEquals(true, result)
         assertEquals(1, libraryViewModel.libraries.value.size)
         assertEquals(newLibrary, libraryViewModel.libraries.value.first())
-        verify { mockLibraryRepository.createLibrray(newLibrary) }
+        verify { mockLibraryRepository.createLibrary(newLibrary) }
     }
 
     @Test
@@ -247,7 +247,7 @@ class LibraryViewModelTest {
         libraryViewModel.deleteProcedureFromLibrary(library.name, procedure.name)
 
         // Then
-        verify { mockLibraryRepository.deleteProcedureFromLibrray(library.name, procedure.name) }
+        verify { mockLibraryRepository.deleteProcedureFromLibrary(library.name, procedure.name) }
         assertEquals(0, libraryViewModel.libraries.value.first().procedures.size)
     }
 
