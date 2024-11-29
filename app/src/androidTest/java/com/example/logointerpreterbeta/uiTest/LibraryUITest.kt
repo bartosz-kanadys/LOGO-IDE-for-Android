@@ -4,9 +4,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.Navigation.AppNavHost
-import com.example.logointerpreterbeta.Navigation.Libraries
-import com.example.logointerpreterbeta.Navigation.MainActivity
+import com.example.logointerpreterbeta.navigation.AppNavHost
+import com.example.logointerpreterbeta.navigation.Libraries
+import com.example.logointerpreterbeta.navigation.MainActivity
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
