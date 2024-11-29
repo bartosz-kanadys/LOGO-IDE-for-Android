@@ -25,6 +25,7 @@ object SuggestionList {
         "setpc",
         "setpencolor",
         "repeat",
-        "if"
+        "if",
+        "clearscreen"
     )
 }

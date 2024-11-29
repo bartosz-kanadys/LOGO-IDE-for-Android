@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity() {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
 
             LogoInterpreterBetaTheme(
-                darkTheme = true
+                darkTheme = SettingsViewModel.darkMode
             ) {
                 val navController = rememberNavController()
                 NavHost(

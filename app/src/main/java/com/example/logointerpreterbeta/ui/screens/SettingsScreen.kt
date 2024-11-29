@@ -55,7 +55,11 @@ fun SettingsApp(
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
-            SettingsOption("Motyw", settingsViewModel.themeOptions, settingsViewModel.selectedTheme,{ settingsViewModel.selectedTheme = it })
+            SettingsOption("Motyw", settingsViewModel.themeOptions, settingsViewModel.selectedTheme,{
+                settingsViewModel.selectedTheme = it
+                settingsViewModel.changeSelectedTheme()
+                },
+            )
             SettingsOption("Czcionka",settingsViewModel.fontOptions, settingsViewModel.selectedFont,{ settingsViewModel.selectedFont = it })
         }
     }

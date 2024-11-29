@@ -27,6 +27,7 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -438,8 +439,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         paint.setColor(Turtle.penColor)
-        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        if (isDarkTheme) {
+        if (SettingsViewModel.darkMode) {
             Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
             canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
         } else {
