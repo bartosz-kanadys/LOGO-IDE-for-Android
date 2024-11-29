@@ -17,7 +17,8 @@ class SettingsViewModel @Inject constructor(
     @ApplicationContext private val context: Context
 ) : ViewModel() {
     companion object{
-        var darkMode  by  mutableStateOf(themeMode.LIGHT_THEME)
+        var currentTheme  by  mutableStateOf(themeMode.LIGHT_THEME)
+        var darkMode by mutableStateOf(false)
     }
     val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
     var selectedTheme by mutableStateOf("Systemowy")
@@ -28,7 +29,7 @@ class SettingsViewModel @Inject constructor(
 
     }
     fun changeSelectedTheme(){
-        darkMode = when (selectedTheme) {
+        currentTheme = when (selectedTheme) {
             "Systemowy" -> themeMode.SYSTEM_THEME
             "Jasny" -> themeMode.LIGHT_THEME
             "Ciemny" -> themeMode.DARK_THEME

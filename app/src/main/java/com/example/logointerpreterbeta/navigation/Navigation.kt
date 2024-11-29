@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LogoInterpreterBetaTheme(
-                darkTheme = when(SettingsViewModel.darkMode){
+                darkTheme = when(SettingsViewModel.currentTheme){
                     themeMode.SYSTEM_THEME -> isSystemInDarkTheme()
                     themeMode.LIGHT_THEME -> false
                     themeMode.DARK_THEME -> true

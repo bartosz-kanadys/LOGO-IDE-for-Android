@@ -49,7 +49,6 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
 
     private val libraryRepository = LibraryRepository(context)
 
-    val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
 
     init {
         paint.color = Turtle.penColor
@@ -122,8 +121,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
     }
 
     override fun visitCs(ctx: logoParser.CsContext?) {
-        val isDarkTheme = uiModeManager.nightMode == UiModeManager.MODE_NIGHT_YES
-        if (isDarkTheme) {
+        if (SettingsViewModel.darkMode) {
             canvas.drawColor(surfaceDarkMediumContrast.toArgb())
         } else {
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
@@ -442,7 +440,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         paint.setColor(Turtle.penColor)
-        if (SettingsViewModel.darkMode == themeMode.DARK_THEME) {
+        if (SettingsViewModel.darkMode) {
             Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
             canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
         } else {

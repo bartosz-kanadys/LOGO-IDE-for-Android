@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +38,8 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -202,6 +205,11 @@ fun CodeEditor(
                         }
                     },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                    keyboardOptions = KeyboardOptions(
+                        autoCorrectEnabled = false, // Wyłączenie autokorekty
+                        keyboardType = KeyboardType.Text, // Typ klawiatury
+                        imeAction = ImeAction.Done // Akcja IME
+                    ),
 
                     modifier = modifier
                         .fillMaxSize()
