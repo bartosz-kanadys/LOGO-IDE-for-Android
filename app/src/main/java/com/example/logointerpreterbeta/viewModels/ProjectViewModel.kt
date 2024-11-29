@@ -23,7 +23,7 @@ class ProjectViewModel @Inject constructor(
     val actualFileName = _actualFileName.asStateFlow()
 
     private val _projectsMap = MutableStateFlow<Map<String, String>>(emptyMap())
-    val projectsMap = _projectsMap.asStateFlow()
+    var projectsMap = _projectsMap.asStateFlow()
 
     private val _project = MutableStateFlow<Project?>(null)
     val project = _project.asStateFlow()

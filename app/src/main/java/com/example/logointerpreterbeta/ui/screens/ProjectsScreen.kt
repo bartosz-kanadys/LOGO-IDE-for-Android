@@ -37,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import com.example.logointerpreterbeta.navigation.Interpreter
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 import com.example.logointerpreterbeta.visitors.DebuggerVisitor
+import dagger.hilt.android.AndroidEntryPoint
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -121,8 +123,9 @@ fun ProjectsApp(
                 CreateProjectButton(Modifier.weight(0.2f).height(60.dp)) {
                     isErrorWhenCreatingProject =
                         projectViewModel.createNewProject(newProjectName)
-
-                    navController.navigate(Interpreter)
+                    if (!isErrorWhenCreatingProject) {
+                        navController.navigate(Interpreter)
+                    }
                 }
             }
         }
@@ -134,6 +137,7 @@ fun ProjectsApp(
                 modifier = Modifier
                     .align(alignment = Alignment.CenterHorizontally)
                     .padding(5.dp)
+                    .testTag("duplicateError")
             )
         }
 
@@ -169,6 +173,7 @@ private fun CreateTextFieldWithNameButton(onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth(0.9f)
             .height(60.dp)
+
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -250,7 +255,8 @@ private fun ProjectNameTextField(
         ),
         modifier = modifier
             .fillMaxWidth(0.9f)
-            .fillMaxHeight(),
+            .fillMaxHeight()
+            .testTag("PodajNazwe"),
         shape = RoundedCornerShape(8.dp)
     )
 }
@@ -266,6 +272,7 @@ private fun CreateProjectButton(
         modifier = modifier
             .fillMaxSize()
             .padding(start = 5.dp, top = 5.5.dp)
+            .testTag("AddProjectButton")
     ) {
         Icon(
             imageVector = Icons.AutoMirrored.Filled.ArrowForward,
