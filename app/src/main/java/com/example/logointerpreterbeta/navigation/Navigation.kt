@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -37,6 +38,7 @@ import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
 import com.example.logointerpreterbeta.viewModels.LibraryViewModel
 import com.example.logointerpreterbeta.viewModels.ProjectViewModel
 import com.example.logointerpreterbeta.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.viewModels.themeMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -54,7 +56,11 @@ class MainActivity : ComponentActivity() {
             val settingsViewModel: SettingsViewModel = hiltViewModel()
 
             LogoInterpreterBetaTheme(
-                darkTheme = SettingsViewModel.darkMode
+                darkTheme = when(SettingsViewModel.darkMode){
+                    themeMode.SYSTEM_THEME -> isSystemInDarkTheme()
+                    themeMode.LIGHT_THEME -> false
+                    themeMode.DARK_THEME -> true
+                }
             ) {
                 val navController = rememberNavController()
                 NavHost(
