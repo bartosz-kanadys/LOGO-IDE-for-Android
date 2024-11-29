@@ -57,8 +57,6 @@ fun StartScreenApp(
 ) {
     val context = LocalContext.current
     val configRepository = ConfigRepository(context)
-    configRepository.createConfigFile(context)
-    projectViewModel.loadLastProjectFromJSON()
 
     var isAlertVisable by rememberSaveable { mutableStateOf(false) }
 

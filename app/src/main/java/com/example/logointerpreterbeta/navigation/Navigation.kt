@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
@@ -24,6 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.navigation.topBars.TopBarWithMenu
+import com.example.logointerpreterbeta.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.screens.InterpreterApp
 import com.example.logointerpreterbeta.ui.screens.ProjectsApp
 import com.example.logointerpreterbeta.ui.screens.SettingsApp
@@ -50,6 +52,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val projectViewModel: ProjectViewModel = hiltViewModel()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            val context = LocalContext.current
+            val configRepository = ConfigRepository(context)
+            configRepository.createConfigFile(context)
+            projectViewModel.loadLastProjectFromJSON()
+            settingsViewModel.loadSettingsFromJson()
             LogoInterpreterBetaTheme(
                 darkTheme = when(SettingsViewModel.currentTheme){
                     themeMode.SYSTEM_THEME -> isSystemInDarkTheme()
@@ -57,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     themeMode.DARK_THEME -> true
                 }
             ) {
-                AppNavHost()
+                AppNavHost(projectViewModel = projectViewModel, settingsViewModel = settingsViewModel)
             }
         }
     }
@@ -67,13 +76,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
-    startDestination: Any = StartScreen
+    startDestination: Any = StartScreen,
+    projectViewModel: ProjectViewModel = hiltViewModel(),
+    settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
     val interpreterViewModel: InterpreterViewModel = hiltViewModel()
     val libraryViewModel: LibraryViewModel = hiltViewModel()
-    val projectViewModel: ProjectViewModel = hiltViewModel()
-    val settingsViewModel: SettingsViewModel = hiltViewModel()
-
     //  val navController = rememberNavController()
     NavHost(
         navController = navController,

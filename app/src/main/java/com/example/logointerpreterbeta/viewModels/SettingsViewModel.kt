@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import com.example.logointerpreterbeta.LogoInterpreter
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.createTypography
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,19 +20,19 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val configRepository: ConfigRepository,
 ) : ViewModel() {
     companion object{
         var currentTheme  by  mutableStateOf(themeMode.LIGHT_THEME)
         var darkMode by mutableStateOf(false)
         var currentFont by mutableStateOf(AppTypography)
     }
-    val uiModeManager = context.getSystemService(Context.UI_MODE_SERVICE) as UiModeManager
     var selectedTheme by mutableStateOf("Systemowy")
     val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
     var selectedFont by  mutableStateOf("JetBrains Mono")
     val fontOptions = listOf("JetBrains Mono", "Comic Sans MS", "Bebas Neue")
     val fonts = listOf(AppTypography.bodySmall.fontFamily, FontFamily(Font(R.font.comic_sans_ms)),FontFamily(Font(R.font.bebas_neue_regular)))
+
     init {
 
     }
@@ -42,6 +43,7 @@ class SettingsViewModel @Inject constructor(
             "Ciemny" -> themeMode.DARK_THEME
             else -> themeMode.SYSTEM_THEME
         }
+        configRepository.updateThemeJSON(selectedTheme)
     }
     fun changeSelectedFont(){
         currentFont = when (selectedFont) {
@@ -51,5 +53,13 @@ class SettingsViewModel @Inject constructor(
             else -> AppTypography
 
         }
+        configRepository.updateFontJSON(selectedFont)
+    }
+    fun loadSettingsFromJson(){
+        val config = configRepository.readSettingsJSON()
+        selectedTheme = config?.currentTheme ?: "Systemowy"
+        changeSelectedTheme()
+        selectedFont = config?.currentFont ?: "JetBrains Mono"
+        changeSelectedFont()
     }
 }
