@@ -8,4 +8,5 @@ data class Config(
     val lastModifiedProject: String = "",
     val currentTheme: String = "Systemowy",
     val currentFont: String = "JetBrains Mono",
+    val currentFontSize: Int = 18
 ): Parcelable

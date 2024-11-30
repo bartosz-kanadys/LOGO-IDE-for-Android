@@ -26,12 +26,15 @@ class SettingsViewModel @Inject constructor(
         var currentTheme  by  mutableStateOf(themeMode.LIGHT_THEME)
         var darkMode by mutableStateOf(false)
         var currentFont by mutableStateOf(AppTypography)
+        var currentFontSize by mutableStateOf(18)
     }
     var selectedTheme by mutableStateOf("Systemowy")
     val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
     var selectedFont by  mutableStateOf("JetBrains Mono")
     val fontOptions = listOf("JetBrains Mono", "Comic Sans MS", "Bebas Neue")
     val fonts = listOf(AppTypography.bodySmall.fontFamily, FontFamily(Font(R.font.comic_sans_ms)),FontFamily(Font(R.font.bebas_neue_regular)))
+    val fontSizeOptions = listOf("22","20","18", "16", "14","12","10")
+    var selectedFontSize by mutableStateOf("18")
 
     init {
 
@@ -55,11 +58,17 @@ class SettingsViewModel @Inject constructor(
         }
         configRepository.updateFontJSON(selectedFont)
     }
+    fun changeSelectedFontSize(){
+        currentFontSize = selectedFontSize.toInt()
+        configRepository.updateFontSizeJSON(currentFontSize)
+    }
     fun loadSettingsFromJson(){
         val config = configRepository.readSettingsJSON()
         selectedTheme = config?.currentTheme ?: "Systemowy"
         changeSelectedTheme()
         selectedFont = config?.currentFont ?: "JetBrains Mono"
         changeSelectedFont()
+        selectedFontSize = config?.currentFontSize.toString() ?: "18"
+        changeSelectedFontSize()
     }
 }

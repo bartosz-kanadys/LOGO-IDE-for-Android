@@ -74,7 +74,7 @@ fun CodeEditor(
     isEnabled: Boolean = true,
     isScrollable: Boolean = true,
     lines: Int = 10,
-    fontSize: Int = 18,
+    fontSize: Int = SettingsViewModel.currentFontSize,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val linesCount = codeState.text.lines().size
@@ -122,7 +122,7 @@ fun CodeEditor(
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(23.5.dp) // Ustal rozmiar koła
+                                .size((fontSize*1.4).dp) // Ustal rozmiar koła
                                 .background(
                                     MaterialTheme.colorScheme.errorContainer,
                                     shape = CircleShape
@@ -144,7 +144,7 @@ fun CodeEditor(
                         textAlign = TextAlign.Center,
                         text = i.toString(),
                         color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = 18.sp,
+                        fontSize = fontSize.sp,
                         style = TextStyle(
                             platformStyle = PlatformTextStyle(includeFontPadding = false),
                             fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily

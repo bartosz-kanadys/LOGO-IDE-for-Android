@@ -58,6 +58,11 @@ fun SettingsApp(
                 fonts = settingsViewModel.fonts,
                 selectedFont = SettingsViewModel.currentFont
             )
+            SettingsOption("Rozmiar czcionki",settingsViewModel.fontSizeOptions, settingsViewModel.selectedFontSize,{
+                settingsViewModel.selectedFontSize = it
+                settingsViewModel.changeSelectedFontSize()
+            },
+            )
         }
     }
 }

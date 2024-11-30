@@ -80,6 +80,22 @@ class ConfigRepository @Inject constructor(
         val updatedJsonString = gson.toJson(updatedConfig)
         configFile.writeText(updatedJsonString)
     }
+    fun updateFontSizeJSON(newFontSize: Int) {
+        val configFile = File(context.getExternalFilesDir(null), "config.json")
+
+        val config = if (configFile.exists()) {
+            val jsonString = configFile.readText()
+            Gson().fromJson(jsonString, Config::class.java)
+        } else {
+            Config()
+        }
+
+        val updatedConfig = config.copy(currentFontSize = newFontSize)
+
+        val gson = Gson()
+        val updatedJsonString = gson.toJson(updatedConfig)
+        configFile.writeText(updatedJsonString)
+    }
     fun readSettingsJSON(): Config? {
         val configFile = File(context.getExternalFilesDir(null), "config.json")
 
