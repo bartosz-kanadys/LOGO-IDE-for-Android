@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -20,9 +22,11 @@ fun Select(
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    fonts: List<FontFamily?> = emptyList()
+    fonts: List<FontFamily?> = emptyList(),
+    selectedFont: Typography = AppTypography
 ) {
     var expanded by remember { mutableStateOf(false) } // Kontroluje widoczność menu
+
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -37,6 +41,10 @@ fun Select(
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
+            textStyle = TextStyle(
+                fontFamily = selectedFont.bodySmall.fontFamily,
+                fontSize = 18.sp
+            ),
             modifier = Modifier
                 .menuAnchor() // Kluczowy element do poprawnego pozycjonowania menu
                 .fillMaxWidth()

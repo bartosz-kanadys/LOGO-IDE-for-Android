@@ -147,7 +147,7 @@ fun CodeEditor(
                         fontSize = 18.sp,
                         style = TextStyle(
                             platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            fontFamily = AppTypography.bodySmall.fontFamily
+                            fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily
                         ),
                         modifier = Modifier
                             .fillMaxWidth()

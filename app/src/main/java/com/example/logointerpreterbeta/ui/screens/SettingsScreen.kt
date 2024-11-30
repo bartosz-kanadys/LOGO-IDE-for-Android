@@ -55,7 +55,8 @@ fun SettingsApp(
                 settingsViewModel.selectedFont = it
                 settingsViewModel.changeSelectedFont()
                 },
-                fonts = settingsViewModel.fonts
+                fonts = settingsViewModel.fonts,
+                selectedFont = SettingsViewModel.currentFont
             )
         }
     }

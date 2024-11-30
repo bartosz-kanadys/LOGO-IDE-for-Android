@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -20,7 +21,8 @@ fun SettingsOption(
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
-    fonts: List<FontFamily?> = emptyList()
+    fonts: List<FontFamily?> = emptyList(),
+    selectedFont: Typography = AppTypography
 ){
     Column (
         modifier = Modifier
@@ -39,7 +41,8 @@ fun SettingsOption(
             options = options,
             selectedOption = selectedOption,
             onOptionSelected = onOptionSelected,
-            fonts = fonts
+            fonts = fonts,
+            selectedFont = selectedFont
         )
     }
 }
