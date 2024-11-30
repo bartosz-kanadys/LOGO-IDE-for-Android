@@ -27,6 +27,8 @@ class SettingsViewModel @Inject constructor(
         var darkMode by mutableStateOf(false)
         var currentFont by mutableStateOf(AppTypography)
         var currentFontSize by mutableStateOf(18)
+        var showSuggestions by mutableStateOf(true)
+        var useAutocorrect by mutableStateOf(false)
     }
     var selectedTheme by mutableStateOf("Systemowy")
     val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
@@ -62,6 +64,12 @@ class SettingsViewModel @Inject constructor(
         currentFontSize = selectedFontSize.toInt()
         configRepository.updateFontSizeJSON(currentFontSize)
     }
+    fun saveShowSuggestions(){
+        configRepository.updateShowSuggestionsJSON(showSuggestions)
+    }
+    fun saveUseAutocorrect(){
+        configRepository.updateUseAutocorrectJSON(useAutocorrect)
+    }
     fun loadSettingsFromJson(){
         val config = configRepository.readSettingsJSON()
         selectedTheme = config?.currentTheme ?: "Systemowy"
@@ -70,5 +78,8 @@ class SettingsViewModel @Inject constructor(
         changeSelectedFont()
         selectedFontSize = config?.currentFontSize.toString() ?: "18"
         changeSelectedFontSize()
+        showSuggestions = config?.showSuggestions ?: true
+        useAutocorrect = config?.useAutocorrect ?: false
+
     }
 }

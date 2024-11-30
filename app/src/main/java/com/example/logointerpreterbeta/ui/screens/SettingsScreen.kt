@@ -15,6 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.ui.components.settings.SettingsOption
+import com.example.logointerpreterbeta.ui.components.settings.SettingsSwitch
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.viewModels.SettingsViewModel
 
@@ -62,6 +63,33 @@ fun SettingsApp(
                 settingsViewModel.selectedFontSize = it
                 settingsViewModel.changeSelectedFontSize()
             },
+            )
+            Text(
+                text = "Ustawienia edytora",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold,
+                style = AppTypography.bodySmall,
+                textAlign = TextAlign.Start,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp, top = 16.dp)
+            )
+            SettingsSwitch(
+                label="Podpowiedzi",
+                isSwitchOn = SettingsViewModel.showSuggestions,
+                onSwitchToggled = {
+                    SettingsViewModel.showSuggestions = it
+                    settingsViewModel.saveShowSuggestions()
+                }
+            )
+            SettingsSwitch(
+                label="Autokorekta",
+                isSwitchOn = SettingsViewModel.useAutocorrect,
+                onSwitchToggled = {
+                    SettingsViewModel.useAutocorrect = it
+                    settingsViewModel.saveUseAutocorrect()
+                }
             )
         }
     }

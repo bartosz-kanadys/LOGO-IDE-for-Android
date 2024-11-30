@@ -210,7 +210,7 @@ fun CodeEditor(
                     },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                     keyboardOptions = KeyboardOptions(
-                        autoCorrectEnabled = false, // Wyłączenie autokorekty
+                        autoCorrectEnabled = SettingsViewModel.useAutocorrect, // Wyłączenie autokorekty
                         keyboardType = KeyboardType.Text, // Typ klawiatury
                         imeAction = ImeAction.Done // Akcja IME
                     ),
@@ -223,7 +223,7 @@ fun CodeEditor(
 
                 )
             }
-            if (filteredSuggestions.isNotEmpty()) {
+            if (filteredSuggestions.isNotEmpty()&&SettingsViewModel.showSuggestions) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
                     val newText = replaceAnnotatedSubstring(
                         codeState.annotatedString,
