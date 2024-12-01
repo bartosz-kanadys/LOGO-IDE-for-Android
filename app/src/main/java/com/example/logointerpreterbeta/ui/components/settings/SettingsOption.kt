@@ -22,7 +22,9 @@ fun SettingsOption(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     fonts: List<FontFamily?> = emptyList(),
-    selectedFont: Typography = AppTypography
+    fontSizes: List<String> = emptyList(),
+    selectedFont: Typography = AppTypography,
+    selectedFontSize: Int = 18
 ){
     Column (
         modifier = Modifier
@@ -42,7 +44,8 @@ fun SettingsOption(
             selectedOption = selectedOption,
             onOptionSelected = onOptionSelected,
             fonts = fonts,
-            selectedFont = selectedFont
+            selectedFont = selectedFont,
+            fontSizes = fontSizes
         )
     }
 }

@@ -23,7 +23,9 @@ fun Select(
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     fonts: List<FontFamily?> = emptyList(),
-    selectedFont: Typography = AppTypography
+    selectedFont: Typography = AppTypography,
+    fontSizes: List<String> = emptyList(),
+    selectedFontSize: Int = 18
 ) {
     var expanded by remember { mutableStateOf(false) } // Kontroluje widoczność menu
 
@@ -43,7 +45,7 @@ fun Select(
             },
             textStyle = TextStyle(
                 fontFamily = selectedFont.bodySmall.fontFamily,
-                fontSize = 18.sp
+                fontSize = selectedFontSize.sp
             ),
             modifier = Modifier
                 .menuAnchor() // Kluczowy element do poprawnego pozycjonowania menu
@@ -60,7 +62,8 @@ fun Select(
                     text = { Text(
                         text = option,
                         style = TextStyle(
-                            fontFamily = if(fonts.isNotEmpty()) fonts[i++] else AppTypography.bodySmall.fontFamily
+                            fontFamily = if(fonts.isNotEmpty()) fonts[i++] else AppTypography.bodySmall.fontFamily,
+                            fontSize = if(fontSizes.isNotEmpty()) fontSizes[i++].toInt().sp else 18.sp
                         )
                     ) },
                     onClick = {

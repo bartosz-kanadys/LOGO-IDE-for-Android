@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,18 @@ fun SettingsApp(
                 settingsViewModel.selectedFontSize = it
                 settingsViewModel.changeSelectedFontSize()
             },
+                fontSizes = settingsViewModel.fontSizeOptions
+            )
+            Text(
+                text = "Przykładowy tekst",
+                style = TextStyle(
+                    fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily,
+                    fontSize = SettingsViewModel.currentFontSize.sp
+                ),
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp, bottom = 8.dp)
             )
             Text(
                 text = "Ustawienia edytora",
