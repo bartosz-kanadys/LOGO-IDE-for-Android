@@ -1,6 +1,5 @@
 package com.example.logointerpreterbeta.visitors
 
-import android.app.UiModeManager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -28,7 +27,6 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import com.example.logointerpreterbeta.viewModels.SettingsViewModel
-import com.example.logointerpreterbeta.viewModels.themeMode
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -38,17 +36,14 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
         val turtleImage = TurtleImage
     }
 
-    protected var turtleBitmap: Bitmap? = null  // Bitmapa dla żółwia
-
+    protected var turtleBitmap: Bitmap? = null
     protected val canvas = Canvas(image)
     protected val turtleCanvas = Canvas(turtleImage)
     protected var paint = Paint()
 
     protected var variables: MutableMap<String, Any> = HashMap()
     protected var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
-
     private val libraryRepository = LibraryRepository(context)
-
 
     init {
         paint.color = Turtle.penColor
@@ -56,7 +51,6 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
         paint.style = Paint.Style.STROKE
         paint.textSize = 50f
         paint.isAntiAlias = true
-        //canvas.drawRect(0f, 0f, MyImageWidth.toFloat(), MyImageHeight.toFloat(), paint)
         updateTurtleBitmap()
     }
 
@@ -192,7 +186,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
             val red = ctx.number(0).text.toInt()
             val green = ctx.number(1).text.toInt()
             val blue = ctx.number(2).text.toInt()
-            val color = Color.rgb(red, green, blue).toInt()
+            val color = Color.rgb(red, green, blue)
             paint.setColor(color)
             Turtle.penColor = color
         }
@@ -419,7 +413,7 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
     }
 
     fun updateTurtleBitmap() {
-        turtleImage.eraseColor(android.graphics.Color.TRANSPARENT)
+        turtleImage.eraseColor(Color.TRANSPARENT)
         if (Turtle.isShowed) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)

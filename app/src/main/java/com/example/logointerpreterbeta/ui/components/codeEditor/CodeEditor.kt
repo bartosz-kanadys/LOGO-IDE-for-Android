@@ -210,9 +210,9 @@ fun CodeEditor(
                     },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                     keyboardOptions = KeyboardOptions(
-                        autoCorrectEnabled = SettingsViewModel.useAutocorrect, // Wyłączenie autokorekty
-                        keyboardType = KeyboardType.Text, // Typ klawiatury
-                        imeAction = ImeAction.Done // Akcja IME
+                        autoCorrectEnabled = SettingsViewModel.useAutocorrect,
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Default
                     ),
 
                     modifier = modifier
