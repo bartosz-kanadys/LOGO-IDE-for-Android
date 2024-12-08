@@ -1,6 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -47,6 +48,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.models.Project
+import com.example.logointerpreterbeta.models.ProjectFile
 import com.example.logointerpreterbeta.navigation.StartScreen
 import com.example.logointerpreterbeta.repository.FileRepository
 import com.example.logointerpreterbeta.ui.components.Alert
@@ -194,7 +197,6 @@ fun InterpreterApp(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-//                        .align(Alignment.BottomEnd)
                         .height(35.dp)
                         .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
@@ -214,16 +216,14 @@ fun InterpreterApp(
                                             visibleMenuFileName = projectFile.name
                                         },
                                         onTap = {
-                                            DebuggerVisitor.breakpoints.clear()
-                                            interpreterViewModel.updateCodeState(
-                                                fileRepository.readFileContent(
-                                                    context,
-                                                    projectFile.name,
-                                                    project!!.name
-                                                )!!
+                                            onTapFileAction(
+                                                interpreterViewModel,
+                                                fileRepository,
+                                                context,
+                                                projectFile,
+                                                project,
+                                                projectViewModel
                                             )
-                                            interpreterViewModel.colorCode()
-                                            projectViewModel.updateActualFileName(projectFile.name)
                                         }
                                     )
                                 }
@@ -320,17 +320,13 @@ fun InterpreterApp(
                                                 visibleMenuFileName = projectFile.name
                                             },
                                             onTap = {
-                                                DebuggerVisitor.breakpoints.clear()
-                                                interpreterViewModel.updateCodeState(
-                                                    fileRepository.readFileContent(
-                                                        context,
-                                                        projectFile.name,
-                                                        project!!.name
-                                                    )!!
-                                                )
-                                                interpreterViewModel.colorCode()
-                                                projectViewModel.updateActualFileName(
-                                                    projectFile.name
+                                                onTapFileAction(
+                                                    interpreterViewModel,
+                                                    fileRepository,
+                                                    context,
+                                                    projectFile,
+                                                    project,
+                                                    projectViewModel
                                                 )
                                             }
                                         )
@@ -393,6 +389,27 @@ fun InterpreterApp(
     }
 
 
+}
+
+
+private fun onTapFileAction(
+    interpreterViewModel: InterpreterViewModel,
+    fileRepository: FileRepository,
+    context: Context,
+    projectFile: ProjectFile,
+    project: Project?,
+    projectViewModel: ProjectViewModel
+) {
+    DebuggerVisitor.breakpoints.clear()
+    interpreterViewModel.updateCodeState(
+        fileRepository.readFileContent(
+            context,
+            projectFile.name,
+            project!!.name
+        )!!
+    )
+    interpreterViewModel.colorCode()
+    projectViewModel.updateActualFileName(projectFile.name)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
