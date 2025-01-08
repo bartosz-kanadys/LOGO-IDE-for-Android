@@ -32,18 +32,13 @@ class InterpreterViewModel @Inject constructor(
         var errors = MutableStateFlow(SyntaxError.errors.value)
         var isErrorListVisable by mutableStateOf(false)
     }
-
     private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     private var cursorPosition by mutableIntStateOf(0)
-
     private var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
-
-
     var isErrorListExpanded by mutableStateOf(false)
         private set
     var isDebugging by mutableStateOf(false)
     private val mutex = Mutex()
-
     init {
         // Ustawienia początkowe pozycji i kierunku
         Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)

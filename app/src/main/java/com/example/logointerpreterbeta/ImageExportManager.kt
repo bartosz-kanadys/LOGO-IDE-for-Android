@@ -22,17 +22,12 @@ class ImageExportManager {
     private val REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 1
 
     fun saveBitmapAsJpg(context: Context, bitmap: Bitmap, fileName: String): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            // Jeśli wersja Androida jest starsza niż 10, sprawdź uprawnienia
-            if (!checkAndRequestPermissions(context)) {
-                Toast.makeText(context, "Brak uprawnień do zapisu w galerii", Toast.LENGTH_SHORT).show()
-                return false
-            }
+        if (!checkAndRequestPermissions(context)) {
+            Toast.makeText(context, "Brak uprawnień do zapisu w galerii", Toast.LENGTH_SHORT).show()
+            return false
         }
-
         val outputStream: OutputStream?
         val success: Boolean
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             // Zapis na Androidzie 10 i nowszym
             val contentValues = ContentValues().apply {
@@ -44,32 +39,27 @@ class ImageExportManager {
                 )
                 put(MediaStore.Images.Media.IS_PENDING, 1)
             }
-
             val uri = context.contentResolver.insert(
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                 contentValues
             )
             outputStream = uri?.let { context.contentResolver.openOutputStream(it) }
             success = outputStream?.let { bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it) } == true
-
             contentValues.clear()
             contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
             if (uri != null) {
                 context.contentResolver.update(uri, contentValues, null, null)
             }
-        } else {
-            // Zapis na Androidzie 9 i starszych
+        } else { // Zapis na Androidzie 9 i starszych
             val imagesDir = File(
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 "MyAppImages"
             )
             if (!imagesDir.exists()) imagesDir.mkdirs()
-
             val imageFile = File(imagesDir, "$fileName.jpg")
             outputStream = FileOutputStream(imageFile)
             success = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
         }
-
         outputStream?.flush()
         outputStream?.close()
         return success
@@ -77,24 +67,19 @@ class ImageExportManager {
 
     fun saveBitmapAsPdf(context: Context, bitmap: Bitmap, fileName: String): Boolean {
         val pdfDocument = PdfDocument()
-
         // Tworzymy stronę PDF o rozmiarze bitmapy
         val pageInfo = PdfDocument.PageInfo.Builder(bitmap.width, bitmap.height, 1).create()
         val page = pdfDocument.startPage(pageInfo)
-
         // Rysujemy bitmapę na stronie PDF
         val canvas = page.canvas
         canvas.drawBitmap(bitmap, 0f, 0f, null)
-
         pdfDocument.finishPage(page)
-
         // Definiujemy dane do zapisania w MediaStore
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "$fileName.pdf")
             put(MediaStore.MediaColumns.MIME_TYPE, "application/pdf")
             put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOCUMENTS + "/MyAppPDFs")
         }
-
         // Zapisujemy plik w MediaStore
         val uri =
             context.contentResolver.insert(MediaStore.Files.getContentUri("external"), contentValues)
@@ -112,7 +97,6 @@ class ImageExportManager {
             }
             return true
         }
-
         pdfDocument.close()
         return false
     }
@@ -134,20 +118,24 @@ class ImageExportManager {
     }
 
     private fun checkAndRequestPermissions(context: Context): Boolean {
-        return if (ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            // Jeśli uprawnienie nie zostało przyznane, poproś o nie
-            ActivityCompat.requestPermissions(
-                context as Activity,
-                arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                REQUEST_CODE_WRITE_EXTERNAL_STORAGE
-            )
-            false
-        } else {
-            true
+        var readMediaImagesPermission: String
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            readMediaImagesPermission = Manifest.permission.READ_MEDIA_IMAGES
+        }
+            else{
+                readMediaImagesPermission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+        }
+            return if (ContextCompat.checkSelfPermission(context, readMediaImagesPermission)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    context as Activity,
+                    arrayOf(readMediaImagesPermission),
+                    REQUEST_CODE_WRITE_EXTERNAL_STORAGE
+                )
+                false
+            }  else {
+                true
         }
     }
 }

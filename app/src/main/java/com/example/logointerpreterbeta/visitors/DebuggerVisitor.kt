@@ -187,7 +187,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
         updateTurtleBitmap()
         for (line in ctx!!.line()) {
             currentLine = line.start.line
-            Log.i("Czekam przed poleceniem:", line.text + " krok: $stepCount")
+            //Log.i("Czekam przed poleceniem:", line.text + " krok: $stepCount")
             showStepInButton = procedures.containsKey(line.start.text)
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
             visit(line)

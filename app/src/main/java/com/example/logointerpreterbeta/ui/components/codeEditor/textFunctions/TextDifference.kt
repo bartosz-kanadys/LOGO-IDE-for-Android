@@ -10,16 +10,18 @@ fun textDiffrence(
     functionToPerformOnNewText: (String) -> AnnotatedString
 ): AnnotatedString {
     return buildAnnotatedString {
+        //Znalezienie długości wspólnego prefiksu
         val commonPrefixLength = newText.commonPrefixWith(oldText).length
         var lastSpaceInPrefix =
             NearestWordFinder.findNearestSpaceToLeft(newText, commonPrefixLength)
+        //Jeśli nie znaleziono w tekście spacji, bierzemy pod uwagę cały tekst
         if (lastSpaceInPrefix == -1) {
             lastSpaceInPrefix = 0
         }
-        Log.i("oldText", oldText.substring(0, lastSpaceInPrefix))
+        //Przekopiowanie starego tekstu bez ostatniego słowa
         append(oldText.subSequence(0, lastSpaceInPrefix))
         if (lastSpaceInPrefix < newText.length) {
-            Log.i("newText", newText.substring(lastSpaceInPrefix))
+            //Wywołanie przekazanej funkcji na nowym tekście
             append(functionToPerformOnNewText(newText.substring(lastSpaceInPrefix)))
         }
     }

@@ -96,14 +96,14 @@ fun SettingsApp(
                     settingsViewModel.saveShowSuggestions()
                 }
             )
-            SettingsSwitch(
-                label="Autokorekta",
-                isSwitchOn = SettingsViewModel.useAutocorrect,
-                onSwitchToggled = {
-                    SettingsViewModel.useAutocorrect = it
-                    settingsViewModel.saveUseAutocorrect()
-                }
-            )
+//            SettingsSwitch(
+//                label="Autokorekta",
+//                isSwitchOn = SettingsViewModel.useAutocorrect,
+//                onSwitchToggled = {
+//                    SettingsViewModel.useAutocorrect = it
+//                    settingsViewModel.saveUseAutocorrect()
+//                }
+//            )
         }
     }
 }
