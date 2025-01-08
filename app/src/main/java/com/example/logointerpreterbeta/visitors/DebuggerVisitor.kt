@@ -75,8 +75,8 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
             stepByStepMode = true
         }
         if (stepByStepMode) {
+            debugSignal = CountDownLatch(1)
             debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
-            debugSignal = CountDownLatch(1) // Przygotuj do następnego kroku
         }
     }
 
@@ -102,6 +102,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
                     currentLine = command.start.line
                     Log.i("Czekam w petli:", command.text + " krok: $stepCount")
                     waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+                    if(!isDebugging) return 0
                     visit(command)
                     updateTurtleBitmap()
 
@@ -151,6 +152,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
                     if (steppedIn) {
                         Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
                         waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+                        if(!isDebugging) return 0
                     }
                     visit(line)
                     updateTurtleBitmap()
@@ -190,6 +192,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
             //Log.i("Czekam przed poleceniem:", line.text + " krok: $stepCount")
             showStepInButton = procedures.containsKey(line.start.text)
             waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
+            if(!isDebugging) return 0
             visit(line)
             updateTurtleBitmap()
         }
