@@ -169,7 +169,6 @@ fun CodeEditor(
             }
         }
         Column {
-            // Pole tekstowe
             Box(modifier = modifier.fillMaxSize()) {
                 BasicTextField(
                     enabled = isEnabled,
@@ -178,12 +177,9 @@ fun CodeEditor(
                         onCodeChange(newValue)
                         cursorPosition = newValue.selection.start
                         val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                        Log.i("wordToMatch", wordToMatch)
                         filteredSuggestions = if (wordToMatch.isNotEmpty()) {
                             SuggestionList.suggestions.filter { it.startsWith(wordToMatch) && it != wordToMatch }
-                        } else {
-                            emptyList()
-                        }
+                        } else { emptyList() }
                         onCodeChange(newValue)
                         if (isSaveOnChange) {
                             fileRepository!!.writeFileContent(
@@ -198,7 +194,6 @@ fun CodeEditor(
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize.sp,
-                        //fontFamily = AppTypography.bodySmall.fontFamily,
                         fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
@@ -214,13 +209,11 @@ fun CodeEditor(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Default
                     ),
-
                     modifier = modifier
                         .fillMaxSize()
                         .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(top = 2.dp, start = 10.dp, end = 10.dp)
-
                 )
             }
             if (filteredSuggestions.isNotEmpty()&&SettingsViewModel.showSuggestions) {
