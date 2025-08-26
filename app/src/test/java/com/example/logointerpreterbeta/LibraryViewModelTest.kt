@@ -5,7 +5,7 @@ import android.widget.Toast
 import com.example.logointerpreterbeta.domain.models.Library
 import com.example.logointerpreterbeta.domain.models.Procedure
 import com.example.logointerpreterbeta.data.repository.LibraryRepositoryImpl
-import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

@@ -16,7 +16,7 @@ import com.example.logointerpreterbeta.ui.theme.numberColorDark
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.stringColorDark
-import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream

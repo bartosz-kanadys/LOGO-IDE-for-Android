@@ -16,9 +16,9 @@ import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel.Companion.errors
-import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel.Companion.errors
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import java.util.concurrent.CountDownLatch
 
 class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {

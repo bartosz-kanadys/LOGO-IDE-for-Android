@@ -1,6 +1,6 @@
 package com.example.logointerpreterbeta
 import androidx.compose.ui.text.AnnotatedString
-import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.textDiffrence
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

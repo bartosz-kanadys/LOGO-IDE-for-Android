@@ -20,13 +20,13 @@ import com.example.logointerpreterbeta.domain.errors.StopException
 import com.example.logointerpreterbeta.domain.errors.SyntaxError
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoBaseVisitor
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
-import com.example.logointerpreterbeta.ui.penColors
+import com.example.logointerpreterbeta.ui.theme.penColors
 import com.example.logointerpreterbeta.data.repository.LibraryRepositoryImpl
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import kotlin.math.cos
 import kotlin.math.sin
 

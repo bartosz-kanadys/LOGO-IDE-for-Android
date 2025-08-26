@@ -8,7 +8,7 @@ import com.example.logointerpreterbeta.ui.navigation.AppNavHost
 import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.MainActivity
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import org.junit.Before
 import org.junit.Rule

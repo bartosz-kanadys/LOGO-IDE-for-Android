@@ -25,22 +25,22 @@ import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.ui.navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarWithMenu
 import com.example.logointerpreterbeta.data.repository.ConfigRepositoryImpl
-import com.example.logointerpreterbeta.ui.screens.InterpreterApp
-import com.example.logointerpreterbeta.ui.screens.ProjectsApp
-import com.example.logointerpreterbeta.ui.screens.SettingsApp
-import com.example.logointerpreterbeta.ui.screens.StartScreenApp
-import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryAddProcedureForm
-import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryFormScreen
-import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryProceduresScreen
-import com.example.logointerpreterbeta.ui.screens.libraryScreens.LibraryScreen
-import com.example.logointerpreterbeta.ui.screens.tutorialScreen.TutorialContentScreen
-import com.example.logointerpreterbeta.ui.screens.tutorialScreen.TutorialScreen
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterApp
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectsApp
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsApp
+import com.example.logointerpreterbeta.ui.screens.start.StartScreenApp
+import com.example.logointerpreterbeta.ui.screens.library.components.LibraryAddProcedureForm
+import com.example.logointerpreterbeta.ui.screens.library.LibraryFormScreen
+import com.example.logointerpreterbeta.ui.screens.library.LibraryProceduresScreen
+import com.example.logointerpreterbeta.ui.screens.library.LibraryScreen
+import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialContentScreen
+import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
-import com.example.logointerpreterbeta.ui.viewModels.ProjectViewModel
-import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
-import com.example.logointerpreterbeta.ui.viewModels.themeMode
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
+import com.example.logointerpreterbeta.ui.theme.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
@@ -60,9 +60,9 @@ class MainActivity : ComponentActivity() {
             settingsViewModel.loadSettingsFromJson()
             LogoInterpreterBetaTheme(
                 darkTheme = when(SettingsViewModel.currentTheme){
-                    themeMode.SYSTEM_THEME -> isSystemInDarkTheme()
-                    themeMode.LIGHT_THEME -> false
-                    themeMode.DARK_THEME -> true
+                    ThemeMode.SYSTEM_THEME -> isSystemInDarkTheme()
+                    ThemeMode.LIGHT_THEME -> false
+                    ThemeMode.DARK_THEME -> true
                 }
             ) {
                 AppNavHost(projectViewModel = projectViewModel, settingsViewModel = settingsViewModel)

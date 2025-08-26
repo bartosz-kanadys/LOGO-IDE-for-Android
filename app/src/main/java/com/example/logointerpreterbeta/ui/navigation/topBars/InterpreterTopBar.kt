@@ -69,7 +69,7 @@ import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import java.io.BufferedReader
 import java.io.File
