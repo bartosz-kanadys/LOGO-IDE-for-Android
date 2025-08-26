@@ -36,12 +36,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.example.logointerpreterbeta.LogoInterpreter
-import com.example.logointerpreterbeta.navigation.LibraryProcedureForm
+import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
+import com.example.logointerpreterbeta.ui.navigation.LibraryProcedureForm
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
 
 @Composable
 fun LibraryProceduresScreen(

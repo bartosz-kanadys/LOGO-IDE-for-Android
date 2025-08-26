@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 
 
 @Composable

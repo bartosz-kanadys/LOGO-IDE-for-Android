@@ -1,7 +1,6 @@
 package com.example.logointerpreterbeta.ui.components.codeEditor
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -38,8 +37,6 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -48,25 +45,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.errors.prepareErrorList
-import com.example.logointerpreterbeta.repository.FileRepository
+import com.example.logointerpreterbeta.domain.errors.prepareErrorList
+import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.ui.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.ui.components.codeEditor.textFunctions.replaceAnnotatedSubstring
-import com.example.logointerpreterbeta.ui.theme.AppTypography
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.viewModels.ProjectViewModel
-import com.example.logointerpreterbeta.viewModels.SettingsViewModel
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor.Companion.toggleBreakpoint
+import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor.Companion.toggleBreakpoint
 
 @Composable
 fun CodeEditor(
     projectViewModel: ProjectViewModel? = null,
     interpreterViewModel: InterpreterViewModel? = null,
-    fileRepository: FileRepository? = null,
+    fileRepository: FileRepositoryImpl? = null,
     codeState: TextFieldValue,
     errors: String = "",
     onCodeChange: (TextFieldValue) -> Unit = {},

@@ -24,9 +24,9 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.viewModels.LibraryViewModel
-import com.example.logointerpreterbeta.models.Procedure
+import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.domain.models.Procedure
 
 @Composable
 fun LibraryAddProcedureForm(

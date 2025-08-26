@@ -48,19 +48,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.models.Project
-import com.example.logointerpreterbeta.models.ProjectFile
-import com.example.logointerpreterbeta.navigation.StartScreen
-import com.example.logointerpreterbeta.repository.FileRepository
+import com.example.logointerpreterbeta.domain.models.Project
+import com.example.logointerpreterbeta.domain.models.ProjectFile
+import com.example.logointerpreterbeta.ui.navigation.StartScreen
+import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.ui.components.Alert
 import com.example.logointerpreterbeta.ui.components.ErrorsList
 import com.example.logointerpreterbeta.ui.components.ImagePanel
 import com.example.logointerpreterbeta.ui.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.InterpreterViewModel
-import com.example.logointerpreterbeta.viewModels.ProjectViewModel
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.ui.viewModels.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -85,7 +85,7 @@ fun InterpreterApp(
     val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
     val project by projectViewModel.project.collectAsStateWithLifecycle()
 
-    val fileRepository = FileRepository(context)
+    val fileRepository = FileRepositoryImpl(context)
 
     LaunchedEffect(isDarkTheme) {
         interpreterViewModel.interpretCode()
@@ -394,7 +394,7 @@ fun InterpreterApp(
 
 private fun onTapFileAction(
     interpreterViewModel: InterpreterViewModel,
-    fileRepository: FileRepository,
+    fileRepository: FileRepositoryImpl,
     context: Context,
     projectFile: ProjectFile,
     project: Project?,

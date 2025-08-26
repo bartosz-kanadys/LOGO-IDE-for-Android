@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
-        android:name=".ui.screens.MyApp"
+        android:name=".MyApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,7 +18,7 @@
         android:theme="@style/Theme.LogoInterpreterBeta"
         tools:targetApi="31">
         <activity
-            android:name=".navigation.MainActivity"
+            android:name=".ui.navigation.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.LogoInterpreterBeta">
             <intent-filter>

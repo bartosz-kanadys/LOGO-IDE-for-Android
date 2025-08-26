@@ -47,11 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.MyImageHeight
-import com.example.logointerpreterbeta.MyImageWidth
-import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.ui.MyImageHeight
+import com.example.logointerpreterbeta.ui.MyImageWidth
+import com.example.logointerpreterbeta.domain.models.Turtle
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.visitors.MyLogoVisitor
+import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import kotlin.math.roundToInt
 
 

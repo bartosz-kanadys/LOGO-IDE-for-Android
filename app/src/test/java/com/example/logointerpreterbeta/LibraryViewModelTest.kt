@@ -2,10 +2,10 @@ package com.example.logointerpreterbeta
 
 import android.content.Context
 import android.widget.Toast
-import com.example.logointerpreterbeta.models.Library
-import com.example.logointerpreterbeta.models.Procedure
-import com.example.logointerpreterbeta.repository.LibraryRepository
-import com.example.logointerpreterbeta.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.domain.models.Library
+import com.example.logointerpreterbeta.domain.models.Procedure
+import com.example.logointerpreterbeta.data.repository.LibraryRepositoryImpl
+import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
@@ -22,7 +22,7 @@ import org.junit.Test
 class LibraryViewModelTest {
 
     private lateinit var libraryViewModel: LibraryViewModel
-    private val mockLibraryRepository = mockk<LibraryRepository>(relaxed = true)
+    private val mockLibraryRepository = mockk<LibraryRepositoryImpl>(relaxed = true)
     private val mockContext = mockk<Context>(relaxed = true)
 
     @Before

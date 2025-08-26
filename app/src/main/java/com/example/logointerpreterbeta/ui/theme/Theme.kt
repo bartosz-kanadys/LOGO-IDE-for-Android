@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.example.logointerpreterbeta.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,

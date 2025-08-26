@@ -28,7 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.ui.viewModels.LibraryViewModel
 
 @Composable
 fun LibraryFormScreen(

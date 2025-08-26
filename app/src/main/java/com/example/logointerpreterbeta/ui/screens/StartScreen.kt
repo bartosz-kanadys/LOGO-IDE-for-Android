@@ -39,16 +39,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.navigation.Interpreter
-import com.example.logointerpreterbeta.navigation.Libraries
-import com.example.logointerpreterbeta.navigation.Projects
-import com.example.logointerpreterbeta.navigation.Settings
-import com.example.logointerpreterbeta.navigation.TutorialScreen
+import com.example.logointerpreterbeta.ui.navigation.Interpreter
+import com.example.logointerpreterbeta.ui.navigation.Libraries
+import com.example.logointerpreterbeta.ui.navigation.Projects
+import com.example.logointerpreterbeta.ui.navigation.Settings
+import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.repository.ConfigRepository
+import com.example.logointerpreterbeta.data.repository.ConfigRepositoryImpl
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.ui.viewModels.ProjectViewModel
 
 @Composable
 fun StartScreenApp(
@@ -56,7 +56,7 @@ fun StartScreenApp(
     projectViewModel: ProjectViewModel
 ) {
     val context = LocalContext.current
-    val configRepository = ConfigRepository(context)
+    val configRepository = ConfigRepositoryImpl(context)
 
     var isAlertVisable by rememberSaveable { mutableStateOf(false) }
 
@@ -146,7 +146,7 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
 fun StartScreenMenu(
     projectViewModel: ProjectViewModel,
     navController: NavHostController,
-    configRepository: ConfigRepository,
+    configRepository: ConfigRepositoryImpl,
     onEmptyProjectAction: () -> Unit
 ) {
     LazyColumn(

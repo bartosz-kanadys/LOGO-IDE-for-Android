@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
-import com.example.logointerpreterbeta.Turtle
+import com.example.logointerpreterbeta.domain.models.Turtle
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile

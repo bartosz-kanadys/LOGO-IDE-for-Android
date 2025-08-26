@@ -46,11 +46,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.navigation.Interpreter
+import com.example.logointerpreterbeta.ui.navigation.Interpreter
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.ProjectViewModel
-import com.example.logointerpreterbeta.visitors.DebuggerVisitor
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.logointerpreterbeta.ui.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 
 @SuppressLint("UnrememberedMutableState")
 @Composable

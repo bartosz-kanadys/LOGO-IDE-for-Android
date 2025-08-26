@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.ui.components.settings.SettingsOption
 import com.example.logointerpreterbeta.ui.components.settings.SettingsSwitch
 import com.example.logointerpreterbeta.ui.theme.AppTypography
-import com.example.logointerpreterbeta.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.viewModels.SettingsViewModel
 
 @Composable
 fun SettingsApp(
