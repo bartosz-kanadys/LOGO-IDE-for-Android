@@ -10,6 +10,7 @@ import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoLibraryVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import com.example.logointerpreterbeta.domain.errors.MyErrorListener
+import com.example.logointerpreterbeta.domain.models.InterpreterResult
 import com.example.logointerpreterbeta.ui.theme.cmdColorDark
 import com.example.logointerpreterbeta.ui.theme.functionColorDark
 import com.example.logointerpreterbeta.ui.theme.numberColorDark
@@ -37,13 +38,13 @@ class LogoInterpreter @Inject constructor(
         return myLogoLibraryVisitor.getProcedures()
     }
 
-    fun start(input: String) {
+    fun interpret(code: String): InterpreterResult {
+        val errorListener = MyErrorListener()
+
         // Tworzenie lexer'a
-        val lexer = logoLexer(
-            CharStreams.fromString(input)
-        )
+        val lexer = logoLexer(CharStreams.fromString(code+ "\n"))
         lexer.removeErrorListeners()
-        lexer.addErrorListener(MyErrorListener())
+        lexer.addErrorListener(errorListener)
 
         // Tokenizacja
         val tokens = CommonTokenStream(lexer)
@@ -51,16 +52,23 @@ class LogoInterpreter @Inject constructor(
         // Parsowanie
         val parser = logoParser(tokens)
         parser.removeErrorListeners()
-        parser.addErrorListener(MyErrorListener())
+        parser.addErrorListener(errorListener)
 
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
 
-        myVisitor.visit(tree)
-        bitmap = MyLogoVisitor.Companion.image
+        return if (errorListener.errors.isEmpty()) {
+            myVisitor.visit(tree)
+            bitmap = MyLogoVisitor.image
+            InterpreterResult(success = true, errors = emptyList())
+        } else {
+            InterpreterResult(success = false, errors = errorListener.errors)
+        }
     }
 
-    fun debug(input: String) {
+    fun debug(input: String): InterpreterResult {
+        val errorListener = MyErrorListener()
+
         // Tworzenie lexer'a
         val lexer = logoLexer(
             CharStreams.fromString(input)
@@ -78,8 +86,14 @@ class LogoInterpreter @Inject constructor(
 
         // Startujemy od reguły głównej (prog)
         val tree = parser.prog()
-        debuggerVisitor.visit(tree)
-        bitmap = MyLogoVisitor.Companion.image
+
+        return if (errorListener.errors.isEmpty()) {
+            debuggerVisitor.visit(tree)
+            bitmap = MyLogoVisitor.Companion.image
+            InterpreterResult(success = true, errors = emptyList())
+        } else {
+            InterpreterResult(success = false, errors = errorListener.errors)
+        }
     }
 
     fun processProcedure(input: String) {

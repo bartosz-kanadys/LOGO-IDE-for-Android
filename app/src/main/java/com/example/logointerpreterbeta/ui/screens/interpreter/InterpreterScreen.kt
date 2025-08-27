@@ -84,6 +84,7 @@ fun InterpreterApp(
     val actualFileName by projectViewModel.actualFileName.collectAsStateWithLifecycle()
     val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
     val project by projectViewModel.project.collectAsStateWithLifecycle()
+    val errors by interpreterViewModel.errors.collectAsStateWithLifecycle()
 
     val fileRepository = FileRepositoryImpl(context)
 
@@ -258,8 +259,8 @@ fun InterpreterApp(
                     }
                 }
                 ErrorsList(
-                    errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
-                    isErrorListVisable = InterpreterViewModel.isErrorListVisable,
+                    errors = errors.toString(),
+                    isErrorListVisable = errors.isNotEmpty(),
                     isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
@@ -269,7 +270,7 @@ fun InterpreterApp(
                         interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
+                        errors = errors.toString(),
                         modifier = Modifier
                     )
                     InterpreterButtons(interpreterViewModel)
@@ -365,8 +366,8 @@ fun InterpreterApp(
             }
             item {
                 ErrorsList(
-                    errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
-                    isErrorListVisable = InterpreterViewModel.isErrorListVisable,
+                    errors = errors.toString(),
+                    isErrorListVisable = errors.isNotEmpty(),
                     isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
@@ -379,7 +380,7 @@ fun InterpreterApp(
                         fileRepository = fileRepository,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
+                        errors = errors.toString(),
                         modifier = Modifier
                     )
                     InterpreterButtons(interpreterViewModel)

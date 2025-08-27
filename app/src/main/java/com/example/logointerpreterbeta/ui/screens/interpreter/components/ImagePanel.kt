@@ -49,7 +49,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.ui.MyImageHeight
 import com.example.logointerpreterbeta.ui.MyImageWidth
-import com.example.logointerpreterbeta.domain.models.Turtle
+import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import kotlin.math.roundToInt
@@ -105,7 +105,7 @@ fun ImagePanel() {
         )
         AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
             ColorPicker(
-                initialColor = Turtle.penColor,
+                initialColor = TurtleUI.penColor,
                 onSelectClick = { isPickerVisable = !isPickerVisable },
                 context = LocalContext.current
             )

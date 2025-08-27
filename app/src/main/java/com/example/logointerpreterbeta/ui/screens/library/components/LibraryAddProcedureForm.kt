@@ -89,7 +89,7 @@ fun LibraryAddProcedureForm(
             CodeEditor(
                 codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                 onCodeChange = interpreterViewModel::onCodeChange,
-                errors = InterpreterViewModel.errors.collectAsStateWithLifecycle().value.toString(),
+                errors = interpreterViewModel.errors.collectAsStateWithLifecycle().toString(),
                 isSaveOnChange = false,
                 modifier = Modifier
             )

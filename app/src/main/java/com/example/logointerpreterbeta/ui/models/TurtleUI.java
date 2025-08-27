@@ -1,9 +1,9 @@
-package com.example.logointerpreterbeta.domain.models;
+package com.example.logointerpreterbeta.ui.models;
 
 
 import android.graphics.Color;
 
-public class Turtle {
+public class TurtleUI {
     public static float Xposition = 1000;
     public static float Yposition = 1000;
     public static float direction = 0;

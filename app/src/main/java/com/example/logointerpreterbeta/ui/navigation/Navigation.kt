@@ -44,33 +44,6 @@ import com.example.logointerpreterbeta.ui.theme.ThemeMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.serialization.Serializable
 
-@AndroidEntryPoint
-class MainActivity : ComponentActivity() {
-    @RequiresApi(Build.VERSION_CODES.O)
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            val projectViewModel: ProjectViewModel = hiltViewModel()
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
-            val context = LocalContext.current
-            val configRepository = ConfigRepositoryImpl(context)
-            configRepository.createConfigFile(context)
-            projectViewModel.loadLastProjectFromJSON()
-            settingsViewModel.loadSettingsFromJson()
-            LogoInterpreterBetaTheme(
-                darkTheme = when(SettingsViewModel.currentTheme){
-                    ThemeMode.SYSTEM_THEME -> isSystemInDarkTheme()
-                    ThemeMode.LIGHT_THEME -> false
-                    ThemeMode.DARK_THEME -> true
-                }
-            ) {
-                AppNavHost(projectViewModel = projectViewModel, settingsViewModel = settingsViewModel)
-            }
-        }
-    }
-}
-
 @SuppressLint("NewApi", "StateFlowValueCalledInComposition")
 @Composable
 fun AppNavHost(

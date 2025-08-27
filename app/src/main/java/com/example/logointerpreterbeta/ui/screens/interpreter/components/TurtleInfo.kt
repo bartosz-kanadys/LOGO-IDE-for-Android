@@ -17,7 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.domain.models.Turtle
+import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
@@ -41,31 +41,31 @@ fun TurtleInfo(onClick: () -> Unit) {
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "X=${Turtle.Xposition - 1000}, Y=${(Turtle.Yposition - 1000) * -1}",
+            text = "X=${TurtleUI.Xposition - 1000}, Y=${(TurtleUI.Yposition - 1000) * -1}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Kąt = ${Turtle.direction}°",
+            text = "Kąt = ${TurtleUI.direction}°",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Ukryty = ${!Turtle.isShowed}",
+            text = "Ukryty = ${!TurtleUI.isShowed}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Opuszczony = ${Turtle.isDown}",
+            text = "Opuszczony = ${TurtleUI.isDown}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Rozmiar = ${Turtle.penSize}",
+            text = "Rozmiar = ${TurtleUI.penSize}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
@@ -80,7 +80,7 @@ fun TurtleInfo(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.Square,
                 contentDescription = null,
-                tint = Color(Turtle.penColor)
+                tint = Color(TurtleUI.penColor)
             )
         }
     }

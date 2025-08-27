@@ -6,8 +6,8 @@ import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
 
 class MyErrorListener : BaseErrorListener() {
+    val errors = mutableListOf<String>()
 
-    // Nadpisanie metody do obsługi błędów parsowania
     override fun syntaxError(
         recognizer: Recognizer<*, *>?,
         offendingSymbol: Any?,
@@ -21,7 +21,7 @@ class MyErrorListener : BaseErrorListener() {
         if (index != -1) {
             errorMessage = errorMessage.substring(0, index)
         }
-        SyntaxError.addError(errorMessage)
+        errors.add(errorMessage)
         println(errorMessage)
     }
 }

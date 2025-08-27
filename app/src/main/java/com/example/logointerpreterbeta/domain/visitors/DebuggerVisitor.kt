@@ -8,16 +8,13 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
-import com.example.logointerpreterbeta.domain.models.Turtle
+import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.domain.errors.StopException
-import com.example.logointerpreterbeta.domain.errors.SyntaxError
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
 import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel.Companion.errors
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import java.util.concurrent.CountDownLatch
 
@@ -36,7 +33,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
             }
         }
     }
-
+    override val errors = mutableListOf<String>()
     private var stepByStepMode = false
     private var isDebugging = false
     private var debugSignal = CountDownLatch(1)
@@ -167,9 +164,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
                 stepByStepMode = true
             }
         } else {
-            SyntaxError.addError("Nieznana procedura: $procedureName")
-            errors.value = SyntaxError.errors.value
-            InterpreterViewModel.isErrorListVisable = errors.value.isNotEmpty()
+            errors.add("Nieznana procedura: $procedureName w linii ${ctx.start.line}")
         }
         return 0
     }
@@ -177,12 +172,12 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         stepCount = 0
         currentLine = 0
-        paint.setColor(Turtle.penColor)
+        paint.setColor(TurtleUI.penColor)
         if (SettingsViewModel.darkMode) {
-            Turtle.penColor = onSurfaceDarkMediumContrast.toArgb()
+            TurtleUI.penColor = onSurfaceDarkMediumContrast.toArgb()
             canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
         } else {
-            Turtle.penColor = onSurfaceLightMediumContrast.toArgb()
+            TurtleUI.penColor = onSurfaceLightMediumContrast.toArgb()
             canvas.drawColor(surfaceLightMediumContrast.toArgb())
         }
         updateTurtleBitmap()

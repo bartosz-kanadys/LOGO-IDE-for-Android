@@ -18,7 +18,7 @@
         android:theme="@style/Theme.LogoInterpreterBeta"
         tools:targetApi="31">
         <activity
-            android:name=".ui.navigation.MainActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.LogoInterpreterBeta">
             <intent-filter>
