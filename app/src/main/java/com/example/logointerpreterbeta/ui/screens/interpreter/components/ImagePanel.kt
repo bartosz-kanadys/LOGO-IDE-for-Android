@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
@@ -62,7 +63,10 @@ val OffsetSaver = Saver<Offset, List<Float>>(
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ImagePanel() {
+fun ImagePanel(
+    image: ImageBitmap,
+    arrowImage: ImageBitmap,
+) {
     var scale by rememberSaveable { mutableFloatStateOf(2f) }
     var offset by rememberSaveable(stateSaver = OffsetSaver) { mutableStateOf(Offset.Zero) }
     var isBlocked by rememberSaveable { mutableStateOf(false) }
@@ -90,14 +94,14 @@ fun ImagePanel() {
             .fillMaxSize()
     ) {
         Image(
-            bitmap = MyLogoVisitor.image.asImageBitmap(),
+            bitmap = image,
             contentDescription = null,
             modifier = Modifier
                 .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
                 .scale(scale)
         )
         Image(
-            bitmap = MyLogoVisitor.turtleImage.asImageBitmap(),
+            bitmap = arrowImage,
             contentDescription = "Empty Bitmap",
             modifier = Modifier
                 .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
@@ -162,11 +166,11 @@ fun ImageButton(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview
-@Composable
-fun ImagePanelPreview() {
-    LogoInterpreterBetaTheme {
-        ImagePanel()
-    }
-}
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview
+//@Composable
+//fun ImagePanelPreview() {
+//    LogoInterpreterBetaTheme {
+//        ImagePanel()
+//    }
+//}

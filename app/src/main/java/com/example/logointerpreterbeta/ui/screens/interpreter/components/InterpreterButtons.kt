@@ -31,7 +31,10 @@ import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 
 
 @Composable
-fun InterpreterButtons(viewModel: InterpreterViewModel) {
+fun InterpreterButtons(
+    viewModel: InterpreterViewModel,
+    isDebugging: Boolean
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -39,7 +42,7 @@ fun InterpreterButtons(viewModel: InterpreterViewModel) {
                 .padding(top = 15.dp, end = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!viewModel.isDebugging) {
+            if (isDebugging) {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
                 CodeEditorButton(Icons.Filled.BugReport, size = 30) { viewModel.enableDebugging() }
             } else {

@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.errors
+package com.example.logointerpreterbeta.domain.interpreter.errors
 
 
 import org.antlr.v4.runtime.BaseErrorListener

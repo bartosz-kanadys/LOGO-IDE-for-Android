@@ -1,24 +1,20 @@
 package com.example.logointerpreterbeta.domain.visitors
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.toArgb
-import com.example.logointerpreterbeta.ui.models.TurtleUI
-import com.example.logointerpreterbeta.domain.errors.StopException
+import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
+import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
-import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import java.util.concurrent.CountDownLatch
 
-class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
+
+class DebuggerVisitor(
+    drawingDelegate: DrawingDelegate,
+) : MyLogoVisitor(drawingDelegate,null) {
     companion object {
         var currentLine by mutableIntStateOf(-1)
         var breakpoints = mutableStateListOf<Int>()
@@ -26,20 +22,24 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
         var showStepOutButton by mutableStateOf(false)
         fun toggleBreakpoint(lineNumber: Int) {
             Log.i("Breakpoint", "Toggled breakpoint at line $lineNumber")
-            if (DebuggerVisitor.breakpoints.contains(lineNumber)) {
-                DebuggerVisitor.breakpoints.remove(lineNumber)
+            if (breakpoints.contains(lineNumber)) {
+                breakpoints.remove(lineNumber)
             } else {
-                DebuggerVisitor.breakpoints.add(lineNumber)
+                breakpoints.add(lineNumber)
             }
         }
     }
+
     override val errors = mutableListOf<String>()
     private var stepByStepMode = false
     private var isDebugging = false
-    private var debugSignal = CountDownLatch(1)
     private var stepCount = 0
     private var isSteppingIn = false
     private var isSteppingOut = false
+    private var isResuming = false
+    private var programFinished = false
+    private var debugSignal = CountDownLatch(1)
+
 
     // Włączenie trybu debugowania
     fun enableDebugging() {
@@ -61,10 +61,10 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
         debugSignal.countDown()
     }
 
-    private fun waitForDebugSignal() {
+    fun waitForDebugSignal() {
         stepCount++
-        if (!isDebugging) {
-            currentLine = 0
+        if (!isDebugging && !programFinished) {
+            //currentLine = 0
             stepByStepMode = false
         }
         if (currentLine in breakpoints && isDebugging) {
@@ -100,8 +100,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
                     waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
                     if(!isDebugging) return 0
                     visit(command)
-                    updateTurtleBitmap()
-
+                    drawingDelegate.updateTurtleBitmap(turtleState)
                 }
             }
         } catch (e: StopException) {
@@ -151,7 +150,7 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
                         if(!isDebugging) return 0
                     }
                     visit(line)
-                    updateTurtleBitmap()
+                    drawingDelegate.updateTurtleBitmap(turtleState)
                 }
             } catch (e: StopException) {
                 return 0
@@ -170,28 +169,78 @@ class DebuggerVisitor(context: Context) : MyLogoVisitor(context) {
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
-        stepCount = 0
-        currentLine = 0
-        paint.setColor(TurtleUI.penColor)
-        if (SettingsViewModel.darkMode) {
-            TurtleUI.penColor = onSurfaceDarkMediumContrast.toArgb()
-            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
-        } else {
-            TurtleUI.penColor = onSurfaceLightMediumContrast.toArgb()
-            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+        // Reset state for new debugging session
+        resetDebuggerState()
+        isDebugging = true
+        programFinished = false
+
+        resetTurtleState()
+        drawingDelegate.clearScreen(isDarkMode, null)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+
+        try {
+            for (line in ctx!!.line()) {
+                currentLine = line.start.line
+
+                // Check if we should break at this line
+                if (isDebugging && currentLine in breakpoints) {
+                    stepByStepMode = true
+                }
+
+                showStepInButton = procedures.containsKey(line.start.text)
+
+                // Wait for debug signal if in step mode
+                if (isDebugging && stepByStepMode) {
+                    debugSignal = CountDownLatch(1)
+                    debugSignal.await() // Wait for signal
+
+                    // Check if debugging was disabled while waiting
+                    if (!isDebugging) return 0
+                }
+
+                visit(line)
+                drawingDelegate.updateTurtleBitmap(turtleState)
+
+                // Reset step mode after executing the line unless we're explicitly stepping
+                if (!isSteppingIn && !isSteppingOut) {
+                    stepByStepMode = false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("Debugger", "Error during debugging", e)
+        } finally {
+            programFinished = true
+            // Don't automatically stop debugging here - let the UI control that
         }
-        updateTurtleBitmap()
-        for (line in ctx!!.line()) {
-            currentLine = line.start.line
-            //Log.i("Czekam przed poleceniem:", line.text + " krok: $stepCount")
-            showStepInButton = procedures.containsKey(line.start.text)
-            waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
-            if(!isDebugging) return 0
-            visit(line)
-            updateTurtleBitmap()
-        }
-        currentLine = 0
-        stepByStepMode = false
+
         return 0
     }
+
+    private fun resetDebuggerState() {
+        currentLine = -1
+        stepCount = 0
+        isSteppingIn = false
+        isSteppingOut = false
+        isResuming = false
+        stepByStepMode = false
+        debugSignal = CountDownLatch(0) // Reset any waiting signals
+    }
+
+    // Add this method to properly handle session start/stop
+    fun startNewDebugSession() {
+        stopDebuggingSession() // Clean up any previous session
+        resetDebuggerState()
+        isDebugging = true
+        programFinished = false
+    }
+
+    fun stopDebuggingSession() {
+        isDebugging = false
+        stepByStepMode = false
+        // Count down any waiting latch to release threads
+        if (debugSignal.count > 0) {
+            debugSignal.countDown()
+        }
+    }
+
 }

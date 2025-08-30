@@ -1,161 +1,149 @@
 package com.example.logointerpreterbeta.domain.visitors
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Matrix
-import android.graphics.Paint
-import android.graphics.RectF
-import androidx.compose.ui.graphics.toArgb
-import androidx.core.content.ContextCompat
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
-import com.example.logointerpreterbeta.ui.MyImage
-import com.example.logointerpreterbeta.ui.MyImageHeight
-import com.example.logointerpreterbeta.ui.MyImageWidth
-import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.ui.models.TurtleUI
-import com.example.logointerpreterbeta.ui.TurtleImage
-import com.example.logointerpreterbeta.domain.errors.StopException
+import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoBaseVisitor
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
-import com.example.logointerpreterbeta.ui.theme.penColors
-import com.example.logointerpreterbeta.data.repository.LibraryRepositoryImpl
-import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
-import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
+import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
+import com.example.logointerpreterbeta.domain.models.drawing.DrawingResult
+import com.example.logointerpreterbeta.domain.models.drawing.PenState
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
+import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import kotlin.math.cos
 import kotlin.math.sin
 
-open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() {
-    companion object {
-        val image = MyImage
-        val turtleImage = TurtleImage
-    }
+open class MyLogoVisitor(
+    protected val drawingDelegate: DrawingDelegate,
+    private val libraryRepository: LibraryRepository?,
+    protected val isDarkMode: Boolean = false
+) : logoBaseVisitor<Any>() {
+
     protected open val errors = mutableListOf<String>()
-
-    protected var turtleBitmap: Bitmap? = null
-    protected val canvas = Canvas(image)
-    protected val turtleCanvas = Canvas(turtleImage)
-    protected var paint = Paint()
-
+    protected lateinit var turtleState: TurtleState
     protected var variables: MutableMap<String, Any> = HashMap()
     protected var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
-    private val libraryRepository = LibraryRepositoryImpl(context)
 
-    init {
-        paint.color = TurtleUI.penColor
-        paint.strokeWidth = 5f
-        paint.style = Paint.Style.STROKE
-        paint.textSize = 50f
-        paint.isAntiAlias = true
-        updateTurtleBitmap()
+    fun resetTurtleState() {
+        turtleState = TurtleState(
+            x = drawingDelegate.getCanvasWidth() / 2,
+            y = drawingDelegate.getCanvasHeight() / 2,
+            penState = PenState()
+        )
     }
 
     override fun visitFd(ctx: logoParser.FdContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
-        val angleRadians = Math.toRadians((TurtleUI.direction - 90).toDouble())
+        val angleRadians = Math.toRadians((turtleState.direction - 90).toDouble())
 
-        // Obliczenie końcowych współrzędnych linii do narysowania z poprawką na wypełnianie rogów
-        val endXtoDraw =
-            (TurtleUI.Xposition + (distance + paint.strokeWidth / 2) * cos(angleRadians)).toFloat()
-        val endYtoDraw =
-            (TurtleUI.Yposition + (distance + paint.strokeWidth / 2) * sin(angleRadians)).toFloat()
-        // obliczanie koncowych pozycji dla zolwia
-        val endXTurtleUIPosition = (TurtleUI.Xposition + distance * cos(angleRadians)).toFloat()
-        val endYTurtleUIPosition = (TurtleUI.Yposition + distance * sin(angleRadians)).toFloat()
+        val startX = turtleState.x
+        val startY = turtleState.y
+        val endX = (startX + distance * cos(angleRadians)).toFloat()
+        val endY = (startY + distance * sin(angleRadians)).toFloat()
 
-        if (TurtleUI.isDown) canvas.drawLine(
-            TurtleUI.Xposition,
-            TurtleUI.Yposition,
-            endXtoDraw,
-            endYtoDraw,
-            paint
-        )
+        turtleState = turtleState.copy(x = endX, y = endY)
 
-        TurtleUI.setAcctualPosition(endXTurtleUIPosition, endYTurtleUIPosition)
+        if (turtleState.isPenDown) {
+            // The visitor tells the delegate what to draw.
+            drawingDelegate.drawLine(startX, startY, endX, endY, turtleState.penState)
+
+        }
+        drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitBk(ctx: logoParser.BkContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
         // Konwersja kąta na radiany
-        val angleRadians = Math.toRadians((TurtleUI.direction - 90 - 180).toDouble())
+        val angleRadians = Math.toRadians((turtleState.direction- 90 - 180).toDouble())
 
-        // Obliczenie końcowych współrzędnych linii
-        val endX = (TurtleUI.Xposition + distance * cos(angleRadians)).toFloat()
-        val endY = (TurtleUI.Yposition + distance * sin(angleRadians)).toFloat()
+        val startX = turtleState.x
+        val startY = turtleState.y
+        val endX = (startX + distance * cos(angleRadians)).toFloat()
+        val endY = (startY + distance * sin(angleRadians)).toFloat()
 
-        if (TurtleUI.isDown) canvas.drawLine(TurtleUI.Xposition, TurtleUI.Yposition, endX, endY, paint)
+        if (turtleState.isPenDown) {
+            drawingDelegate.drawLine(startX, startY, endX, endY, turtleState.penState)
+            drawingDelegate.updateTurtleBitmap(turtleState)
+        }
 
-        TurtleUI.setAcctualPosition(endX, endY)
+        turtleState = turtleState.copy(x = endX, y = endY)
     }
 
     override fun visitArc(ctx: logoParser.ArcContext?) {
         val angle = visit(ctx!!.expression(0))!!.toString().toFloat()
         val distance = visit(ctx.expression(1)).toString().toFloat()
 
-        val rectF = RectF(
-            TurtleUI.Xposition - distance,
-            TurtleUI.Yposition - distance,
-            TurtleUI.Xposition + distance,
-            TurtleUI.Yposition + distance
-        )
-        canvas.drawArc(rectF, 270f + TurtleUI.direction, angle, false, paint)
-    }
+        // In Logo, ARC moves the turtle along the circumference. The center of the arc is to the turtle's right.
+        val angleToCenterRad = Math.toRadians((turtleState.direction).toDouble())
+        val centerX = turtleState.x + distance * cos(angleToCenterRad)
+        val centerY = turtleState.y + distance * sin(angleToCenterRad)
 
-    override fun visitRt(ctx: logoParser.RtContext?) {
-        TurtleUI.setPlusDirection(visit(ctx!!.expression()).toString().toFloat())
-    }
+        // The start angle for drawing needs to be calculated relative to the center.
+        val startAngle = turtleState.direction + 90
 
-    override fun visitLt(ctx: logoParser.LtContext?) {
-        TurtleUI.setMinusDirection(visit(ctx!!.expression()).toString().toFloat())
-    }
-
-    override fun visitCs(ctx: logoParser.CsContext?) {
-        if (SettingsViewModel.darkMode) {
-            canvas.drawColor(surfaceDarkMediumContrast.toArgb())
-        } else {
-            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+        if (turtleState.isPenDown) {
+            drawingDelegate.drawArc(centerX, centerY, distance, startAngle, angle, turtleState.penState)
+            drawingDelegate.updateTurtleBitmap(turtleState)
         }
     }
 
+    override fun visitRt(ctx: logoParser.RtContext?) {
+        val angle = visit(ctx!!.expression()).toString().toFloat()
+        turtleState = turtleState.copy(direction = (turtleState.direction + angle) % 360)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+    }
+
+    override fun visitLt(ctx: logoParser.LtContext?) {
+        val angle = visit(ctx!!.expression()).toString().toFloat()
+        turtleState = turtleState.copy(direction = (turtleState.direction - angle + 360) % 360)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+    }
+
+    override fun visitCs(ctx: logoParser.CsContext?) {
+
+        drawingDelegate.clearScreen(isDarkMode, color = null)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+        // CS also homes the turtle
+        visitHome(null)
+    }
+
     override fun visitPu(ctx: logoParser.PuContext?) {
-        TurtleUI.isDown = false
+//        TurtleUI.isDown = false
+        turtleState = turtleState.copy(isPenDown = false)
     }
 
     override fun visitPd(ctx: logoParser.PdContext?) {
-        TurtleUI.isDown = true
+//        TurtleUI.isDown = true
+        turtleState = turtleState.copy(isPenDown = true)
     }
 
     override fun visitHome(ctx: logoParser.HomeContext?) {
-        TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
+        turtleState = turtleState.copy(
+            x = drawingDelegate.getCanvasWidth() / 2,
+            y = drawingDelegate.getCanvasHeight() / 2
+        )
+        drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitSt(ctx: logoParser.StContext?) {
-        TurtleUI.isShowed = true
-        val color = paint.color
-        paint.color = Color.TRANSPARENT
-        canvas.drawPoint(TurtleUI.Xposition, TurtleUI.Yposition, paint)
-        paint.color = color
+        turtleState = turtleState.copy(isVisible = true)
+
     }
 
     override fun visitHt(ctx: logoParser.HtContext?) {
-        TurtleUI.isShowed = false
-        val color = paint.color
-        paint.color = Color.TRANSPARENT
-        canvas.drawPoint(TurtleUI.Xposition, TurtleUI.Yposition, paint)
-        paint.color = color
+        turtleState = turtleState.copy(isVisible = false)
+
     }
 
     override fun visitSetxy(ctx: logoParser.SetxyContext?) {
         var x = ctx!!.expression(0).text.toFloat()
         var y = ctx.expression(1).text.toFloat()
-        y = if (y < 0) MyImageHeight / 2 - y else MyImageHeight / 2 + y
-        x = if (x < 0) MyImageWidth / 2 + x else MyImageWidth / 2 - x
-        TurtleUI.setAcctualPosition(x, y)
+
+        val canvasX = drawingDelegate.getCanvasWidth() / 2 + x
+        val canvasY = drawingDelegate.getCanvasHeight() / 2 - y // Y is inverted in graphics canvases
+
+        turtleState = turtleState.copy(x = canvasX, y = canvasY)
+        drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
@@ -175,32 +163,32 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
     }
 
     override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?) {
-        if (ctx!!.expression() != null) {
+        val newColor = if (ctx!!.expression() != null) {
             val intColor = visit(ctx.expression()).toString().toFloat().toInt()
-            val color = penColors[intColor]
-            paint.setColor(color)
-            TurtleUI.penColor = color
-        }
+            penColors[intColor]
 
-        if (ctx.number(0) != null && ctx.number(1) != null && ctx.number(2) != null) {
+        } else if (ctx.number(0) != null && ctx.number(1) != null && ctx.number(2) != null) {
             val red = ctx.number(0).text.toInt()
             val green = ctx.number(1).text.toInt()
             val blue = ctx.number(2).text.toInt()
-            val color = Color.rgb(red, green, blue)
-            paint.setColor(color)
-            TurtleUI.penColor = color
+            (0xFF shl 24) or (red shl 16) or (green shl 8) or blue // Create ARGB integer
+        } else {
+            0xFF000000.toInt() // domyślnie czarny
         }
+        val newPenState = turtleState.penState.copy(color = newColor)
+        turtleState = turtleState.copy(penState = newPenState)
     }
 
     override fun visitSetpensize(ctx: logoParser.SetpensizeContext?) {
-        val size = visit(ctx!!.expression()).toString().toFloat().toInt()
-        paint.strokeWidth = size.toFloat()
-        TurtleUI.penSize = size
+        val size = visit(ctx!!.expression()).toString().toFloat()
+        val newPenState = turtleState.penState.copy(size = size)
+        turtleState = turtleState.copy(penState = newPenState)
     }
 
     override fun visitSetbg(ctx: logoParser.SetbgContext?) {
-        val intColor = visit(ctx!!.expression()).toString().toFloat().toInt()
-        canvas.drawColor(penColors[intColor])
+        val color = visit(ctx!!.expression()).toString().toFloat().toInt()
+        drawingDelegate.clearScreen(isDarkMode, color)
+        return Unit
     }
 
     override fun visitExpression(ctx: logoParser.ExpressionContext?): Float {
@@ -309,11 +297,15 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
             text = ctx.STRINGLITERAL().text
             text = text.substring(1, text.length)
         }
-        canvas.drawText(text, TurtleUI.Xposition, TurtleUI.Yposition, paint)
+//        canvas.drawText(text, TurtleUI.Xposition, TurtleUI.Yposition, paint)
+        drawingDelegate.drawText(text, turtleState.x, turtleState.y, turtleState.penState)
+
     }
 
     override fun visitSettextsize(ctx: logoParser.SettextsizeContext?) {
-        paint.textSize = ctx!!.expression().text.toFloat() //size
+        val textSize = ctx!!.expression().text.toFloat() //size
+        val newPenState = turtleState.penState.copy(textSize = textSize)
+        turtleState = turtleState.copy(penState = newPenState)
     }
 
     //Procedury
@@ -400,58 +392,32 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
         throw StopException("STOP")
     }
 
-    private fun getBitmapFromImage(context: Context, drawable: Int): Bitmap {
-        val db = ContextCompat.getDrawable(context, drawable)
-        val bit = Bitmap.createBitmap(
-            db!!.intrinsicWidth / 2, db.intrinsicHeight / 2, Bitmap.Config.ARGB_8888
-        )
-        val canvas = Canvas(bit)
-        db.setBounds(0, 0, canvas.width, canvas.height)
-        db.draw(canvas)
 
-        return bit
-    }
 
-    fun updateTurtleBitmap() {
-        turtleImage.eraseColor(Color.TRANSPARENT)
-        if (TurtleUI.isShowed) {
-            // Pobieranie bitmapy żółwia i rotacja
-            val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
-            val matrix = Matrix()
-            matrix.postRotate(TurtleUI.direction, arrow.width / 2f, arrow.height / 2f)
-            turtleBitmap = Bitmap.createBitmap(arrow, 0, 0, arrow.width, arrow.height, matrix, true)
-            turtleCanvas.drawBitmap(
-                turtleBitmap!!,
-                TurtleUI.Xposition - turtleBitmap!!.width / 2,
-                TurtleUI.Yposition - turtleBitmap!!.height / 2,
-                paint
-            )
-
-        } else {
-            turtleBitmap = null
-        }
-    }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
-        paint.setColor(TurtleUI.penColor)
-        if (SettingsViewModel.darkMode) {
-            TurtleUI.penColor = onSurfaceDarkMediumContrast.toArgb()
-            canvas.drawColor(surfaceDarkMediumContrast.toArgb()) //czyszczenie obrazka przed startem programu
-        } else {
-            TurtleUI.penColor = onSurfaceLightMediumContrast.toArgb()
-            canvas.drawColor(surfaceLightMediumContrast.toArgb())
+        resetTurtleState()
+        drawingDelegate.clearScreen(isDarkMode, null)
+
+        try {
+            for (line in ctx!!.line()) {
+                visit(line)
+            }
+        } catch (e: StopException) {
+            return 0
         }
-        for (line in ctx!!.line()) {
-            visit(line)
-        }
-        updateTurtleBitmap()
+        drawingDelegate.updateTurtleBitmap(turtleState)
         return 0
     }
 
     override fun visitUse(ctx: logoParser.UseContext?): Int {
         val libraryName = ctx!!.name().text
 
-        val logo = LogoInterpreter(context)
+        val logo = LogoInterpreter(
+            drawingDelegate = drawingDelegate,
+            libraryRepository = libraryRepository!!,
+            isDarkMode
+        )
         val libraries = libraryRepository.loadLibraries()
         val library = libraries.find { it.name == libraryName }
         val procedureList = library!!.procedures
@@ -459,12 +425,16 @@ open class MyLogoVisitor(private val context: Context) : logoBaseVisitor<Any>() 
             logo.processProcedure(procedure.code + "\n")
         }
 
-        val newProceduresCtx = logo.getPoceduresFromLibrary()
+        val newProceduresCtx = logo.getProceduresFromLibrary()
         procedures.putAll(newProceduresCtx)
         return 0
     }
 
-//    fun getProcedures(): MutableMap<String, logoParser.ProcedureDeclarationContext>{
-//        return procedures
-//    }
+    fun getImage(): DrawingResult {
+        return drawingDelegate.getDrawing()
+    }
+
+    fun getArrowImage(): DrawingResult {
+        return drawingDelegate.getArrowDrawing()
+    }
 }

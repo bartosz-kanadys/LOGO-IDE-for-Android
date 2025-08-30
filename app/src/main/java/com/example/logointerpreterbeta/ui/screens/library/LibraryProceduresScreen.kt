@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
+import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.ui.navigation.LibraryProcedureForm
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.AppTypography
@@ -133,8 +134,7 @@ fun ProcedureCard(
     code: String,
     onDeleteClick: () -> Unit
 ) {
-    val logo = LogoInterpreter(LocalContext.current)
-    val coloredCode = logo.colorizeText(code)
+    val coloredCode = LogoTextColorizer.colorizeText(code)
     Card(
         modifier = Modifier
             .fillMaxWidth()

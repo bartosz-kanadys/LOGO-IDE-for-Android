@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
+import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
@@ -31,14 +32,13 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
     val context = LocalContext.current
     val tutorial = readTutorialsFromRaw(context).find { it.name == tutorialName }
-    val logo = LogoInterpreter(context)
 
     LazyColumn(
         modifier = modifier
             .padding(15.dp)
     ) {
         for (paragraph in tutorial!!.paragraphs) {
-            val coloredCode = logo.colorizeText(paragraph.code)
+            val coloredCode = LogoTextColorizer.colorizeText(paragraph.code)
             item { Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify) }
             item {
                 val linesCount = paragraph.code.lines().size

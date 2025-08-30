@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -85,6 +86,11 @@ fun InterpreterApp(
     val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
     val project by projectViewModel.project.collectAsStateWithLifecycle()
     val errors by interpreterViewModel.errors.collectAsStateWithLifecycle()
+
+    val image by interpreterViewModel.img.collectAsStateWithLifecycle()
+    val arrowImage by interpreterViewModel.arrowImg.collectAsStateWithLifecycle()
+
+    val isDebugging by interpreterViewModel.isDebugging.collectAsStateWithLifecycle()
 
     val fileRepository = FileRepositoryImpl(context)
 
@@ -273,7 +279,7 @@ fun InterpreterApp(
                         errors = errors.toString(),
                         modifier = Modifier
                     )
-                    InterpreterButtons(interpreterViewModel)
+                    InterpreterButtons(interpreterViewModel, isDebugging)
                 }
             }
             Box(
@@ -281,7 +287,7 @@ fun InterpreterApp(
                     //.fillMaxWidth(0.5f)
                     .zIndex(1f)
             ) {
-                ImagePanel()
+                ImagePanel(image.asImageBitmap(), arrowImage.asImageBitmap())
             }
         }
     } else {
@@ -296,7 +302,7 @@ fun InterpreterApp(
                         .fillParentMaxHeight(0.6f)
                         .fillMaxWidth()
                 ) {
-                    ImagePanel()
+                    ImagePanel(image.asImageBitmap(), arrowImage.asImageBitmap())
 
                     LazyRow(
                         modifier = Modifier
@@ -383,7 +389,7 @@ fun InterpreterApp(
                         errors = errors.toString(),
                         modifier = Modifier
                     )
-                    InterpreterButtons(interpreterViewModel)
+                    InterpreterButtons(interpreterViewModel, isDebugging)
                 }
             }
         }

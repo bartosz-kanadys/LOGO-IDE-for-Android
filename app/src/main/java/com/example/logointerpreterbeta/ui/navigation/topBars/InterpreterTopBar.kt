@@ -230,7 +230,7 @@ fun InterpreterTopBar(
                                 exportManager.checkPermissions(context)
                                 val jpgFile = exportManager.saveBitmapAsJpg(
                                     context,
-                                    MyLogoVisitor.image,
+                                    Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
                                     "LogoImage" + Date()
                                 )
                                 Toast.makeText(
@@ -245,15 +245,15 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                                exportManager.checkPermissions(context)
-                                val pdfFile =
-                                    exportManager.saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
-                                Toast.makeText(
-                                    context,
-                                    if (pdfFile) "Zapisano PDF 👌" else "Nie udało się zapisać PDF 😯",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                dropdownExpanded = false
+//                                exportManager.checkPermissions(context)
+//                                val pdfFile =
+//                                    exportManager.saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
+//                                Toast.makeText(
+//                                    context,
+//                                    if (pdfFile) "Zapisano PDF 👌" else "Nie udało się zapisać PDF 😯",
+//                                    Toast.LENGTH_SHORT
+//                                ).show()
+//                                dropdownExpanded = false
                             },
                             text = {
                                 MenuElement(
@@ -264,47 +264,47 @@ fun InterpreterTopBar(
                         )
                         DropdownMenuItem(
                             onClick = {
-                                try {
-                                    // Krok 1: Zapisanie bitmapy do pliku
-                                    val file = File(context.cacheDir, "shared_image.png")
-                                    FileOutputStream(file).use { fos ->
-                                        MyLogoVisitor.image.compress(
-                                            Bitmap.CompressFormat.PNG,
-                                            100,
-                                            fos
-                                        )
-                                    }
-
-                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
-                                    val uri = FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.fileprovider",
-                                        file
-                                    )
-
-                                    // Krok 3: Tworzenie Intentu do udostępnienia
-                                    val shareIntent = Intent().apply {
-                                        action = Intent.ACTION_SEND
-                                        type = "image/png"
-                                        putExtra(Intent.EXTRA_STREAM, uri)
-                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
-                                    }
-
-                                    // Uruchamianie Intentu
-                                    context.startActivity(
-                                        Intent.createChooser(
-                                            shareIntent,
-                                            "Share image via"
-                                        )
-                                    )
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Toast.makeText(
-                                        context,
-                                        "Failed to share image: ${e.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+//                                try {
+//                                    // Krok 1: Zapisanie bitmapy do pliku
+//                                    val file = File(context.cacheDir, "shared_image.png")
+//                                    FileOutputStream(file).use { fos ->
+//                                        MyLogoVisitor.image.compress(
+//                                            Bitmap.CompressFormat.PNG,
+//                                            100,
+//                                            fos
+//                                        )
+//                                    }
+//
+//                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
+//                                    val uri = FileProvider.getUriForFile(
+//                                        context,
+//                                        "${context.packageName}.fileprovider",
+//                                        file
+//                                    )
+//
+//                                    // Krok 3: Tworzenie Intentu do udostępnienia
+//                                    val shareIntent = Intent().apply {
+//                                        action = Intent.ACTION_SEND
+//                                        type = "image/png"
+//                                        putExtra(Intent.EXTRA_STREAM, uri)
+//                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
+//                                    }
+//
+//                                    // Uruchamianie Intentu
+//                                    context.startActivity(
+//                                        Intent.createChooser(
+//                                            shareIntent,
+//                                            "Share image via"
+//                                        )
+//                                    )
+//                                } catch (e: Exception) {
+//                                    e.printStackTrace()
+//                                    Toast.makeText(
+//                                        context,
+//                                        "Failed to share image: ${e.message}",
+//                                        Toast.LENGTH_SHORT
+//                                    ).show()
+//                                }
                             },
                             text = {
                                 MenuElement(

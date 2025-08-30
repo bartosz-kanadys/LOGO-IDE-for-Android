@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
 import android.graphics.Bitmap
-import android.util.Log
+import android.graphics.Bitmap.createBitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -10,15 +10,18 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
+import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.MyImageHeight
 import com.example.logointerpreterbeta.ui.MyImageWidth
+import com.example.logointerpreterbeta.ui.drawing.toBitmap
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -29,18 +32,21 @@ import javax.inject.Inject
 class InterpreterViewModel @Inject constructor(
     private val logo: LogoInterpreter
 ) : ViewModel() {
-//    companion object {
-//        var errors = MutableStateFlow(SyntaxError.Companion.errors.value)
-//        var isErrorListVisable by mutableStateOf(false)
-//    }
-    private var isErrorListVisible by mutableStateOf(false)
+
     private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     private var cursorPosition by mutableIntStateOf(0)
-    private var img by mutableStateOf(Bitmap.createBitmap(2000, 2000, Bitmap.Config.ARGB_8888))
+
     var isErrorListExpanded by mutableStateOf(false)
         private set
-    var isDebugging by mutableStateOf(false)
-    private val mutex = Mutex()
+
+    private val _isDebugging = MutableStateFlow(false)
+    var isDebugging = _isDebugging.asStateFlow()
+
+    private var _img = MutableStateFlow(createBitmap(1000, 1000, Bitmap.Config.ARGB_8888))
+    val img: StateFlow<Bitmap> = _img.asStateFlow()
+
+    private var _arrowImg = MutableStateFlow(createBitmap(1000, 1000, Bitmap.Config.ALPHA_8))
+    val arrowImg: StateFlow<Bitmap> = _arrowImg.asStateFlow()
 
     private val _errors = MutableStateFlow<List<String>>(emptyList())
     val errors: StateFlow<List<String>> = _errors.asStateFlow()
@@ -71,8 +77,9 @@ class InterpreterViewModel @Inject constructor(
             annotatedString = textDiffrence(
                 codeState.annotatedString,
                 newCode.text,
-                logo::colorizeText
-            )
+            ) { text ->
+                LogoTextColorizer.colorizeText(text)
+            }
         )
     }
 
@@ -82,7 +89,7 @@ class InterpreterViewModel @Inject constructor(
 
     fun colorCode() {
         codeState = codeState.copy(
-            annotatedString = logo.colorizeText(codeState.text)
+            annotatedString = LogoTextColorizer.colorizeText(codeState.text)
         )
     }
 
@@ -91,13 +98,13 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun enableDebugging() {
-        isDebugging = true
+        _isDebugging.update { true }
         logo.enableDebugging()
         debugCode()
     }
 
     fun disableDebugging() {
-        isDebugging = false
+        _isDebugging.update { false }
         logo.disableDebugging()
     }
 
@@ -113,29 +120,11 @@ class InterpreterViewModel @Inject constructor(
         logo.stepOut()
     }
 
-    fun addError(error: String) {
-        _errors.value = _errors.value + error
-    }
-
     fun clearErrors() {
         _errors.value = emptyList()
     }
 
     fun interpretCode(text: String = codeState.text) {
-//        viewModelScope.launch {
-//            clearErrors()
-//            Turtle.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-//            Turtle.direction = 0f
-//            try {
-//                logo.start(text + "\n")
-//                img = logo.bitmap
-//            } catch (e: Exception) {
-//                Log.e("ERROR", "Błąd wykonywania interpretera")
-//            } finally {
-////                _errors.value = SyntaxError.Companion.errors.value
-//                isErrorListVisible = errors.value.isNotEmpty()
-//            }
-//        }
         viewModelScope.launch {
             clearErrors()
             TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
@@ -146,47 +135,49 @@ class InterpreterViewModel @Inject constructor(
             if (!result.success) {
                 _errors.value = result.errors
             }
-
-            img = logo.bitmap
-            isErrorListVisible = errors.value.isNotEmpty()
+            if (result.image != null) {
+                _img.update {
+                  result.image.toBitmap()
+                }
+                _arrowImg.update {
+                    result.arrowImage?.toBitmap() ?: createBitmap(1000, 1000, Bitmap.Config.ALPHA_8)
+                }
+            }
         }
     }
 
     private fun debugCode() {
-//        viewModelScope.launch(Dispatchers.Default) {
-//            mutex.withLock {
-//                clearErrors()
-//                TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-//                TurtleUI.direction = 0f
-//                try {
-//                    logo.debug(codeState.text)
-//                    img = logo.bitmap
-//                } catch (e: Exception) {
-//                    Log.e("ERROR", "Błąd wykonywania interpretera")
-//                } finally {
-//                    withContext(Dispatchers.Main) {
-////                        errors.value = SyntaxError.Companion.errors.value
-//                        isErrorListVisible = errors.value.isNotEmpty()
-//                    }
-//                }
-//            }
-//        }
         viewModelScope.launch(Dispatchers.Default) {
-            mutex.withLock {
+            Mutex().withLock {
                 clearErrors()
                 TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
                 TurtleUI.direction = 0f
 
-                val result = logo.debug(codeState.text)
+                val result = logo.debug(codeState.text) { imageResult, arrowResult ->
+                    _img.value = imageResult.toBitmap()
+                    _arrowImg.value = arrowResult.toBitmap()
+                }
 
                 withContext(Dispatchers.Main) {
                     if (!result.success) {
                         _errors.value = result.errors
                     }
-                    img = logo.bitmap
-                    isErrorListVisible = errors.value.isNotEmpty()
+                    if (result.image != null) {
+                        _img.update {
+                            result.image.toBitmap()
+                        }
+                        _arrowImg.update {
+                            result.arrowImage?.toBitmap() ?: createBitmap(1000, 1000, Bitmap.Config.ALPHA_8)
+                        }
+                    }
                 }
             }
         }
     }
+
+
+
+//    fun getImage(): Bitmap {
+//        logo.g
+//    }
 }

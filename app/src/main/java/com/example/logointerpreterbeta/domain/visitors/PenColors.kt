@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.theme
+package com.example.logointerpreterbeta.domain.visitors
 
 import android.graphics.Color
 
