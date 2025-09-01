@@ -202,7 +202,7 @@ private fun ProjectButton(
 ) {
     OutlinedButton(
         onClick = {
-            DebuggerVisitor.breakpoints.clear()
+           // DebuggerVisitor.breakpoints.clear()
             projectViewModel.openProject(name)
             navController.navigate(Interpreter)
         },

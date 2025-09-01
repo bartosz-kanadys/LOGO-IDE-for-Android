@@ -5,7 +5,6 @@ import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoBaseVisitor
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
 import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
-import com.example.logointerpreterbeta.domain.models.drawing.DrawingResult
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
@@ -428,13 +427,5 @@ open class MyLogoVisitor(
         val newProceduresCtx = logo.getProceduresFromLibrary()
         procedures.putAll(newProceduresCtx)
         return 0
-    }
-
-    fun getImage(): DrawingResult {
-        return drawingDelegate.getDrawing()
-    }
-
-    fun getArrowImage(): DrawingResult {
-        return drawingDelegate.getArrowDrawing()
     }
 }

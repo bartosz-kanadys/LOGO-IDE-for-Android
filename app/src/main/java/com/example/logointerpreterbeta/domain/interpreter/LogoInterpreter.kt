@@ -5,8 +5,8 @@ import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoLexer
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
 import com.example.logointerpreterbeta.domain.interpreter.errors.MyErrorListener
 import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
+import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
-import com.example.logointerpreterbeta.domain.models.drawing.DrawingResult
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoLibraryVisitor
@@ -42,63 +42,43 @@ class LogoInterpreter @Inject constructor(
 
         return if (errorListener.errors.isEmpty()) {
             myVisitor.visit(tree)
-            val imageResult = myVisitor.getImage()
-            val arrowImage = myVisitor.getArrowImage()
             InterpreterResult(
                 success = true,
                 errors = emptyList(),
-                image = imageResult,
-                arrowImage = arrowImage
             )
         } else {
             InterpreterResult(
                 success = false,
                 errors = errorListener.errors,
-                image = null,
-                arrowImage = null
             )
         }
     }
 
-    fun debug(input: String, onStep: (DrawingResult, DrawingResult) -> Unit): InterpreterResult {
+    fun debug(input: String): InterpreterResult {
         val errorListener = MyErrorListener()
         val tree = parseInput(input + "\n", errorListener)
 
         return if (errorListener.errors.isEmpty()) {
-            debuggerVisitor.enableDebugging()
-
             debuggerVisitor.resetTurtleState()
             try {
                 debuggerVisitor.startNewDebugSession()
                 for (line in tree.line()) {
-                    DebuggerVisitor.currentLine = line.start.line
-                    debuggerVisitor.waitForDebugSignal()
+                    debuggerVisitor.updateCurrentLine(line.start.line + 1)
+                    debuggerVisitor.handleDebugPause(line.start.line) // <- tu czekasz
                     debuggerVisitor.visit(line)
-
-                    val imageResult = debuggerVisitor.getImage()
-                    val arrowImage = debuggerVisitor.getArrowImage()
-                    onStep(imageResult, arrowImage)
                 }
-                debuggerVisitor.stopDebuggingSession()
             } catch (e: StopException) {
-
+            } finally {
+                debuggerVisitor.stopDebuggingSession()
             }
-
-            debuggerVisitor.disableDebugging()
-            val finalImage = debuggerVisitor.getImage()
-            val finalArrow = debuggerVisitor.getArrowImage()
             InterpreterResult(
                 success = true,
                 errors = emptyList(),
-                image = finalImage,
-                arrowImage = finalArrow
             )
         } else {
             InterpreterResult(
                 success = false,
                 errors = errorListener.errors,
-                image = null,
-                arrowImage = null
             )
         }
     }
@@ -135,16 +115,28 @@ class LogoInterpreter @Inject constructor(
         myLogoLibraryVisitor.visit(tree)
     }
 
+    fun getDebuggerState(): DebuggerState {
+        return debuggerVisitor.state
+    }
+
+    fun clearBreakpoints() {
+        debuggerVisitor.clearBreakpoints()
+    }
+
+    fun toggleBreakpoint(lineNumber: Int) {
+        debuggerVisitor.toggleBreakpoint(lineNumber)
+    }
+
     fun nextStep() {
         debuggerVisitor.nextStep()
     }
 
     fun enableDebugging() {
-        debuggerVisitor.enableDebugging()
+        debuggerVisitor.startNewDebugSession()
     }
 
     fun disableDebugging() {
-        debuggerVisitor.disableDebugging()
+        debuggerVisitor.stopDebuggingSession()
     }
 
     fun continueExecution() {

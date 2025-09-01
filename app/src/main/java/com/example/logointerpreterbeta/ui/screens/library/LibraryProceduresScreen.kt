@@ -163,7 +163,9 @@ fun ProcedureCard(
                 isEnabled = false,
                 isScrollable = false,
                 lines = linesCount,
-                modifier = Modifier.height((30 + (linesCount - 1) * 23).dp)
+                modifier = Modifier.height((30 + (linesCount - 1) * 23).dp),
+                breakpoints = emptyList(),
+                currentLine = -1,
             )
         }
     }

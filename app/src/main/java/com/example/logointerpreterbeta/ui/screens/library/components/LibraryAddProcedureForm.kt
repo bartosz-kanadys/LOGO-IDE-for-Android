@@ -91,7 +91,9 @@ fun LibraryAddProcedureForm(
                 onCodeChange = interpreterViewModel::onCodeChange,
                 errors = interpreterViewModel.errors.collectAsStateWithLifecycle().toString(),
                 isSaveOnChange = false,
-                modifier = Modifier
+                modifier = Modifier,
+                breakpoints = emptyList(),
+                currentLine = -1
             )
         }
         item {

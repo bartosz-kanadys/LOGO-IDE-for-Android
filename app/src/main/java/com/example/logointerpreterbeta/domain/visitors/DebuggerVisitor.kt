@@ -1,92 +1,118 @@
 package com.example.logointerpreterbeta.domain.visitors
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
-import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
+import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
+import com.example.logointerpreterbeta.domain.models.DebuggerState
 import java.util.concurrent.CountDownLatch
-
 
 class DebuggerVisitor(
     drawingDelegate: DrawingDelegate,
-) : MyLogoVisitor(drawingDelegate,null) {
-    companion object {
-        var currentLine by mutableIntStateOf(-1)
-        var breakpoints = mutableStateListOf<Int>()
-        var showStepInButton by mutableStateOf(false)
-        var showStepOutButton by mutableStateOf(false)
-        fun toggleBreakpoint(lineNumber: Int) {
-            Log.i("Breakpoint", "Toggled breakpoint at line $lineNumber")
-            if (breakpoints.contains(lineNumber)) {
-                breakpoints.remove(lineNumber)
-            } else {
-                breakpoints.add(lineNumber)
-            }
-        }
+) : MyLogoVisitor(drawingDelegate, null) {
+
+    enum class DebuggerMode {
+        Idle,
+        Running,
+        StepByStep,
+        Finished,
+        StepIn,
+        StepOut
     }
 
-    override val errors = mutableListOf<String>()
-    private var stepByStepMode = false
-    private var isDebugging = false
+    var state: DebuggerState = DebuggerState()
+        private set
+
+    public override val errors = mutableListOf<String>()
+    private var debuggerMode: DebuggerMode = DebuggerMode.Idle
     private var stepCount = 0
-    private var isSteppingIn = false
-    private var isSteppingOut = false
-    private var isResuming = false
-    private var programFinished = false
     private var debugSignal = CountDownLatch(1)
 
-
-    // Włączenie trybu debugowania
-    fun enableDebugging() {
-        isDebugging = true
+    private fun resetDebuggerState() {
+        state = state.copy(currentLine = -1)
+        stepCount = 0
+        debuggerMode = DebuggerMode.Idle
+        debugSignal = CountDownLatch(0) // Reset any waiting signals
     }
 
-    // Wyłączenie trybu debugowania
-    fun disableDebugging() {
-        isDebugging = false
-        debugSignal.countDown() // Upewnij się, że debuger nie czeka
+    // Add this method to properly handle session start/stop
+    fun startNewDebugSession() {
+        stopDebuggingSession() // Clean up any previous session
+        debuggerMode = DebuggerMode.Running
+
+    }
+
+    fun stopDebuggingSession() {
+        debuggerMode = DebuggerMode.Idle
+        if (debugSignal.count > 0) {
+            debugSignal.countDown()
+        }
+        resetDebuggerState()
+    }
+
+    private fun pauseAtLine(line: Int) {
+        state = state.copy(currentLine = line)
+        handleDebugPause(line)
     }
 
     // Kontynuowanie wykonania
     fun continueExecution() {
-        stepByStepMode = false // Wysyła sygnał do wątku debugera
+        debuggerMode = DebuggerMode.Running
     }
 
     fun nextStep() {
         debugSignal.countDown()
     }
 
-    fun waitForDebugSignal() {
-        stepCount++
-        if (!isDebugging && !programFinished) {
-            //currentLine = 0
-            stepByStepMode = false
+    fun toggleBreakpoint(lineNumber: Int) {
+        val newBreakpoints = state.breakpoints.toMutableList()
+        if (newBreakpoints.contains(lineNumber)) {
+            newBreakpoints.remove(lineNumber)
+        } else {
+            newBreakpoints.add(lineNumber)
         }
-        if (currentLine in breakpoints && isDebugging) {
-            stepByStepMode = true
+        state = state.copy(breakpoints = newBreakpoints)
+    }
+
+    fun handleDebugPause(line: Int) {
+        if (debuggerMode == DebuggerMode.Running && line in state.breakpoints) {
+            debuggerMode = DebuggerMode.StepByStep
         }
-        if (stepByStepMode) {
+
+        // Aktywuj tryb krokowy, jeśli wybraliśmy "step in" i weszliśmy do procedury
+        if (debuggerMode == DebuggerMode.StepIn) {
+            debuggerMode = DebuggerMode.StepByStep
+        }
+
+        if (debuggerMode == DebuggerMode.StepByStep) {
+            state = state.copy(currentLine = line)
             debugSignal = CountDownLatch(1)
-            debugSignal.await() // Wstrzymaj wykonanie do momentu otrzymania sygnału
+            debugSignal.await() // Wstrzymaj wykonanie
+        }
+
+        // Sprawdź, czy debugowanie nie zostało przerwane
+        if (debuggerMode == DebuggerMode.Idle) {
+            throw StopException("Debugowanie przerwane")
         }
     }
 
+
     fun stepIn() {
-        isSteppingIn = true
+        debuggerMode = DebuggerMode.StepIn
         nextStep()
     }
 
     fun stepOut() {
-        showStepOutButton = false
-        isSteppingOut = true
-        isSteppingIn = false
-        stepByStepMode = false
+        state = state.copy(showStepOutButton = false)
+        debuggerMode = DebuggerMode.StepOut
         nextStep()
+    }
+
+    fun updateCurrentLine(line: Int) {
+        state = state.copy(currentLine = line)
+    }
+
+    fun clearBreakpoints() {
+        state = state.copy(breakpoints = mutableListOf())
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
@@ -95,72 +121,52 @@ class DebuggerVisitor(
         try {
             for (i in 1..repeatCount) {
                 for (command in commandsBlock.filterIsInstance<logoParser.CmdContext>()) {
-                    currentLine = command.start.line
-                    Log.i("Czekam w petli:", command.text + " krok: $stepCount")
-                    waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
-                    if(!isDebugging) return 0
+                    pauseAtLine(command.start.line)
                     visit(command)
                     drawingDelegate.updateTurtleBitmap(turtleState)
                 }
             }
-        } catch (e: StopException) {
+        } catch (_: StopException) {
             return 0
         }
-
         return 0
     }
 
     override fun visitProcedureInvocation(ctx: logoParser.ProcedureInvocationContext?): Int {
         val procedureName = ctx!!.name().text
-
-        // Sprawdz czy procedura istnieje
         if (procedures.containsKey(procedureName)) {
             val procedureCtx = procedures[procedureName]
-            var steppedIn = isSteppingIn
-            val temp = stepByStepMode
-            if (!steppedIn) {
-                stepByStepMode = false
-            }
-            showStepOutButton = true
-            showStepInButton = false
-            // Obsluga parametrow procedury
-            val parameterDeclarations = procedureCtx!!.parameterDeclarations()
-            val arguments = ctx.expression()
+            val previousVariables = HashMap(variables)
 
-            if (parameterDeclarations.size != arguments.size) {
-                throw RuntimeException("Liczba argumentów nie pasuje do liczby parametrów.")
+            if (debuggerMode == DebuggerMode.StepIn) {
+                stepCount++
+                debuggerMode = DebuggerMode.StepByStep
             }
 
-            // Przypisz argumenty do zmiennych lokalnych
-            val previousVariables = HashMap(variables) // Zapisz poprzednie zmienne
-            for (i in parameterDeclarations.indices) {
-                val paramName = parameterDeclarations[i].name().text
-                val argumentValue = visit(arguments[i])
-                variables[paramName] = argumentValue
-            }
-            if (breakpoints.any { it in procedureCtx.start.line..procedureCtx.stop.line } && isDebugging) steppedIn =
-                true
             try {
-                // Wykonaj każdą linię ciała procedury
+                // Przypisz argumenty
+                for (i in procedureCtx!!.parameterDeclarations().indices) {
+                    val paramName = procedureCtx.parameterDeclarations()[i].name().text
+                    val argumentValue = visit(ctx.expression()[i])
+                    variables[paramName] = argumentValue
+                }
+
+                // Wykonaj ciało procedury
                 for (line in procedureCtx.line()) {
-                    currentLine = line.start.line
-                    if (steppedIn) {
-                        Log.i("Czekam w procedurze:", line.text + " krok: $stepCount")
-                        waitForDebugSignal() // Oczekiwanie na sygnał przed kolejnym krokiem
-                        if(!isDebugging) return 0
-                    }
+                    pauseAtLine(line.start.line)
                     visit(line)
                     drawingDelegate.updateTurtleBitmap(turtleState)
                 }
-            } catch (e: StopException) {
+            } catch (_: StopException) {
                 return 0
             } finally {
-                variables = previousVariables //Przywróć poprzednie zmienne po zakończeniu procedury
-            }
-            showStepOutButton = false
-            stepByStepMode = temp
-            if (steppedIn && isSteppingOut) {
-                stepByStepMode = true
+                variables = previousVariables
+                if (debuggerMode == DebuggerMode.StepOut && stepCount > 0) {
+                    stepCount--
+                    if (stepCount == 0) {
+                        debuggerMode = DebuggerMode.StepByStep
+                    }
+                }
             }
         } else {
             errors.add("Nieznana procedura: $procedureName w linii ${ctx.start.line}")
@@ -169,10 +175,7 @@ class DebuggerVisitor(
     }
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
-        // Reset state for new debugging session
-        resetDebuggerState()
-        isDebugging = true
-        programFinished = false
+        startNewDebugSession()
 
         resetTurtleState()
         drawingDelegate.clearScreen(isDarkMode, null)
@@ -180,67 +183,23 @@ class DebuggerVisitor(
 
         try {
             for (line in ctx!!.line()) {
-                currentLine = line.start.line
+                state = state.copy(currentLine = line.start.line)
 
-                // Check if we should break at this line
-                if (isDebugging && currentLine in breakpoints) {
-                    stepByStepMode = true
-                }
+                // Tutaj upewniamy się, że to jest moment do zatrzymania
+                handleDebugPause(line.start.line)
 
-                showStepInButton = procedures.containsKey(line.start.text)
-
-                // Wait for debug signal if in step mode
-                if (isDebugging && stepByStepMode) {
-                    debugSignal = CountDownLatch(1)
-                    debugSignal.await() // Wait for signal
-
-                    // Check if debugging was disabled while waiting
-                    if (!isDebugging) return 0
-                }
+                state = state.copy(showStepInButton = procedures.containsKey(line.start.text))
 
                 visit(line)
                 drawingDelegate.updateTurtleBitmap(turtleState)
-
-                // Reset step mode after executing the line unless we're explicitly stepping
-                if (!isSteppingIn && !isSteppingOut) {
-                    stepByStepMode = false
-                }
             }
-        } catch (e: Exception) {
-            Log.e("Debugger", "Error during debugging", e)
+        } catch (_: Exception) {
+            // Obsługa błędów
         } finally {
-            programFinished = true
-            // Don't automatically stop debugging here - let the UI control that
+//            programFinished = true
+            debuggerMode = DebuggerMode.Finished
+            stopDebuggingSession()
         }
-
         return 0
     }
-
-    private fun resetDebuggerState() {
-        currentLine = -1
-        stepCount = 0
-        isSteppingIn = false
-        isSteppingOut = false
-        isResuming = false
-        stepByStepMode = false
-        debugSignal = CountDownLatch(0) // Reset any waiting signals
-    }
-
-    // Add this method to properly handle session start/stop
-    fun startNewDebugSession() {
-        stopDebuggingSession() // Clean up any previous session
-        resetDebuggerState()
-        isDebugging = true
-        programFinished = false
-    }
-
-    fun stopDebuggingSession() {
-        isDebugging = false
-        stepByStepMode = false
-        // Count down any waiting latch to release threads
-        if (debugSignal.count > 0) {
-            debugSignal.countDown()
-        }
-    }
-
 }

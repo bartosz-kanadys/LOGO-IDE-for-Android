@@ -55,7 +55,6 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewMod
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
-import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor.Companion.toggleBreakpoint
 
 @Composable
 fun CodeEditor(
@@ -70,6 +69,8 @@ fun CodeEditor(
     isScrollable: Boolean = true,
     lines: Int = 10,
     fontSize: Int = SettingsViewModel.currentFontSize,
+    breakpoints: List<Int>,
+    currentLine: Int,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val linesCount = codeState.text.lines().size
@@ -102,7 +103,7 @@ fun CodeEditor(
 
         ) {
             for (i in 1..linesCount) {
-                if (i in DebuggerVisitor.breakpoints) {
+                if (i in breakpoints) {
                     // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
                     Box(
                         modifier = Modifier
@@ -110,7 +111,7 @@ fun CodeEditor(
                             .background(
                                 when (i) {
                                     in errorMap -> MaterialTheme.colorScheme.errorContainer
-                                    DebuggerVisitor.currentLine -> MaterialTheme.colorScheme.secondary
+                                    currentLine -> MaterialTheme.colorScheme.secondary
                                     else -> MaterialTheme.colorScheme.inversePrimary
                                 }
                             )
@@ -127,7 +128,7 @@ fun CodeEditor(
                                     interactionSource = interactionSource,
                                     indication = null
                                 ) {
-                                    toggleBreakpoint(i) // Przełącz breakpoint
+                                    interpreterViewModel!!.toggleBreakpoint(i) // Przełącz breakpoint
                                     //DebuggerVisitor.breakpoints=i
                                 },
 
@@ -149,7 +150,7 @@ fun CodeEditor(
                             .background(
                                 when (i) {
                                     in errorMap -> MaterialTheme.colorScheme.errorContainer
-                                    DebuggerVisitor.currentLine -> MaterialTheme.colorScheme.secondary
+                                    currentLine -> MaterialTheme.colorScheme.secondary
                                     else -> MaterialTheme.colorScheme.inversePrimary
                                 }
                             )
@@ -157,7 +158,7 @@ fun CodeEditor(
                                 interactionSource = interactionSource,
                                 indication = null
                             ) {
-                                toggleBreakpoint(i) // Przełącz breakpoint
+                                interpreterViewModel?.toggleBreakpoint(i) // Przełącz breakpoint
                             }
                     )
                 }
@@ -244,6 +245,8 @@ fun AA() {
         errors = "",
         onCodeChange = { },
         isSaveOnChange = true,
-        modifier = Modifier
+        modifier = Modifier,
+        breakpoints = emptyList(),
+        currentLine = 0
     )
 }

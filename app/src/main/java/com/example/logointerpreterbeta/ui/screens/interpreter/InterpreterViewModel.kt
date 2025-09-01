@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
 import android.graphics.Bitmap
-import android.graphics.Bitmap.createBitmap
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -11,10 +11,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
-import com.example.logointerpreterbeta.ui.models.TurtleUI
-import com.example.logointerpreterbeta.ui.MyImageHeight
-import com.example.logointerpreterbeta.ui.MyImageWidth
-import com.example.logointerpreterbeta.ui.drawing.toBitmap
+import com.example.logointerpreterbeta.domain.models.DebuggerState
+import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -30,31 +28,33 @@ import javax.inject.Inject
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
-    private val logo: LogoInterpreter
+    private val logo: LogoInterpreter,
+    drawingDelegate: UIDrawingDelegate
 ) : ViewModel() {
+    private val debugMutex = Mutex()
 
     private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
     private var cursorPosition by mutableIntStateOf(0)
 
-    var isErrorListExpanded by mutableStateOf(false)
-        private set
+    private val _isErrorListExpanded = MutableStateFlow(false)
+    var isErrorListExpanded = _isErrorListExpanded.asStateFlow()
+
+    private val _debuggerState = MutableStateFlow(DebuggerState())
+    val debuggerState: StateFlow<DebuggerState> = _debuggerState.asStateFlow()
 
     private val _isDebugging = MutableStateFlow(false)
     var isDebugging = _isDebugging.asStateFlow()
 
-    private var _img = MutableStateFlow(createBitmap(1000, 1000, Bitmap.Config.ARGB_8888))
-    val img: StateFlow<Bitmap> = _img.asStateFlow()
+    private val _img = drawingDelegate.bitmapFlow
+    val img: StateFlow<Bitmap> = _img
 
-    private var _arrowImg = MutableStateFlow(createBitmap(1000, 1000, Bitmap.Config.ALPHA_8))
-    val arrowImg: StateFlow<Bitmap> = _arrowImg.asStateFlow()
+    private val _arrowImg = drawingDelegate.turtleBitmapFlow
+    val arrowImg: StateFlow<Bitmap> = _arrowImg
 
     private val _errors = MutableStateFlow<List<String>>(emptyList())
     val errors: StateFlow<List<String>> = _errors.asStateFlow()
 
     init {
-        // Ustawienia początkowe pozycji i kierunku
-        TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-        TurtleUI.direction = 0f
         logo.interpret("st")
     }
 
@@ -70,7 +70,6 @@ class InterpreterViewModel @Inject constructor(
         return codeState
     }
 
-
     fun onCodeChange(newCode: TextFieldValue) {
         cursorPosition = newCode.selection.start
         codeState = newCode.copy(
@@ -84,17 +83,13 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun toggleErrorListVisibility() {
-        isErrorListExpanded = !isErrorListExpanded
+        _isErrorListExpanded.update { !_isErrorListExpanded.value  }
     }
 
     fun colorCode() {
         codeState = codeState.copy(
             annotatedString = LogoTextColorizer.colorizeText(codeState.text)
         )
-    }
-
-    fun nextStep() {
-        logo.nextStep()
     }
 
     fun enableDebugging() {
@@ -108,76 +103,68 @@ class InterpreterViewModel @Inject constructor(
         logo.disableDebugging()
     }
 
-    fun continueExecution() {
-        logo.continueExecution()
+    fun clearErrors() {
+        _errors.value = emptyList()
+    }
+
+    fun nextStep() {
+        logo.nextStep()
+        _debuggerState.value = logo.getDebuggerState()
     }
 
     fun stepIn() {
         logo.stepIn()
+        _debuggerState.value = logo.getDebuggerState()
     }
 
     fun stepOut() {
         logo.stepOut()
+        _debuggerState.value = logo.getDebuggerState()
     }
 
-    fun clearErrors() {
-        _errors.value = emptyList()
+    fun continueExecution() {
+        logo.continueExecution()
+        _debuggerState.value = logo.getDebuggerState()
+    }
+
+    fun toggleBreakpoint(lineNumber: Int) {
+        logo.toggleBreakpoint(lineNumber)
+        _debuggerState.value = logo.getDebuggerState()
+    }
+
+    fun clearBreakpoints() {
+        logo.clearBreakpoints()
+        _debuggerState.value = logo.getDebuggerState()
     }
 
     fun interpretCode(text: String = codeState.text) {
         viewModelScope.launch {
             clearErrors()
-            TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-            TurtleUI.direction = 0f
 
             val result = logo.interpret(text)
 
             if (!result.success) {
                 _errors.value = result.errors
             }
-            if (result.image != null) {
-                _img.update {
-                  result.image.toBitmap()
-                }
-                _arrowImg.update {
-                    result.arrowImage?.toBitmap() ?: createBitmap(1000, 1000, Bitmap.Config.ALPHA_8)
-                }
-            }
         }
     }
 
     private fun debugCode() {
         viewModelScope.launch(Dispatchers.Default) {
-            Mutex().withLock {
+            debugMutex.withLock {
                 clearErrors()
-                TurtleUI.setAcctualPosition(MyImageWidth.toFloat() / 2, MyImageHeight.toFloat() / 2)
-                TurtleUI.direction = 0f
 
-                val result = logo.debug(codeState.text) { imageResult, arrowResult ->
-                    _img.value = imageResult.toBitmap()
-                    _arrowImg.value = arrowResult.toBitmap()
+                val result = logo.debug(codeState.text)
+
+                viewModelScope.launch(Dispatchers.Main) {
+                    _debuggerState.update { logo.getDebuggerState() }
                 }
-
                 withContext(Dispatchers.Main) {
                     if (!result.success) {
                         _errors.value = result.errors
-                    }
-                    if (result.image != null) {
-                        _img.update {
-                            result.image.toBitmap()
-                        }
-                        _arrowImg.update {
-                            result.arrowImage?.toBitmap() ?: createBitmap(1000, 1000, Bitmap.Config.ALPHA_8)
-                        }
                     }
                 }
             }
         }
     }
-
-
-
-//    fun getImage(): Bitmap {
-//        logo.g
-//    }
 }

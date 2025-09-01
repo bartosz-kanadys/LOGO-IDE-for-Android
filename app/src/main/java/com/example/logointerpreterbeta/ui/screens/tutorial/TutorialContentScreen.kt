@@ -49,7 +49,9 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
                     isScrollable = false,
                     lines = linesCount,
                     fontSize = 15,                                    //fontSize + 5
-                    modifier = Modifier.height((30 + (linesCount - 1) * 20).dp)
+                    modifier = Modifier.height((30 + (linesCount - 1) * 20).dp),
+                    breakpoints = emptyList(),
+                    currentLine = -1,
                 )
                 Spacer(Modifier.height(5.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {

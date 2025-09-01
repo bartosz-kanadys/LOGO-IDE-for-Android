@@ -92,6 +92,11 @@ fun InterpreterApp(
 
     val isDebugging by interpreterViewModel.isDebugging.collectAsStateWithLifecycle()
 
+    val debuggerState by interpreterViewModel.debuggerState.collectAsStateWithLifecycle()
+
+
+    val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
+
     val fileRepository = FileRepositoryImpl(context)
 
     LaunchedEffect(isDarkTheme) {
@@ -267,7 +272,7 @@ fun InterpreterApp(
                 ErrorsList(
                     errors = errors.toString(),
                     isErrorListVisable = errors.isNotEmpty(),
-                    isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
+                    isErrorListExpanded = isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
                 Box {
@@ -277,9 +282,16 @@ fun InterpreterApp(
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
-                        modifier = Modifier
+                        modifier = Modifier,
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine
                     )
-                    InterpreterButtons(interpreterViewModel, isDebugging)
+                    InterpreterButtons(
+                        viewModel = interpreterViewModel,
+                        isDebugging = isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                    )
                 }
             }
             Box(
@@ -374,7 +386,7 @@ fun InterpreterApp(
                 ErrorsList(
                     errors = errors.toString(),
                     isErrorListVisable = errors.isNotEmpty(),
-                    isErrorListExpanded = interpreterViewModel.isErrorListExpanded,
+                    isErrorListExpanded = isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
             }
@@ -387,9 +399,16 @@ fun InterpreterApp(
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
-                        modifier = Modifier
+                        modifier = Modifier,
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine
                     )
-                    InterpreterButtons(interpreterViewModel, isDebugging)
+                    InterpreterButtons(
+                        viewModel = interpreterViewModel,
+                        isDebugging = isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                    )
                 }
             }
         }
@@ -407,7 +426,7 @@ private fun onTapFileAction(
     project: Project?,
     projectViewModel: ProjectViewModel
 ) {
-    DebuggerVisitor.breakpoints.clear()
+    interpreterViewModel.clearBreakpoints()
     interpreterViewModel.updateCodeState(
         fileRepository.readFileContent(
             context,

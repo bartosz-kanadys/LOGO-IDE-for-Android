@@ -1,38 +1,50 @@
 package com.example.logointerpreterbeta.ui.drawing
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.graphics.RectF
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
-import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
-import com.example.logointerpreterbeta.domain.models.drawing.DrawingResult
-import com.example.logointerpreterbeta.domain.models.drawing.PenState
-import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
-import com.example.logointerpreterbeta.domain.repository.ConfigRepository
-import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
-import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import androidx.core.graphics.createBitmap
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.models.drawing.PenState
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
+import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
+import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class AndroidDrawingDelegate(
-    private val bitmap: Bitmap,
+    width: Int,
+    height: Int,
     private val context: Context
-): DrawingDelegate {
-    private var turtleBitmap: Bitmap = createBitmap(bitmap.width, bitmap.height)
-    private val canvas: Canvas = Canvas(bitmap)
+): UIDrawingDelegate {
+
+    private val mainBitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    private val turtleBitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+
+    private val _bitmapFlow = MutableStateFlow(mainBitmap)
+    override val bitmapFlow: StateFlow<Bitmap> = _bitmapFlow.asStateFlow()
+
+    private val _turtleBitmapFlow = MutableStateFlow(turtleBitmap)
+    override val turtleBitmapFlow: StateFlow<Bitmap> = _turtleBitmapFlow.asStateFlow()
+
+    private val canvas: Canvas = Canvas(mainBitmap)
     private val turtleCanvas: Canvas = Canvas(turtleBitmap)
     private val paint: Paint = Paint().apply {
         style = Paint.Style.STROKE
         isAntiAlias = true
+    }
+
+    private fun notifyBitmapChanged() {
+        _bitmapFlow.value = mainBitmap.copy(mainBitmap.config!!, true)
+        _turtleBitmapFlow.value = turtleBitmap.copy(turtleBitmap.config!!, true)
     }
 
     override fun drawLine(
@@ -44,6 +56,7 @@ class AndroidDrawingDelegate(
     ) {
         applyPenState(pen)
         canvas.drawLine(startX, startY, endX, endY, paint)
+        notifyBitmapChanged()
     }
 
     override fun drawArc(
@@ -75,6 +88,7 @@ class AndroidDrawingDelegate(
         applyPenState(pen)
         paint.style = Paint.Style.FILL // Text is typically filled
         canvas.drawText(text, x, y, paint)
+        notifyBitmapChanged()
     }
 
     override fun clearScreen(isDarkMode: Boolean, color: Int?) {
@@ -87,6 +101,7 @@ class AndroidDrawingDelegate(
         } else {
             canvas.drawColor(color)
         }
+        notifyBitmapChanged()
     }
 
     override fun getCanvasWidth(): Float {
@@ -97,20 +112,9 @@ class AndroidDrawingDelegate(
         return canvas.height.toFloat()
     }
 
-    override fun getDrawing(): DrawingResult {
-        val pixels = IntArray(bitmap.width * bitmap.height)
-        bitmap.getPixels(pixels, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
-        return DrawingResult(bitmap.width, bitmap.height, pixels)
-    }
-
-    override fun getArrowDrawing(): DrawingResult {
-        val pixels = IntArray(turtleBitmap.width * turtleBitmap.height)
-        turtleBitmap.getPixels(pixels, 0, turtleBitmap.width, 0, 0, turtleBitmap.width, turtleBitmap.height)
-        return DrawingResult(turtleBitmap.width, turtleBitmap.height, pixels)
-    }
-
     override fun updateTurtleBitmap(turtleState: TurtleState) {
-        this.turtleBitmap.eraseColor(Color.TRANSPARENT)
+        turtleCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR)
+        notifyBitmapChanged()
         if (turtleState.isVisible) {
             // Pobieranie bitmapy żółwia i rotacja
             val arrow = getBitmapFromImage(context, R.drawable.turtle_simple_green)
@@ -134,6 +138,7 @@ class AndroidDrawingDelegate(
             )
 
         }
+        notifyBitmapChanged()
     }
 
     private fun applyPenState(pen: PenState) {
@@ -154,8 +159,4 @@ class AndroidDrawingDelegate(
         return bitmap
     }
 
-}
-
-fun DrawingResult.toBitmap(): Bitmap {
-    return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
 }

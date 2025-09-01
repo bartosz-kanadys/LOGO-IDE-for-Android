@@ -1,6 +1,5 @@
 package com.example.logointerpreterbeta.domain.drawing
 
-import com.example.logointerpreterbeta.domain.models.drawing.DrawingResult
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 
@@ -12,6 +11,4 @@ interface DrawingDelegate {
     fun getCanvasWidth(): Float
     fun getCanvasHeight(): Float
     fun updateTurtleBitmap(turtleState: TurtleState)
-    fun getDrawing(): DrawingResult
-    fun getArrowDrawing(): DrawingResult
 }

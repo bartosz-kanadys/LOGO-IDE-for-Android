@@ -1,10 +1,9 @@
 package com.example.logointerpreterbeta.di
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Bitmap.createBitmap
 import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
+import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,15 +16,20 @@ import javax.inject.Singleton
 object DrawingModule {
 
     @Provides
-    fun provideDrawingDelegate(@ApplicationContext context: Context): DrawingDelegate {
-        val bitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
-        return AndroidDrawingDelegate(bitmap, context)
+    @Singleton
+    fun provideAndroidDrawingDelegate(@ApplicationContext context: Context): AndroidDrawingDelegate {
+        return AndroidDrawingDelegate(1000, 1000, context)
     }
 
     @Provides
     @Singleton
-    fun provideAndroidDrawingDelegate(@ApplicationContext context: Context): AndroidDrawingDelegate {
-        val bitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888)
-        return AndroidDrawingDelegate(bitmap,context)
+    fun provideDrawingDelegate(delegate: AndroidDrawingDelegate): DrawingDelegate {
+        return delegate
+    }
+
+    @Provides
+    @Singleton
+    fun provideUIDrawingDelegate(delegate: AndroidDrawingDelegate): UIDrawingDelegate {
+        return delegate
     }
 }

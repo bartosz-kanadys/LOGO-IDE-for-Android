@@ -33,7 +33,9 @@ import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 @Composable
 fun InterpreterButtons(
     viewModel: InterpreterViewModel,
-    isDebugging: Boolean
+    isDebugging: Boolean,
+    isStepInButtonVisible: Boolean,
+    isStepOutButtonVisible: Boolean,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -42,7 +44,7 @@ fun InterpreterButtons(
                 .padding(top = 15.dp, end = 5.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (isDebugging) {
+            if (!isDebugging) {
                 CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
                 CodeEditorButton(Icons.Filled.BugReport, size = 30) { viewModel.enableDebugging() }
             } else {
@@ -53,10 +55,10 @@ fun InterpreterButtons(
                 ) { viewModel.disableDebugging() }
 
                 CodeEditorButton(Icons.Filled.ArrowForward) { viewModel.nextStep() }
-                if (DebuggerVisitor.showStepInButton) {
+                if (isStepInButtonVisible) {
                     CodeEditorButton(Icons.Filled.ArrowDownward) { viewModel.stepIn() }
                 }
-                if (DebuggerVisitor.showStepOutButton) {
+                if (isStepOutButtonVisible) {
                     CodeEditorButton(Icons.Filled.ArrowUpward) { viewModel.stepOut() }
                 }
             }
