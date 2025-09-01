@@ -17,11 +17,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
-fun TurtleInfo(onClick: () -> Unit) {
+fun TurtleInfo(
+    turtleState: TurtleState,
+    onClick: () -> Unit
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -41,31 +45,31 @@ fun TurtleInfo(onClick: () -> Unit) {
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "X=${TurtleUI.Xposition - 1000}, Y=${(TurtleUI.Yposition - 1000) * -1}",
+            text = "X=${turtleState.xPosition - 1000}, Y=${(turtleState.yPosition - 1000) * -1}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Kąt = ${TurtleUI.direction}°",
+            text = "Kąt = ${turtleState.direction}°",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Ukryty = ${!TurtleUI.isShowed}",
+            text = "Ukryty = ${turtleState.isVisible}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Opuszczony = ${TurtleUI.isDown}",
+            text = "Opuszczony = ${turtleState.isPenDown}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Rozmiar = ${TurtleUI.penSize}",
+            text = "Rozmiar = ${turtleState.penState.size}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
@@ -80,7 +84,7 @@ fun TurtleInfo(onClick: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.Square,
                 contentDescription = null,
-                tint = Color(TurtleUI.penColor)
+                tint = Color(turtleState.penState.color)
             )
         }
     }

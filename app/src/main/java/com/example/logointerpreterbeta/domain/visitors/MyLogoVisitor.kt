@@ -18,54 +18,62 @@ open class MyLogoVisitor(
 ) : logoBaseVisitor<Any>() {
 
     protected open val errors = mutableListOf<String>()
-    protected lateinit var turtleState: TurtleState
+    var turtleState: TurtleState
     protected var variables: MutableMap<String, Any> = HashMap()
     protected var procedures: MutableMap<String, logoParser.ProcedureDeclarationContext> = HashMap()
 
+    init {
+        turtleState = TurtleState(
+            xPosition = drawingDelegate.getCanvasWidth() / 2,
+            yPosition = drawingDelegate.getCanvasHeight() / 2,
+        )
+    }
     fun resetTurtleState() {
         turtleState = TurtleState(
-            x = drawingDelegate.getCanvasWidth() / 2,
-            y = drawingDelegate.getCanvasHeight() / 2,
+            xPosition = drawingDelegate.getCanvasWidth() / 2,
+            yPosition = drawingDelegate.getCanvasHeight() / 2,
             penState = PenState()
         )
     }
 
+    fun getTurtleRelativePosition(): Pair<Float, Float> {
+        val centerX = turtleState.xPosition + (drawingDelegate.getCanvasWidth() / 2 )
+       val centerY = turtleState.yPosition - drawingDelegate.getCanvasHeight() / 2 + drawingDelegate.getCanvasHeight()
+        return Pair(centerX, centerY)
+    }
+
     override fun visitFd(ctx: logoParser.FdContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
-        // Konwersja kąta na radiany
-        val angleRadians = Math.toRadians((turtleState.direction - 90).toDouble())
+        val angleRadians = Math.toRadians(turtleState.direction.toDouble()) // 0° w górę
 
-        val startX = turtleState.x
-        val startY = turtleState.y
-        val endX = (startX + distance * cos(angleRadians)).toFloat()
-        val endY = (startY + distance * sin(angleRadians)).toFloat()
-
-        turtleState = turtleState.copy(x = endX, y = endY)
+        val startX = turtleState.xPosition
+        val startY = turtleState.yPosition
+        val endX = (startX + distance * sin(angleRadians)).toFloat() // X rośnie w prawo
+        val endY = (startY - distance * cos(angleRadians)).toFloat() // Y rośnie w górę
 
         if (turtleState.isPenDown) {
-            // The visitor tells the delegate what to draw.
             drawingDelegate.drawLine(startX, startY, endX, endY, turtleState.penState)
-
         }
+
+        turtleState = turtleState.copy(xPosition = endX, yPosition = endY)
         drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitBk(ctx: logoParser.BkContext?) {
         val distance = visit(ctx!!.expression()).toString().toFloat()
-        // Konwersja kąta na radiany
-        val angleRadians = Math.toRadians((turtleState.direction- 90 - 180).toDouble())
+        val angleRadians = Math.toRadians(turtleState.direction.toDouble())
 
-        val startX = turtleState.x
-        val startY = turtleState.y
-        val endX = (startX + distance * cos(angleRadians)).toFloat()
-        val endY = (startY + distance * sin(angleRadians)).toFloat()
+        val startX = turtleState.xPosition
+        val startY = turtleState.yPosition
+        val endX = (startX - distance * sin(angleRadians)).toFloat()
+        val endY = (startY + distance * cos(angleRadians)).toFloat()
 
         if (turtleState.isPenDown) {
             drawingDelegate.drawLine(startX, startY, endX, endY, turtleState.penState)
-            drawingDelegate.updateTurtleBitmap(turtleState)
         }
 
-        turtleState = turtleState.copy(x = endX, y = endY)
+        turtleState = turtleState.copy(xPosition = endX, yPosition = endY)
+        drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitArc(ctx: logoParser.ArcContext?) {
@@ -74,8 +82,8 @@ open class MyLogoVisitor(
 
         // In Logo, ARC moves the turtle along the circumference. The center of the arc is to the turtle's right.
         val angleToCenterRad = Math.toRadians((turtleState.direction).toDouble())
-        val centerX = turtleState.x + distance * cos(angleToCenterRad)
-        val centerY = turtleState.y + distance * sin(angleToCenterRad)
+        val centerX = turtleState.xPosition + distance * cos(angleToCenterRad)
+        val centerY = turtleState.yPosition + distance * sin(angleToCenterRad)
 
         // The start angle for drawing needs to be calculated relative to the center.
         val startAngle = turtleState.direction + 90
@@ -118,8 +126,8 @@ open class MyLogoVisitor(
 
     override fun visitHome(ctx: logoParser.HomeContext?) {
         turtleState = turtleState.copy(
-            x = drawingDelegate.getCanvasWidth() / 2,
-            y = drawingDelegate.getCanvasHeight() / 2
+            xPosition = drawingDelegate.getCanvasWidth() / 2,
+            yPosition = drawingDelegate.getCanvasHeight() / 2
         )
         drawingDelegate.updateTurtleBitmap(turtleState)
     }
@@ -141,7 +149,7 @@ open class MyLogoVisitor(
         val canvasX = drawingDelegate.getCanvasWidth() / 2 + x
         val canvasY = drawingDelegate.getCanvasHeight() / 2 - y // Y is inverted in graphics canvases
 
-        turtleState = turtleState.copy(x = canvasX, y = canvasY)
+        turtleState = turtleState.copy(xPosition = canvasX, yPosition = canvasY)
         drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
@@ -297,7 +305,7 @@ open class MyLogoVisitor(
             text = text.substring(1, text.length)
         }
 //        canvas.drawText(text, TurtleUI.Xposition, TurtleUI.Yposition, paint)
-        drawingDelegate.drawText(text, turtleState.x, turtleState.y, turtleState.penState)
+        drawingDelegate.drawText(text, turtleState.xPosition, turtleState.yPosition, turtleState.penState)
 
     }
 

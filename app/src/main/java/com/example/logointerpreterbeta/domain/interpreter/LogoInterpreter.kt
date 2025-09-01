@@ -7,6 +7,7 @@ import com.example.logointerpreterbeta.domain.interpreter.errors.MyErrorListener
 import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoLibraryVisitor
@@ -34,6 +35,13 @@ class LogoInterpreter @Inject constructor(
 
     fun getProceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         return myLogoLibraryVisitor.getProcedures()
+    }
+
+    fun getTurtleState(): TurtleState {
+        return myVisitor.turtleState
+    }
+    fun getRelativeTurtlePosition(): Pair<Float, Float> {
+        return myVisitor.getTurtleRelativePosition()
     }
 
     fun interpret(code: String): InterpreterResult {

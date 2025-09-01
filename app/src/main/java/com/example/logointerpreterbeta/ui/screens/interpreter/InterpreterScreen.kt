@@ -94,6 +94,7 @@ fun InterpreterApp(
 
     val debuggerState by interpreterViewModel.debuggerState.collectAsStateWithLifecycle()
 
+    val turtleState by interpreterViewModel.turtleState.collectAsStateWithLifecycle()
 
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
 
@@ -299,7 +300,7 @@ fun InterpreterApp(
                     //.fillMaxWidth(0.5f)
                     .zIndex(1f)
             ) {
-                ImagePanel(image.asImageBitmap(), arrowImage.asImageBitmap())
+                ImagePanel(turtleState = turtleState, image.asImageBitmap(), arrowImage.asImageBitmap())
             }
         }
     } else {
@@ -314,7 +315,7 @@ fun InterpreterApp(
                         .fillParentMaxHeight(0.6f)
                         .fillMaxWidth()
                 ) {
-                    ImagePanel(image.asImageBitmap(), arrowImage.asImageBitmap())
+                    ImagePanel(turtleState = turtleState, image.asImageBitmap(), arrowImage.asImageBitmap())
 
                     LazyRow(
                         modifier = Modifier

@@ -48,6 +48,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.ui.MyImageHeight
 import com.example.logointerpreterbeta.ui.MyImageWidth
 import com.example.logointerpreterbeta.ui.models.TurtleUI
@@ -64,6 +65,7 @@ val OffsetSaver = Saver<Offset, List<Float>>(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ImagePanel(
+    turtleState: TurtleState,
     image: ImageBitmap,
     arrowImage: ImageBitmap,
 ) {
@@ -134,7 +136,9 @@ fun ImagePanel(
             ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
         }
         AnimatedVisibility(visible = isInfoVisable, modifier = Modifier.align(Alignment.TopEnd)) {
-            TurtleInfo {
+            TurtleInfo(
+                turtleState = turtleState,
+            ) {
                 isInfoVisable = !isInfoVisable
             }
         }

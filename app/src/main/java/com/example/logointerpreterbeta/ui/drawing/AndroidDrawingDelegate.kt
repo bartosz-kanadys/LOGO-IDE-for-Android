@@ -132,8 +132,8 @@ class AndroidDrawingDelegate(
                 true)
             turtleCanvas.drawBitmap(
                 turtleBitmap,
-                turtleState.x - turtleBitmap.width / 2,
-                turtleState.y - turtleBitmap.height / 2,
+                turtleState.xPosition - turtleBitmap.width / 2,
+                turtleState.yPosition - turtleBitmap.height / 2,
                 paint
             )
 

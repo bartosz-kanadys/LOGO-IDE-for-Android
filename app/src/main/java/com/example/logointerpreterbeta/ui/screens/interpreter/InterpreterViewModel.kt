@@ -1,7 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +11,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
+import com.example.logointerpreterbeta.domain.models.drawing.PenState
+import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,6 +54,9 @@ class InterpreterViewModel @Inject constructor(
 
     private val _errors = MutableStateFlow<List<String>>(emptyList())
     val errors: StateFlow<List<String>> = _errors.asStateFlow()
+
+    private val _turtleState = MutableStateFlow<TurtleState>(TurtleState(500f,500f,0f,true,true, penState = PenState()))
+    val turtleState: StateFlow<TurtleState> = _turtleState.asStateFlow()
 
     init {
         logo.interpret("st")
@@ -142,6 +146,14 @@ class InterpreterViewModel @Inject constructor(
             clearErrors()
 
             val result = logo.interpret(text)
+            val newTurtleState = logo.getTurtleState()
+            val relativePosition = logo.getRelativeTurtlePosition()
+            _turtleState.update {
+                newTurtleState.copy(
+                    xPosition = relativePosition.first,
+                    yPosition = relativePosition.second
+                )
+            }
 
             if (!result.success) {
                 _errors.value = result.errors
