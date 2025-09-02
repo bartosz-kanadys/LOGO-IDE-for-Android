@@ -23,7 +23,7 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @Composable
 fun TurtleInfo(
-    turtleState: TurtleState,
+    turtleState: TurtleUI,
     onClick: () -> Unit
 ) {
     Column(
@@ -45,7 +45,7 @@ fun TurtleInfo(
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "X=${turtleState.xPosition - 1000}, Y=${(turtleState.yPosition - 1000) * -1}",
+            text = "X=${turtleState.xPosition}, Y=${(turtleState.yPosition) }",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)
@@ -57,7 +57,7 @@ fun TurtleInfo(
             modifier = Modifier.padding(5.dp)
         )
         Text(
-            text = "Ukryty = ${turtleState.isVisible}",
+            text = "Widoczny = ${turtleState.isVisible}",
             style = AppTypography.bodySmall,
             color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(5.dp)

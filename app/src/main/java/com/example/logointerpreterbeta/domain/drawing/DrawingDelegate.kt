@@ -11,4 +11,7 @@ interface DrawingDelegate {
     fun getCanvasWidth(): Float
     fun getCanvasHeight(): Float
     fun updateTurtleBitmap(turtleState: TurtleState)
+    fun setPenState(penState: PenState)
+    fun hideTurtle(isVisible: Boolean)
+    fun penDown(isPenDown: Boolean)
 }

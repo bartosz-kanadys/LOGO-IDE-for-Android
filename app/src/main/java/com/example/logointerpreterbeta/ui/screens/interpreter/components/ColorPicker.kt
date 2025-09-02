@@ -31,7 +31,6 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
-import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
@@ -90,12 +89,12 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
         )
         Spacer(modifier = Modifier.height(10.dp))
 
-        PickerButton(
-            text = "Wybierz", onClick = {
-                onSelectClick()
-                TurtleUI.penColor = controller.selectedColor.value.toArgb()
-                Log.i("ff", TurtleUI.penColor.toString())
-            })
+//        PickerButton(
+//            text = "Wybierz", onClick = {
+//                onSelectClick(controller.selectedColor.value)
+//                //TurtleUI.penColor = controller.selectedColor.value.toArgb()
+//              //  Log.i("ff", TurtleUI.penColor.toString())
+//            })
 
         PickerButton(
             text = "Kopiuj",

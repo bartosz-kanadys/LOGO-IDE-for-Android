@@ -115,13 +115,17 @@ open class MyLogoVisitor(
     }
 
     override fun visitPu(ctx: logoParser.PuContext?) {
-//        TurtleUI.isDown = false
         turtleState = turtleState.copy(isPenDown = false)
+        drawingDelegate.penDown(false)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+
     }
 
     override fun visitPd(ctx: logoParser.PdContext?) {
-//        TurtleUI.isDown = true
         turtleState = turtleState.copy(isPenDown = true)
+        drawingDelegate.penDown(true)
+        drawingDelegate.updateTurtleBitmap(turtleState)
+
     }
 
     override fun visitHome(ctx: logoParser.HomeContext?) {
@@ -134,11 +138,14 @@ open class MyLogoVisitor(
 
     override fun visitSt(ctx: logoParser.StContext?) {
         turtleState = turtleState.copy(isVisible = true)
-
+        drawingDelegate.hideTurtle(true)
+        drawingDelegate.updateTurtleBitmap(turtleState)
     }
 
     override fun visitHt(ctx: logoParser.HtContext?) {
         turtleState = turtleState.copy(isVisible = false)
+        drawingDelegate.hideTurtle(false)
+        drawingDelegate.updateTurtleBitmap(turtleState)
 
     }
 
@@ -184,12 +191,14 @@ open class MyLogoVisitor(
         }
         val newPenState = turtleState.penState.copy(color = newColor)
         turtleState = turtleState.copy(penState = newPenState)
+        drawingDelegate.setPenState(newPenState)
     }
 
     override fun visitSetpensize(ctx: logoParser.SetpensizeContext?) {
         val size = visit(ctx!!.expression()).toString().toFloat()
         val newPenState = turtleState.penState.copy(size = size)
         turtleState = turtleState.copy(penState = newPenState)
+        drawingDelegate.setPenState(newPenState)
     }
 
     override fun visitSetbg(ctx: logoParser.SetbgContext?) {
@@ -423,7 +432,7 @@ open class MyLogoVisitor(
         val logo = LogoInterpreter(
             drawingDelegate = drawingDelegate,
             libraryRepository = libraryRepository!!,
-            isDarkMode
+            isDarkMode,
         )
         val libraries = libraryRepository.loadLibraries()
         val library = libraries.find { it.name == libraryName }

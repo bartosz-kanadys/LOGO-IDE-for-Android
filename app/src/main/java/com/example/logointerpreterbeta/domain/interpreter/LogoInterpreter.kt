@@ -26,22 +26,15 @@ class LogoInterpreter @Inject constructor(
     private val myVisitor = MyLogoVisitor(
         drawingDelegate = drawingDelegate,
         libraryRepository = libraryRepository,
-        isDarkMode = isDarkMode
+        isDarkMode = isDarkMode,
     )
     private val myLogoLibraryVisitor = MyLogoLibraryVisitor()
     private val debuggerVisitor = DebuggerVisitor(
-        drawingDelegate = drawingDelegate,
+        drawingDelegate = drawingDelegate
     )
 
     fun getProceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         return myLogoLibraryVisitor.getProcedures()
-    }
-
-    fun getTurtleState(): TurtleState {
-        return myVisitor.turtleState
-    }
-    fun getRelativeTurtlePosition(): Pair<Float, Float> {
-        return myVisitor.getTurtleRelativePosition()
     }
 
     fun interpret(code: String): InterpreterResult {
@@ -62,7 +55,9 @@ class LogoInterpreter @Inject constructor(
         }
     }
 
-    fun debug(input: String): InterpreterResult {
+    fun debug(
+        input: String
+    ): InterpreterResult {
         val errorListener = MyErrorListener()
         val tree = parseInput(input + "\n", errorListener)
 

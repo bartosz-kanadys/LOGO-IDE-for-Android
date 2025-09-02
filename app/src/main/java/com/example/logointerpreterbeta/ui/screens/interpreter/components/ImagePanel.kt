@@ -41,19 +41,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.ui.MyImageHeight
 import com.example.logointerpreterbeta.ui.MyImageWidth
 import com.example.logointerpreterbeta.ui.models.TurtleUI
-import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import kotlin.math.roundToInt
 
 
@@ -65,7 +60,7 @@ val OffsetSaver = Saver<Offset, List<Float>>(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ImagePanel(
-    turtleState: TurtleState,
+    turtleState: TurtleUI,
     image: ImageBitmap,
     arrowImage: ImageBitmap,
 ) {
@@ -111,8 +106,11 @@ fun ImagePanel(
         )
         AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
             ColorPicker(
-                initialColor = TurtleUI.penColor,
-                onSelectClick = { isPickerVisable = !isPickerVisable },
+                initialColor = turtleState.penState.color,
+                onSelectClick = {
+                    isPickerVisable = !isPickerVisable
+                   // turtleState.penState.color = it!!.toArgb()
+                },
                 context = LocalContext.current
             )
         }

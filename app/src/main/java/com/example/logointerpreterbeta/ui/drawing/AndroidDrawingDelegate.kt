@@ -14,17 +14,20 @@ import androidx.core.graphics.createBitmap
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
+import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 class AndroidDrawingDelegate(
     width: Int,
     height: Int,
-    private val context: Context
+    private val context: Context,
 ): UIDrawingDelegate {
+    override val turtleUi: MutableStateFlow<TurtleUI> = MutableStateFlow(TurtleUI(0f, 0f, 90f, true, PenState(), true))
 
     private val mainBitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
     private val turtleBitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -47,6 +50,32 @@ class AndroidDrawingDelegate(
         _turtleBitmapFlow.value = turtleBitmap.copy(turtleBitmap.config!!, true)
     }
 
+    fun getRelativeXPosition(x: Float): Float {
+        return x - (getCanvasWidth() / 2 )
+    }
+
+    fun getRelativeYPosition(y: Float): Float {
+        return (y - (getCanvasHeight() / 2)) * -1
+    }
+
+    override fun setPenState(penState: PenState) {
+        turtleUi.update {
+            it.copy(penState = penState)
+        }
+    }
+
+    override fun hideTurtle(isVisible: Boolean) {
+        turtleUi.update { it.copy(isVisible = isVisible) }
+    }
+
+    override fun penDown(isPenDown: Boolean) {
+        turtleUi.update {
+            it.copy(
+                isPenDown = isPenDown
+            )
+        }
+    }
+
     override fun drawLine(
         startX: Float,
         startY: Float,
@@ -57,6 +86,13 @@ class AndroidDrawingDelegate(
         applyPenState(pen)
         canvas.drawLine(startX, startY, endX, endY, paint)
         notifyBitmapChanged()
+        turtleUi.update {
+            it.copy(
+                xPosition = getRelativeXPosition(endX),
+                yPosition = getRelativeYPosition(endY),
+                penState = pen
+            )
+        }
     }
 
     override fun drawArc(
@@ -77,6 +113,14 @@ class AndroidDrawingDelegate(
         // Set style to STROKE for open arc, FILL for pie slice
         paint.style = Paint.Style.STROKE
         canvas.drawArc(rectF, startAngle, sweepAngle, false, paint)
+        notifyBitmapChanged()
+        turtleUi.update {
+            it.copy(
+                xPosition = getRelativeXPosition(centerX.toFloat()),
+                yPosition = getRelativeYPosition(centerY.toFloat()),
+                penState = pen
+            )
+        }
     }
 
     override fun drawText(
@@ -102,6 +146,16 @@ class AndroidDrawingDelegate(
             canvas.drawColor(color)
         }
         notifyBitmapChanged()
+        turtleUi.update {
+            it.copy(
+                xPosition = 0f,
+                yPosition = 0f,
+                direction = 90f,
+                isVisible = true,
+                penState = PenState(),
+                isPenDown = true
+            )
+        }
     }
 
     override fun getCanvasWidth(): Float {
@@ -137,6 +191,11 @@ class AndroidDrawingDelegate(
                 paint
             )
 
+        }
+        turtleUi.update {
+            it.copy(
+                direction = turtleState.direction,
+            )
         }
         notifyBitmapChanged()
     }
