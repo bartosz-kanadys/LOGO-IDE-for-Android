@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
+import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.createTypography
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.ThemeMode
@@ -17,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val configRepository: ConfigRepository,
+    private val drawingDelegate: AndroidDrawingDelegate
 ) : ViewModel() {
     companion object{
         var currentTheme  by mutableStateOf(ThemeMode.LIGHT_THEME)
@@ -49,6 +51,10 @@ class SettingsViewModel @Inject constructor(
             else -> ThemeMode.SYSTEM_THEME
         }
         configRepository.updateThemeJSON(selectedTheme)
+        drawingDelegate.updateTheme(
+            currentTheme == ThemeMode.DARK_THEME
+            || currentTheme == ThemeMode.SYSTEM_THEME && darkMode
+        )
     }
     fun changeSelectedFont(){
         currentFont = when (selectedFont) {

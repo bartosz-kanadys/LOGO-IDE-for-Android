@@ -7,7 +7,7 @@ interface DrawingDelegate {
     fun drawLine(startX: Float, startY: Float, endX: Float, endY: Float, pen: PenState)
     fun drawArc(centerX: Double, centerY: Double, radius: Float, startAngle: Float, sweepAngle: Float, pen: PenState)
     fun drawText(text: String, x: Float, y: Float, pen: PenState)
-    fun clearScreen(isDarkMode: Boolean, color: Int?)
+    fun clearScreen(color: Int?)
     fun getCanvasWidth(): Float
     fun getCanvasHeight(): Float
     fun updateTurtleBitmap(turtleState: TurtleState)

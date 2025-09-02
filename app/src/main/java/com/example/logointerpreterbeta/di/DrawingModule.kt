@@ -18,7 +18,7 @@ object DrawingModule {
     @Provides
     @Singleton
     fun provideAndroidDrawingDelegate(@ApplicationContext context: Context): AndroidDrawingDelegate {
-        return AndroidDrawingDelegate(1000, 1000, context)
+        return AndroidDrawingDelegate(1000, 1000, context, true)
     }
 
     @Provides

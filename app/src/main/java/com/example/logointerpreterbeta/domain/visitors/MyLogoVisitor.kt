@@ -108,7 +108,7 @@ open class MyLogoVisitor(
 
     override fun visitCs(ctx: logoParser.CsContext?) {
 
-        drawingDelegate.clearScreen(isDarkMode, color = null)
+        drawingDelegate.clearScreen(color = null)
         drawingDelegate.updateTurtleBitmap(turtleState)
         // CS also homes the turtle
         visitHome(null)
@@ -203,7 +203,7 @@ open class MyLogoVisitor(
 
     override fun visitSetbg(ctx: logoParser.SetbgContext?) {
         val color = visit(ctx!!.expression()).toString().toFloat().toInt()
-        drawingDelegate.clearScreen(isDarkMode, color)
+        drawingDelegate.clearScreen(color)
         return Unit
     }
 
@@ -413,7 +413,7 @@ open class MyLogoVisitor(
 
     override fun visitProg(ctx: logoParser.ProgContext?): Int {
         resetTurtleState()
-        drawingDelegate.clearScreen(isDarkMode, null)
+        drawingDelegate.clearScreen(null)
 
         try {
             for (line in ctx!!.line()) {

@@ -178,7 +178,7 @@ class DebuggerVisitor(
         startNewDebugSession()
 
         resetTurtleState()
-        drawingDelegate.clearScreen(isDarkMode, null)
+        drawingDelegate.clearScreen( null)
         drawingDelegate.updateTurtleBitmap(turtleState)
 
         try {

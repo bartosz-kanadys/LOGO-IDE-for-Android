@@ -15,6 +15,8 @@ import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.ui.models.TurtleUI
+import com.example.logointerpreterbeta.ui.theme.onSurfaceDarkMediumContrast
+import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceDarkMediumContrast
 import com.example.logointerpreterbeta.ui.theme.surfaceLightMediumContrast
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,6 +28,7 @@ class AndroidDrawingDelegate(
     width: Int,
     height: Int,
     private val context: Context,
+    private var isDarkMode: Boolean
 ): UIDrawingDelegate {
     override val turtleUi: MutableStateFlow<TurtleUI> = MutableStateFlow(TurtleUI(0f, 0f, 90f, true, PenState(), true))
 
@@ -43,6 +46,31 @@ class AndroidDrawingDelegate(
     private val paint: Paint = Paint().apply {
         style = Paint.Style.STROKE
         isAntiAlias = true
+    }
+
+    init {
+        setBackgroundColor()
+        notifyBitmapChanged()
+    }
+
+    override fun updateTheme(isDarkMode: Boolean) {
+        this.isDarkMode = isDarkMode
+        if (this.isDarkMode) {
+            paint.color = onSurfaceDarkMediumContrast.toArgb()
+        } else {
+            paint.color = onSurfaceLightMediumContrast.toArgb()
+        }
+        setBackgroundColor()
+        notifyBitmapChanged()
+    }
+
+    private fun setBackgroundColor() {
+        val backgroundColor = if (isDarkMode) {
+            surfaceDarkMediumContrast.toArgb()
+        } else {
+            surfaceLightMediumContrast.toArgb()
+        }
+        canvas.drawColor(backgroundColor)
     }
 
     private fun notifyBitmapChanged() {
@@ -135,9 +163,9 @@ class AndroidDrawingDelegate(
         notifyBitmapChanged()
     }
 
-    override fun clearScreen(isDarkMode: Boolean, color: Int?) {
+    override fun clearScreen( color: Int?) {
         if (color == null) {
-            if (isDarkMode) {
+            if (this.isDarkMode) {
                 canvas.drawColor(surfaceDarkMediumContrast.toArgb())
             } else {
                 canvas.drawColor(surfaceLightMediumContrast.toArgb())
