@@ -14,4 +14,5 @@ interface DrawingDelegate {
     fun setPenState(penState: PenState)
     fun hideTurtle(isVisible: Boolean)
     fun penDown(isPenDown: Boolean)
+    fun getLogoBasicColor(number: Int): Int
 }

@@ -179,7 +179,7 @@ open class MyLogoVisitor(
     override fun visitSetpencolor(ctx: logoParser.SetpencolorContext?) {
         val newColor = if (ctx!!.expression() != null) {
             val intColor = visit(ctx.expression()).toString().toFloat().toInt()
-            penColors[intColor]
+            drawingDelegate.getLogoBasicColor(intColor)
 
         } else if (ctx.number(0) != null && ctx.number(1) != null && ctx.number(2) != null) {
             val red = ctx.number(0).text.toInt()

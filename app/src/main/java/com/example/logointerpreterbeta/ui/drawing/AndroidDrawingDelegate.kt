@@ -104,6 +104,10 @@ class AndroidDrawingDelegate(
         }
     }
 
+    override fun getLogoBasicColor(number: Int): Int {
+        return penColors[number]
+    }
+
     override fun drawLine(
         startX: Float,
         startY: Float,

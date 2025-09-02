@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain
+package com.example.logointerpreterbeta.framework
 
 import android.Manifest
 import android.app.Activity
