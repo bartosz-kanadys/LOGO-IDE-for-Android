@@ -69,10 +69,10 @@ fun ImagePanel(
     var isBlocked by rememberSaveable { mutableStateOf(false) }
     var isPickerVisable by rememberSaveable { mutableStateOf(false) }
     var isInfoVisable by rememberSaveable { mutableStateOf(false) }
-    var isDarkTheme by rememberSaveable { mutableStateOf(false) }
-    isDarkTheme = isSystemInDarkTheme()
-    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_8888)
-    emptyBitmap.eraseColor(android.graphics.Color.TRANSPARENT)
+//    var isDarkTheme by rememberSaveable { mutableStateOf(false) }
+//    isDarkTheme = isSystemInDarkTheme()
+//    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_8888)
+//    emptyBitmap.eraseColor(android.graphics.Color.TRANSPARENT)
     Box(
         modifier = Modifier
             .pointerInput(Unit) {

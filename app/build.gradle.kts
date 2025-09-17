@@ -6,11 +6,14 @@ plugins {
     id("kotlin-parcelize")
     id("kotlin-kapt")
     id("com.google.dagger.hilt.android")
+   // id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.compose.compiler)
+
 }
 
 android {
     namespace = "com.example.logointerpreterbeta"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.logointerpreterbeta"
