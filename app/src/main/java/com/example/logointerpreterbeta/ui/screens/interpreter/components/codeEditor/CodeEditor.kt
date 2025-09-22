@@ -53,8 +53,7 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEdi
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.replaceAnnotatedSubstring
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
-import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
-import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
+import com.example.logointerpreterbeta.ui.theme.ThemeUtils
 
 @Composable
 fun CodeEditor(
@@ -68,8 +67,11 @@ fun CodeEditor(
     isEnabled: Boolean = true,
     isScrollable: Boolean = true,
     lines: Int = 10,
-    fontSize: Int = SettingsViewModel.currentFontSize,
+    fontSize: Int = 18,
+    fontFamily: String = "JetBrains Mono",
     breakpoints: List<Int>,
+    useAutocorrect: Boolean = false,
+    showSuggestions: Boolean = true,
     currentLine: Int,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
@@ -143,7 +145,7 @@ fun CodeEditor(
                         fontSize = fontSize.sp,
                         style = TextStyle(
                             platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily
+                            fontFamily = ThemeUtils.fontFamilyFromString(fontFamily)
                         ),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -190,7 +192,7 @@ fun CodeEditor(
                     textStyle = TextStyle(
                         color = MaterialTheme.colorScheme.onSurface,
                         fontSize = fontSize.sp,
-                        fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily
+                        fontFamily = ThemeUtils.fontFamilyFromString(fontFamily)
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
                         val actualCursorPosition = codeState.selection.start
@@ -201,7 +203,7 @@ fun CodeEditor(
                     },
                     cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
                     keyboardOptions = KeyboardOptions(
-                        autoCorrectEnabled = SettingsViewModel.useAutocorrect,
+                        autoCorrectEnabled = useAutocorrect,
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Default
                     ),
@@ -212,7 +214,7 @@ fun CodeEditor(
                         .padding(top = 2.dp, start = 10.dp, end = 10.dp)
                 )
             }
-            if (filteredSuggestions.isNotEmpty()&&SettingsViewModel.showSuggestions) {
+            if (filteredSuggestions.isNotEmpty() && showSuggestions) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
                     val newText = replaceAnnotatedSubstring(
                         codeState.annotatedString,
@@ -247,6 +249,7 @@ fun AA() {
         isSaveOnChange = true,
         modifier = Modifier,
         breakpoints = emptyList(),
-        currentLine = 0
+        currentLine = 0,
+        fontFamily = "Sans"
     )
 }

@@ -62,7 +62,7 @@ fun SettingsApp(
                 settingsViewModel.changeSelectedFont()
                 },
                 fonts = settingsViewModel.fonts,
-                selectedFont = SettingsViewModel.currentFont
+                selectedFont = settingsViewModel.currentTypography
             )
             SettingsOption("Rozmiar czcionki",settingsViewModel.fontSizeOptions, settingsViewModel.selectedFontSize,{
                 settingsViewModel.selectedFontSize = it
@@ -73,8 +73,8 @@ fun SettingsApp(
             Text(
                 text = "Przykładowy tekst",
                 style = TextStyle(
-                    fontFamily = SettingsViewModel.currentFont.bodySmall.fontFamily,
-                    fontSize = SettingsViewModel.currentFontSize.sp
+                    fontFamily = settingsViewModel.currentTypography.bodySmall.fontFamily,
+                    fontSize = settingsViewModel.selectedFontSize.toInt().sp
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -94,9 +94,8 @@ fun SettingsApp(
             )
             SettingsSwitch(
                 label="Podpowiedzi",
-                isSwitchOn = SettingsViewModel.showSuggestions,
+                isSwitchOn = settingsViewModel.showSuggestions,
                 onSwitchToggled = {
-                    SettingsViewModel.showSuggestions = it
                     settingsViewModel.saveShowSuggestions()
                 }
             )

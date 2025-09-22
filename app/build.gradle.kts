@@ -67,7 +67,9 @@ kapt {
 
 
 
-        dependencies {
+dependencies {
+    implementation(libs.androidx.datastore.preferences)
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -88,6 +90,7 @@ kapt {
     implementation(libs.hilt.android)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.androidx.navigation.testing)
+    implementation(libs.androidx.datastore.core)
     kapt(libs.hilt.android.compiler)
 
     //Zależności do testów Androidowych i UI:

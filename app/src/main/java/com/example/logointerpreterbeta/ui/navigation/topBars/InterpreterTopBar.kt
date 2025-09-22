@@ -134,7 +134,7 @@ fun InterpreterTopBar(
                 }
             }
 
-            viewModel.onCodeChange(TextFieldValue(stringBuilder.toString()))  // Zaktualizuj stan kodu
+//            viewModel.onCodeChange(TextFieldValue(stringBuilder.toString()), null)  // Zaktualizuj stan kodu
             Toast.makeText(context, "Wczytano plik 👍", Toast.LENGTH_SHORT).show()
         }
     }

@@ -21,15 +21,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.ui.navigation.Interpreter
@@ -45,35 +42,42 @@ import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.data.repository.ConfigRepositoryImpl
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 
 @Composable
 fun StartScreenApp(
     navController: NavHostController = rememberNavController(),
-    projectViewModel: ProjectViewModel
+    viewModel: StartScreenViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
-    val configRepository = ConfigRepositoryImpl(context)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var isAlertVisable by rememberSaveable { mutableStateOf(false) }
-
-    AnimatedVisibility(isAlertVisable) {
+    AnimatedVisibility(uiState.showAlert) {
         AlertDialog(
             title = { Text(text = "Problem") },
             text = { Text(text = "Nie masz jeszcze żadnego projektu lub został on usunięty!") },
-            onDismissRequest = { /*TODO*/ },
+            onDismissRequest = { },
             confirmButton = {
                 TextButton(
-                    onClick = { isAlertVisable = false }
+                    onClick = { viewModel.onDialogDismiss()}
                 ) {
                     Text("OK")
                 }
             }
         )
     }
+
+    uiState.navigateTo?.let { screen ->
+        when (screen) {
+            Screen.Interpreter -> navController.navigate(Interpreter)
+            Screen.Projects -> navController.navigate(Projects)
+            Screen.Tutorials -> navController.navigate(TutorialScreen)
+            Screen.Libraries -> navController.navigate(Libraries)
+            Screen.Settings -> navController.navigate(Settings)
+        }
+        viewModel.onNavigateConsumed()
+    }
+
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
@@ -92,12 +96,8 @@ fun StartScreenApp(
             ) {
                 AppLogo(Modifier.fillMaxWidth(0.5f))
                 StartScreenMenu(
-                    projectViewModel = projectViewModel,
-                    configRepository = configRepository,
-                    navController = navController
-                ) {
-                    isAlertVisable = true
-                }
+                    viewModel = viewModel
+                )
             }
         } else {
             Column(
@@ -109,19 +109,15 @@ fun StartScreenApp(
             ) {
                 AppLogo()
                 StartScreenMenu(
-                    projectViewModel = projectViewModel,
-                    configRepository = configRepository,
-                    navController = navController
-                ) {
-                    isAlertVisable = true
-                }
+                    viewModel = viewModel
+                )
             }
         }
     }
 }
 
 @Composable
-fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
+fun MenuButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -139,35 +135,25 @@ fun MenuButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier)
             modifier = modifier
         )
     }
-
 }
 
 @Composable
 fun StartScreenMenu(
-    projectViewModel: ProjectViewModel,
-    navController: NavHostController,
-    configRepository: ConfigRepositoryImpl,
-    onEmptyProjectAction: () -> Unit
+    viewModel: StartScreenViewModel
 ) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier.fillMaxHeight()
     ) {
         item {
-            MenuButton("Kontynuuj ostatni projekt",
-                {
-                    if (configRepository.readLastProjectJSON() == "") {
-                        onEmptyProjectAction()
-                    } else {
-                        projectViewModel.updateProject()
-                        navController.navigate(Interpreter)
-                    }
-                })
+            MenuButton("Kontynuuj ostatni projekt") {
+                viewModel.onContinueProjectClicked()
+            }
         }
-        item { MenuButton("Projekty", { navController.navigate(Projects) }) }
-        item { MenuButton("Poradniki", { navController.navigate(TutorialScreen) }) }
-        item { MenuButton("Biblioteki", { navController.navigate(Libraries) }) }
-        item { MenuButton("Ustawienia", { navController.navigate(Settings) }) }
+        item { MenuButton("Projekty") { viewModel.onNavigate(Screen.Projects) } }
+        item { MenuButton("Poradniki") { viewModel.onNavigate(Screen.Tutorials) } }
+        item { MenuButton("Biblioteki") { viewModel.onNavigate(Screen.Libraries) } }
+        item { MenuButton("Ustawienia") { viewModel.onNavigate(Screen.Settings) } }
     }
 }
 
@@ -202,7 +188,7 @@ fun AppLogo(modifier: Modifier = Modifier) {
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
         StartScreenApp(
-            navController = rememberNavController(), projectViewModel = hiltViewModel()
+            navController = rememberNavController(), viewModel = hiltViewModel()
         )
     }
 }

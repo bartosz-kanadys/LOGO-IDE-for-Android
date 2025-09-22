@@ -22,7 +22,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
@@ -38,7 +37,7 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
             .padding(15.dp)
     ) {
         for (paragraph in tutorial!!.paragraphs) {
-            val coloredCode = LogoTextColorizer.colorizeText(paragraph.code)
+            val coloredCode = LogoTextColorizer.colorizeText(paragraph.code, false)
             item { Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify) }
             item {
                 val linesCount = paragraph.code.lines().size

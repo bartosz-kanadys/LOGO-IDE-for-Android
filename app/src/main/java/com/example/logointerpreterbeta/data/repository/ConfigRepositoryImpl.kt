@@ -1,167 +1,62 @@
 package com.example.logointerpreterbeta.data.repository
 
-import android.content.Context
-import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import com.example.logointerpreterbeta.data.dataStore.ConfigKeys
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
-import com.google.gson.Gson
-import dagger.hilt.android.qualifiers.ApplicationContext
-import java.io.File
-import java.io.FileNotFoundException
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class ConfigRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
-): ConfigRepository {
-    override fun updateLastProjectJSON(newProjectName: String) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
+    private val dataStore: DataStore<Preferences>
+) : ConfigRepository {
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
-
-        val updatedConfig = config.copy(lastModifiedProject = newProjectName)
-
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
-    }
-
-    override fun readLastProjectJSON(): String? {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
-
-        if (!configFile.exists()) {
-            return null
-        }
-
-        return try {
-            val jsonString = configFile.readText()
-
-            val gson = Gson()
-            val config = gson.fromJson(jsonString, Config::class.java)
-
-            config.lastModifiedProject
-        } catch (e: FileNotFoundException) {
-            Log.e("dd", "dddd")
-            null
+    override suspend fun updateLastProject(newProjectName: String) {
+        dataStore.edit { prefs ->
+            prefs[ConfigKeys.LAST_PROJECT] = newProjectName
         }
     }
-    override fun updateThemeJSON(newTheme: String) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
+    override fun readLastProject(): Flow<String?> =
+        dataStore.data.map { prefs -> prefs[ConfigKeys.LAST_PROJECT] }
 
-        val updatedConfig = config.copy(currentTheme = newTheme)
+    override fun readTheme(): Flow<String> =
+        dataStore.data.map { prefs -> prefs[ConfigKeys.THEME] as String }
 
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
+    override suspend fun updateTheme(newTheme: String) {
+        dataStore.edit { it[ConfigKeys.THEME] = newTheme }
     }
-    override fun updateFontJSON(newFont: String) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
-
-        val updatedConfig = config.copy(currentFont = newFont)
-
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
+    override suspend fun updateFont(newFont: String) {
+        dataStore.edit { it[ConfigKeys.FONT] = newFont }
     }
-    override fun updateFontSizeJSON(newFontSize: Int) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
-
-        val updatedConfig = config.copy(currentFontSize = newFontSize)
-
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
+    override suspend fun updateFontSize(newFontSize: Int) {
+        dataStore.edit { it[ConfigKeys.FONT_SIZE] = newFontSize }
     }
-    override fun updateShowSuggestionsJSON(newShowSuggestions: Boolean) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
-
-        val updatedConfig = config.copy(showSuggestions = newShowSuggestions)
-
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
+    override suspend fun updateShowSuggestions(newShowSuggestions: Boolean) {
+        dataStore.edit { it[ConfigKeys.SHOW_SUGGESTIONS] = newShowSuggestions }
     }
-    override fun updateUseAutocorrectJSON(newUseAutocorrect: Boolean) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        val config = if (configFile.exists()) {
-            val jsonString = configFile.readText()
-            Gson().fromJson(jsonString, Config::class.java)
-        } else {
-            Config()
-        }
-
-        val updatedConfig = config.copy(useAutocorrect = newUseAutocorrect)
-
-        val gson = Gson()
-        val updatedJsonString = gson.toJson(updatedConfig)
-        configFile.writeText(updatedJsonString)
+    override suspend fun updateUseAutocorrect(newUseAutocorrect: Boolean) {
+        dataStore.edit { it[ConfigKeys.USE_AUTOCORRECT] = newUseAutocorrect }
     }
-    override fun readSettingsJSON(): Config? {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
 
-        if (!configFile.exists()) {
-            return null
+    override fun readSettings(): Flow<Config> =
+        dataStore.data.map { prefs ->
+            Config(
+                lastModifiedProject = prefs[ConfigKeys.LAST_PROJECT] ?: "",
+                currentTheme = prefs[ConfigKeys.THEME] ?: "light",
+                currentFont = prefs[ConfigKeys.FONT] ?: "default",
+                currentFontSize = prefs[ConfigKeys.FONT_SIZE] ?: 14,
+                showSuggestions = prefs[ConfigKeys.SHOW_SUGGESTIONS] ?: true,
+                useAutocorrect = prefs[ConfigKeys.USE_AUTOCORRECT] ?: false
+            )
         }
-
-        return try {
-            val jsonString = configFile.readText()
-
-            val gson = Gson()
-            val config = gson.fromJson(jsonString, Config::class.java)
-
-            config
-        } catch (e: FileNotFoundException) {
-            Log.e("dd", "dddd")
-            null
-        }
-    }
-    override fun createConfigFile(context: Context) {
-        val configFile = File(context.getExternalFilesDir(null), "config.json")
-
-        val config = Config()
-
-        if (configFile.exists()) {
-            return
-        }
-
-        val gson = Gson()
-        val jsonString = gson.toJson(config)
-        configFile.writeText(jsonString)
-
-    }
 }

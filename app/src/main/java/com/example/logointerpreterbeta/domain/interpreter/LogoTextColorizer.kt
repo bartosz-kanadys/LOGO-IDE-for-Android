@@ -4,7 +4,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoLexer
-import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import com.example.logointerpreterbeta.ui.theme.cmdColorDark
 import com.example.logointerpreterbeta.ui.theme.functionColorDark
 import com.example.logointerpreterbeta.ui.theme.numberColorDark
@@ -15,12 +14,12 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
 object LogoTextColorizer {
-    fun colorizeText(text: String): AnnotatedString {
+    fun colorizeText(text: String, darkMode: Boolean): AnnotatedString {
         val lexer = logoLexer(CharStreams.fromString(text))
         val tokens = CommonTokenStream(lexer)
         tokens.fill()
 
-        val textColor = if (SettingsViewModel.Companion.darkMode) {
+        val textColor = if (darkMode) {
             onSurfaceDarkMediumContrast
         } else {
             onSurfaceLightMediumContrast

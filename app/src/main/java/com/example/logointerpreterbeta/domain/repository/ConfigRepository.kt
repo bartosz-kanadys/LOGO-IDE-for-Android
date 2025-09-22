@@ -1,16 +1,16 @@
 package com.example.logointerpreterbeta.domain.repository
 
-import android.content.Context
 import com.example.logointerpreterbeta.domain.models.Config
+import kotlinx.coroutines.flow.Flow
 
 interface ConfigRepository {
-    fun updateLastProjectJSON(newProjectName: String)
-    fun readLastProjectJSON(): String?
-    fun updateThemeJSON(newTheme: String)
-    fun updateFontJSON(newFont: String)
-    fun updateFontSizeJSON(newFontSize: Int)
-    fun updateShowSuggestionsJSON(newShowSuggestions: Boolean)
-    fun updateUseAutocorrectJSON(newUseAutocorrect: Boolean)
-    fun readSettingsJSON(): Config?
-    fun createConfigFile(context: Context)
+    suspend fun updateLastProject(newProjectName: String)
+    fun readLastProject(): Flow<String?>
+    fun readTheme(): Flow<String>
+    suspend fun updateTheme(newTheme: String)
+    suspend fun updateFont(newFont: String)
+    suspend fun updateFontSize(newFontSize: Int)
+    suspend fun updateShowSuggestions(newShowSuggestions: Boolean)
+    suspend fun updateUseAutocorrect(newUseAutocorrect: Boolean)
+    fun readSettings(): Flow<Config>
 }

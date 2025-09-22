@@ -134,7 +134,7 @@ fun ProcedureCard(
     code: String,
     onDeleteClick: () -> Unit
 ) {
-    val coloredCode = LogoTextColorizer.colorizeText(code)
+    val coloredCode = LogoTextColorizer.colorizeText(code,false)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -166,6 +166,7 @@ fun ProcedureCard(
                 modifier = Modifier.height((30 + (linesCount - 1) * 23).dp),
                 breakpoints = emptyList(),
                 currentLine = -1,
+                fontFamily = AppTypography.bodyMedium.fontFamily!!.toString()
             )
         }
     }

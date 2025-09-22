@@ -1,0 +1,11 @@
+package com.example.logointerpreterbeta.domain.repository
+
+import com.example.logointerpreterbeta.ui.theme.ThemeMode
+import kotlinx.coroutines.flow.Flow
+
+interface ThemeRepository {
+    suspend fun getCurrentTheme(): ThemeMode
+    suspend fun setCurrentTheme(theme: ThemeMode)
+    fun observeTheme(): Flow<ThemeMode>
+    fun isDarkTheme(): Boolean
+}

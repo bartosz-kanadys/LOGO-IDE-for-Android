@@ -1,6 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.projects
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.domain.repository.FileRepository
@@ -8,6 +9,7 @@ import com.example.logointerpreterbeta.domain.repository.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,11 +36,13 @@ class ProjectViewModel @Inject constructor(
 
     private fun updateActualProjectName(newProjectName: String) {
         _actualProjectName.value = newProjectName
-        configRepository.updateLastProjectJSON(newProjectName)
+        viewModelScope.launch {
+            configRepository.updateLastProject(newProjectName)
+        }
     }
 
     fun loadLastProjectFromJSON() {
-        _actualProjectName.value = configRepository.readLastProjectJSON()!!
+        _actualProjectName.value = configRepository.readLastProject().toString()
     }
 
     fun updateActualFileName(newFileName: String?) {
@@ -87,7 +91,9 @@ class ProjectViewModel @Inject constructor(
         }
         projectRepository.deleteProject(projectToDelete)
         updateProjectsMap()
-        configRepository.updateLastProjectJSON("")
+        viewModelScope.launch {
+            configRepository.updateLastProject("")
+        }
     }
 
     fun createNewProject(newProjectName: String): Boolean {
@@ -100,7 +106,9 @@ class ProjectViewModel @Inject constructor(
 
     fun openProject(name: String) {
         updateActualProjectName(name)
-        configRepository.updateLastProjectJSON(name)
+        viewModelScope.launch {
+            configRepository.updateLastProject(name)
+        }
         updateProject()
     }
 }

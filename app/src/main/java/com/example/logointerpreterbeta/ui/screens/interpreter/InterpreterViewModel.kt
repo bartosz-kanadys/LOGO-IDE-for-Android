@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
+import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
@@ -25,11 +26,14 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.example.logointerpreterbeta.domain.repository.ThemeRepository
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
     private val logo: LogoInterpreter,
-    drawingDelegate: UIDrawingDelegate
+    drawingDelegate: UIDrawingDelegate,
+    configRepository: ConfigRepository,
+    private val themeRepository: ThemeRepository
 ) : ViewModel() {
     private val debugMutex = Mutex()
 
@@ -57,6 +61,8 @@ class InterpreterViewModel @Inject constructor(
     private val _turtleState = drawingDelegate.turtleUi
     val turtleState: StateFlow<TurtleUI> = _turtleState
 
+    var config by mutableStateOf(configRepository.readSettings())
+
     init {
         logo.interpret("st")
     }
@@ -74,13 +80,14 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun onCodeChange(newCode: TextFieldValue) {
+        val isDarkMode = themeRepository.isDarkTheme()
         cursorPosition = newCode.selection.start
         codeState = newCode.copy(
             annotatedString = textDiffrence(
                 codeState.annotatedString,
                 newCode.text,
             ) { text ->
-                LogoTextColorizer.colorizeText(text)
+                LogoTextColorizer.colorizeText(text, isDarkMode)
             }
         )
     }
@@ -90,8 +97,10 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun colorCode() {
+        val isDarkMode = themeRepository.isDarkTheme()
+
         codeState = codeState.copy(
-            annotatedString = LogoTextColorizer.colorizeText(codeState.text)
+            annotatedString = LogoTextColorizer.colorizeText(codeState.text, isDarkMode)
         )
     }
 

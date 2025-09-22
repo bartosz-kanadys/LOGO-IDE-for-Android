@@ -7,7 +7,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,7 +31,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -42,26 +43,23 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
+import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.domain.models.ProjectFile
+import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.navigation.StartScreen
-import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.Alert
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.ErrorsList
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePanel
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
-import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
-import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -70,11 +68,10 @@ fun InterpreterApp(
     interpreterViewModel: InterpreterViewModel = viewModel(),
     projectViewModel: ProjectViewModel = viewModel(),
     navController: NavController,
+    configRepository: ConfigRepository,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val isDark = isSystemInDarkTheme()
-    val isDarkTheme by rememberSaveable { mutableStateOf(isDark) }
     var isAlertEmptyProjectVisable by rememberSaveable { mutableStateOf(false) }
     var isAlertNewFileVisable by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
@@ -100,11 +97,10 @@ fun InterpreterApp(
 
     val fileRepository = FileRepositoryImpl(context)
 
-    LaunchedEffect(isDarkTheme) {
-        interpreterViewModel.interpretCode()
-        interpreterViewModel.interpretCode()
-        interpreterViewModel.colorCode()
-    }
+    val config by configRepository.readSettings().collectAsState(
+        initial = Config()
+    )
+
     LaunchedEffect(Unit) {
         if (actualProjectName == "") {
             navController.navigate(StartScreen)
@@ -283,10 +279,10 @@ fun InterpreterApp(
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
-                        modifier = Modifier,
                         breakpoints = debuggerState.breakpoints,
-                        currentLine = debuggerState.currentLine
-                    )
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont
+                        )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
                         isDebugging = isDebugging,
@@ -402,7 +398,8 @@ fun InterpreterApp(
                         errors = errors.toString(),
                         modifier = Modifier,
                         breakpoints = debuggerState.breakpoints,
-                        currentLine = debuggerState.currentLine
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont
                     )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
@@ -438,15 +435,16 @@ private fun onTapFileAction(
     interpreterViewModel.colorCode()
     projectViewModel.updateActualFileName(projectFile.name)
 }
-
-@RequiresApi(Build.VERSION_CODES.O)
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun Preview() {
-    LogoInterpreterBetaTheme(darkTheme = false) {
-        InterpreterApp(
-            interpreterViewModel = hiltViewModel(),
-            navController = rememberNavController()
-        )
-    }
-}
+//
+//@RequiresApi(Build.VERSION_CODES.O)
+//@Preview(showBackground = true, showSystemUi = true)
+//@Composable
+//fun Preview() {
+//    LogoInterpreterBetaTheme(darkTheme = false) {
+//        InterpreterApp(
+//            interpreterViewModel = hiltViewModel(),
+//            navController = rememberNavController(),
+//            configRepository = ConfigRepository()
+//        )
+//    }
+//}
