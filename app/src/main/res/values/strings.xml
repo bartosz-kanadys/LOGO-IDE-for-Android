@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">LOGO IDE (beta)</string>
     <string name="title_activity_start_screen">StartScreen</string>
+    <string name="problem">Problem</string>
+    <string name="dialog_zero_project">Nie masz jeszcze żadnego projektu lub został on usunięty!</string>
+    <string name="ok">OK</string>
+    <string name="continue_last_project">Kontynuuj ostatni projekt</string>
+    <string name="projects">Projekty</string>
+    <string name="tutorials">Poradniki</string>
+    <string name="libraries">Biblioteki</string>
+    <string name="settings">Ustawienia</string>
+    <string name="app_name_short">LOGO IDE</string>
+    <string name="logo_description">logo</string>
 </resources>

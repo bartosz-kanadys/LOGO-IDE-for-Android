@@ -2,19 +2,13 @@ package com.example.logointerpreterbeta.ui.screens.start
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -23,49 +17,30 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.navigation.Interpreter
 import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
-import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.ui.theme.AppTypography
+import com.example.logointerpreterbeta.ui.screens.start.components.AppLogo
+import com.example.logointerpreterbeta.ui.screens.start.components.StartScreenMenu
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 @Composable
-fun StartScreenApp(
+fun StartScreenRoot(
     navController: NavHostController = rememberNavController(),
     viewModel: StartScreenViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    AnimatedVisibility(uiState.showAlert) {
-        AlertDialog(
-            title = { Text(text = "Problem") },
-            text = { Text(text = "Nie masz jeszcze żadnego projektu lub został on usunięty!") },
-            onDismissRequest = { },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.onDialogDismiss()}
-                ) {
-                    Text("OK")
-                }
-            }
-        )
-    }
 
     uiState.navigateTo?.let { screen ->
         when (screen) {
@@ -76,6 +51,36 @@ fun StartScreenApp(
             Screen.Settings -> navController.navigate(Settings)
         }
         viewModel.onNavigateConsumed()
+    }
+
+    StartScreen(
+        showAlertDialog = uiState.showAlert,
+        navigateTo = { viewModel.onNavigate(it) },
+        onDialogDismiss = { viewModel.onDialogDismiss() },
+        onContinueProjectClicked = { viewModel.onContinueProjectClicked() }
+    )
+}
+
+@Composable
+fun StartScreen(
+    showAlertDialog: Boolean,
+    navigateTo: (Screen) -> Unit,
+    onDialogDismiss: () -> Unit,
+    onContinueProjectClicked: () -> Unit
+) {
+    AnimatedVisibility(showAlertDialog) {
+        AlertDialog(
+            title = { Text(text = stringResource(R.string.problem)) },
+            text = { Text(text = stringResource(R.string.dialog_zero_project)) },
+            onDismissRequest = { onDialogDismiss() },
+            confirmButton = {
+                TextButton(
+                    onClick = { onDialogDismiss() }
+                ) {
+                    Text(stringResource(R.string.ok))
+                }
+            }
+        )
     }
 
     val configuration = LocalConfiguration.current
@@ -96,7 +101,8 @@ fun StartScreenApp(
             ) {
                 AppLogo(Modifier.fillMaxWidth(0.5f))
                 StartScreenMenu(
-                    viewModel = viewModel
+                    onNavigate = { navigateTo(it) },
+                    onContinueProjectClicked = { navigateTo(Screen.Interpreter) }
                 )
             }
         } else {
@@ -109,86 +115,23 @@ fun StartScreenApp(
             ) {
                 AppLogo()
                 StartScreenMenu(
-                    viewModel = viewModel
+                    onNavigate = { navigateTo(it) },
+                    onContinueProjectClicked = { onContinueProjectClicked() }
                 )
             }
         }
     }
 }
 
-@Composable
-fun MenuButton(text: String, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
-        modifier = Modifier
-            .size(width = 280.dp, height = 60.dp)
-            .shadow(5.dp, RoundedCornerShape(12.dp))
-    ) {
-        Text(
-            text = text,
-            style = AppTypography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface, // możesz nadpisać kolor lub inne właściwości
-                textAlign = TextAlign.Center // dostosowanie wyrównania tekstu
-            ),
-            modifier = modifier
-        )
-    }
-}
-
-@Composable
-fun StartScreenMenu(
-    viewModel: StartScreenViewModel
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = Modifier.fillMaxHeight()
-    ) {
-        item {
-            MenuButton("Kontynuuj ostatni projekt") {
-                viewModel.onContinueProjectClicked()
-            }
-        }
-        item { MenuButton("Projekty") { viewModel.onNavigate(Screen.Projects) } }
-        item { MenuButton("Poradniki") { viewModel.onNavigate(Screen.Tutorials) } }
-        item { MenuButton("Biblioteki") { viewModel.onNavigate(Screen.Libraries) } }
-        item { MenuButton("Ustawienia") { viewModel.onNavigate(Screen.Settings) } }
-    }
-}
-
-@Composable
-fun AppLogo(modifier: Modifier = Modifier) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = modifier
-    ) {
-        Image(
-            painterResource(id = R.drawable.logo),
-            contentDescription = "logo",
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier
-                .size(180.dp)
-            //.padding(top = 40.dp)
-        )
-        Text(
-            text = "LOGO IDE",
-            fontSize = 34.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface,
-            style = AppTypography.bodySmall,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-    }
-
-}
-
 @Preview(showBackground = true, showSystemUi = false, uiMode = 1)
 @Composable
 fun GreetingPreview2() {
     LogoInterpreterBetaTheme {
-        StartScreenApp(
-            navController = rememberNavController(), viewModel = hiltViewModel()
+        StartScreen(
+            showAlertDialog = false,
+            navigateTo = {},
+            onDialogDismiss = {},
+            onContinueProjectClicked = {}
         )
     }
 }

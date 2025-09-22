@@ -8,7 +8,13 @@ import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+
+data class StartScreenUiState(
+    val showAlert: Boolean = false,
+    val navigateTo: Screen? = null
+)
 
 @HiltViewModel
 class StartScreenViewModel @Inject constructor(
@@ -22,30 +28,25 @@ class StartScreenViewModel @Inject constructor(
         viewModelScope.launch {
             val lastProject = configRepository.readLastProject().first()
             if (lastProject.isNullOrEmpty()) {
-                _uiState.value = _uiState.value.copy(showAlert = true)
+                _uiState.update { it.copy(showAlert = true) }
             } else {
-                _uiState.value = _uiState.value.copy(navigateTo = Screen.Interpreter)
+                _uiState.update { it.copy(navigateTo = Screen.Interpreter) }
             }
         }
     }
 
     fun onDialogDismiss() {
-        _uiState.value = _uiState.value.copy(showAlert = false)
+        _uiState.update { it.copy(showAlert = false) }
     }
 
     fun onNavigateConsumed() {
-        _uiState.value = _uiState.value.copy(navigateTo = null)
+        _uiState.update { it.copy(navigateTo = null) }
     }
 
     fun onNavigate(screen: Screen) {
-        _uiState.value = _uiState.value.copy(navigateTo = screen)
+        _uiState.update { it.copy(navigateTo = screen) }
     }
 }
-
-data class StartScreenUiState(
-    val showAlert: Boolean = false,
-    val navigateTo: Screen? = null
-)
 
 sealed class Screen {
     object Interpreter : Screen()

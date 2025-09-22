@@ -32,7 +32,7 @@ import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectsApp
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsApp
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
-import com.example.logointerpreterbeta.ui.screens.start.StartScreenApp
+import com.example.logointerpreterbeta.ui.screens.start.StartScreenRoot
 import com.example.logointerpreterbeta.ui.screens.start.StartScreenViewModel
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialContentScreen
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialScreen
@@ -71,8 +71,7 @@ fun AppNavHost(
             startDestination = startDestination
         ) {
             composable<StartScreen> {
-                StartScreenApp(navController, viewModel = startScreenViewModel)
-
+                StartScreenRoot(navController, viewModel = startScreenViewModel)
             }
             composable<Interpreter> {
                 Scaffold(
