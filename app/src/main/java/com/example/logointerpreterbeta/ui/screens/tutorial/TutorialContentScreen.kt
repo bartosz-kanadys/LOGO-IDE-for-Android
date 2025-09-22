@@ -16,12 +16,15 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
@@ -30,60 +33,65 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 @Composable
 fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
     val context = LocalContext.current
-    val tutorial = readTutorialsFromRaw(context).find { it.name == tutorialName }
+    val tutorial = remember(context, tutorialName) {
+        readTutorialsFromRaw(context).find { it.name == tutorialName }
+    }
 
-    LazyColumn(
-        modifier = modifier
-            .padding(15.dp)
-    ) {
-        for (paragraph in tutorial!!.paragraphs) {
-            val coloredCode = LogoTextColorizer.colorizeText(paragraph.code, false)
-            item { Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify) }
-            item {
-                val linesCount = paragraph.code.lines().size
-                CodeEditor(
-                    codeState = TextFieldValue(coloredCode),
-                    isSaveOnChange = false,
-                    isEnabled = false,
-                    isScrollable = false,
-                    lines = linesCount,
-                    fontSize = 15,                                    //fontSize + 5
-                    modifier = Modifier.height((30 + (linesCount - 1) * 20).dp),
-                    breakpoints = emptyList(),
-                    currentLine = -1,
-                )
-                Spacer(Modifier.height(5.dp))
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                    Button(
-                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
-                        onClick = {
-                            val clipboard =
-                                context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-
-                            val clip = ClipData.newPlainText(
-                                "przykladowyKod",
-                                paragraph.code
-                            )
-                            clipboard.setPrimaryClip(clip)
-                            Toast.makeText(context, "Kod skopiowany do schowka", Toast.LENGTH_SHORT)
-                                .show()
-                        },
-                    ) {
-                        Text(text = "Kopiuj kod", color = MaterialTheme.colorScheme.onSurface)
+    if (tutorial == null) {
+        Text(
+            text = stringResource(R.string.tutorial_not_found),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = modifier.padding(15.dp)
+        )
+    } else {
+        LazyColumn(
+            modifier = modifier
+                .padding(15.dp)
+        ) {
+            for (paragraph in tutorial.paragraphs) {
+                val coloredCode = LogoTextColorizer.colorizeText(paragraph.code, false)
+                item {
+                    Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify)
+                    val linesCount = paragraph.code.lines().size
+                    CodeEditor(
+                        codeState = TextFieldValue(coloredCode),
+                        isSaveOnChange = false,
+                        isEnabled = false,
+                        isScrollable = false,
+                        lines = linesCount,
+                        fontSize = 15,                                    //fontSize + 5
+                        modifier = Modifier.height((30 + (linesCount - 1) * 20).dp),
+                        breakpoints = emptyList(),
+                        currentLine = -1,
+                    )
+                    Spacer(Modifier.height(5.dp))
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
+                            onClick = {
+                                copyToClipboard(context, context.getString(R.string.example_code), paragraph.code)
+                            },
+                        ) {
+                            Text(text = stringResource(R.string.copy_code), color = MaterialTheme.colorScheme.onSurface)
+                        }
                     }
+                    Spacer(Modifier.height(15.dp))
                 }
-
-                Spacer(Modifier.height(15.dp))
             }
         }
-
     }
+}
+
+fun copyToClipboard(context: Context, label: String, text: String) {
+    val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    clipboard.setPrimaryClip(ClipData.newPlainText(label, text))
+    Toast.makeText(context, context.getString(R.string.copied_to_clipboard), Toast.LENGTH_SHORT).show()
 }
 
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
 fun TutorialContentScreenPreview() {
     LogoInterpreterBetaTheme {
-        TutorialContentScreen("Pętle", modifier = Modifier)
+        TutorialContentScreen("Loops", modifier = Modifier)
     }
 }

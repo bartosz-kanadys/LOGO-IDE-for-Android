@@ -11,4 +11,8 @@
     <string name="settings">Ustawienia</string>
     <string name="app_name_short">LOGO IDE</string>
     <string name="logo_description">logo</string>
+    <string name="example_code">przykładowyKod</string>
+    <string name="copied_to_clipboard">Kod skopiowany do schowka</string>
+    <string name="copy_code">Kopiuj kod</string>
+    <string name="tutorial_not_found">Nie znaleziono poradnika</string>
 </resources>
