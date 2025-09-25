@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -60,6 +61,7 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePa
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
+import kotlinx.coroutines.flow.first
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -102,17 +104,20 @@ fun InterpreterApp(
     )
 
     LaunchedEffect(Unit) {
-        if (actualProjectName == "") {
-            navController.navigate(StartScreen)
-            return@LaunchedEffect
-        }
-        projectViewModel.updateProject()
-        isAlertEmptyProjectVisable = project!!.files.isEmpty()
-        projectViewModel.updateActualFileName(project?.files?.firstOrNull()?.name)
+        val config = configRepository.readSettings().first()
+        projectViewModel.updateActualProjectName(config.lastModifiedProject)
 
         if (actualProjectName.isEmpty()) {
             navController.navigate(StartScreen)
+            return@LaunchedEffect
+        } else {
+            projectViewModel.updateProject()
         }
+    }
+
+    LaunchedEffect(project) {
+        projectViewModel.updateActualFileName(project?.files?.firstOrNull()?.name)
+
         val actualFile = project?.files?.firstOrNull()?.name
 
         if (actualFile != null) {
@@ -126,7 +131,7 @@ fun InterpreterApp(
             interpreterViewModel.updateCodeState("")
             isAlertEmptyProjectVisable = true
         }
-
+        isAlertEmptyProjectVisable = project?.files?.isEmpty() ?: false
     }
 
     //alert gdy pusty projekt
@@ -281,7 +286,8 @@ fun InterpreterApp(
                         errors = errors.toString(),
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont
+                        fontFamily = config.currentFont,
+                        fontSize = config.currentFontSize
                         )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
@@ -399,7 +405,8 @@ fun InterpreterApp(
                         modifier = Modifier,
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont
+                        fontFamily = config.currentFont,
+                        fontSize = config.currentFontSize
                     )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,

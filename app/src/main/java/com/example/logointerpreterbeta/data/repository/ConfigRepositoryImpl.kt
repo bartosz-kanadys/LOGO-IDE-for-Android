@@ -52,7 +52,7 @@ class ConfigRepositoryImpl @Inject constructor(
         dataStore.data.map { prefs ->
             Config(
                 lastModifiedProject = prefs[ConfigKeys.LAST_PROJECT] ?: "",
-                currentTheme = prefs[ConfigKeys.THEME] ?: "light",
+                currentTheme = prefs[ConfigKeys.THEME] ?: "System",
                 currentFont = prefs[ConfigKeys.FONT] ?: "default",
                 currentFontSize = prefs[ConfigKeys.FONT_SIZE] ?: 14,
                 showSuggestions = prefs[ConfigKeys.SHOW_SUGGESTIONS] ?: true,

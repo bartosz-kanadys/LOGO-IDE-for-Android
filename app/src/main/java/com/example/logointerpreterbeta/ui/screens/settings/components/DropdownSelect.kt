@@ -16,18 +16,17 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Select(
+fun DropdownSelect(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
     modifier: Modifier = Modifier,
     fonts: List<FontFamily?> = emptyList(),
-    selectedFont: Typography = AppTypography,
+    selectedFontFamily: FontFamily? = AppTypography.bodySmall.fontFamily,
     fontSizes: List<String> = emptyList(),
-    selectedFontSize: Int = 18
+    selectedFontSize: Int = MaterialTheme.typography.bodyMedium.fontSize.value.toInt()
 ) {
-    var expanded by remember { mutableStateOf(false) } // Kontroluje widoczność menu
-
+    var expanded by remember { mutableStateOf(false) }
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -37,17 +36,17 @@ fun Select(
         OutlinedTextField(
             value = selectedOption,
             onValueChange = {},
-            readOnly = true, // Blokujemy ręczne wprowadzanie tekstu
+            readOnly = true,
             label = { },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             textStyle = TextStyle(
-                fontFamily = selectedFont.bodySmall.fontFamily,
+                fontFamily = selectedFontFamily,
                 fontSize = selectedFontSize.sp
             ),
             modifier = Modifier
-                .menuAnchor() // Kluczowy element do poprawnego pozycjonowania menu
+                .menuAnchor()
                 .fillMaxWidth()
         )
 
@@ -55,19 +54,21 @@ fun Select(
             expanded = expanded,
             onDismissRequest = { expanded = false }
         ) {
-            var i=0;
-            options.forEach { option ->
+            options.forEachIndexed { index, option ->
                 DropdownMenuItem(
-                    text = { Text(
-                        text = option,
-                        style = TextStyle(
-                            fontFamily = if(fonts.isNotEmpty()) fonts[i++] else AppTypography.bodySmall.fontFamily,
-                            fontSize = if(fontSizes.isNotEmpty()) fontSizes[i++].toInt().sp else 18.sp
+                    text = {
+                        Text(
+                            text = option,
+                            style = TextStyle(
+                                fontFamily = fonts.getOrNull(index) ?: AppTypography.bodySmall.fontFamily,
+                                fontSize = fontSizes.getOrNull(index)?.toIntOrNull()?.sp ?:
+                                    MaterialTheme.typography.bodyMedium.fontSize.value.toInt().sp
+                            )
                         )
-                    ) },
+                    },
                     onClick = {
-                        onOptionSelected(option) // Wybranie opcji
-                        expanded = false // Zamknięcie menu
+                        onOptionSelected(option)
+                        expanded = false
                     }
                 )
             }
@@ -75,15 +76,13 @@ fun Select(
     }
 }
 
-
-
 @Composable
 @Preview(showBackground = true)
 fun PreviewCustomSelect() {
     var selected by remember { mutableStateOf("Option 1") }
     val options = listOf("Option 1", "Option 2", "Option 3", "Option 4")
 
-    Select(
+    DropdownSelect(
         options = options,
         selectedOption = selected,
         onOptionSelected = { selected = it }

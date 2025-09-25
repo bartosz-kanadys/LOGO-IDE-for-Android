@@ -15,4 +15,12 @@
     <string name="copied_to_clipboard">Kod skopiowany do schowka</string>
     <string name="copy_code">Kopiuj kod</string>
     <string name="tutorial_not_found">Nie znaleziono poradnika</string>
+    <string name="appearance">Wygląd</string>
+    <string name="theme">Motyw</string>
+    <string name="font">Czcionka</string>
+    <string name="font_size">Rozmiar czcionki</string>
+    <string name="example_text">Przykładowy tekst</string>
+    <string name="editor_settings">Ustawienia edytora</string>
+    <string name="hints">Podpowiedzi</string>
+    <string name="autocorrect">Autokorekta</string>
 </resources>

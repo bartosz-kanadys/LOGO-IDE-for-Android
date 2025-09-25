@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -20,11 +19,9 @@ fun SettingsOption(
     options: List<String>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit,
-    modifier: Modifier = Modifier,
     fonts: List<FontFamily?> = emptyList(),
     fontSizes: List<String> = emptyList(),
-    selectedFont: Typography = AppTypography,
-    selectedFontSize: Int = 18
+    selectedFont: FontFamily? = AppTypography.bodySmall.fontFamily,
 ){
     Column (
         modifier = Modifier
@@ -39,12 +36,12 @@ fun SettingsOption(
                 .fillMaxWidth()
                 .padding(top = 16.dp)
         )
-        Select(
+        DropdownSelect(
             options = options,
             selectedOption = selectedOption,
             onOptionSelected = onOptionSelected,
             fonts = fonts,
-            selectedFont = selectedFont,
+            selectedFontFamily = selectedFont,
             fontSizes = fontSizes
         )
     }

@@ -1,10 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens.settings
 
-import android.util.Log
 import androidx.compose.material3.Typography
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.lifecycle.ViewModel
@@ -15,11 +11,24 @@ import com.example.logointerpreterbeta.domain.repository.ThemeRepository
 import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.createTypography
 import com.example.logointerpreterbeta.ui.theme.AppTypography
+import com.example.logointerpreterbeta.ui.theme.FontsEnum
 import com.example.logointerpreterbeta.ui.theme.ThemeMode
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class SettingsUiState(
+    val currentTheme: ThemeMode = ThemeMode.SYSTEM_THEME,
+    val currentFont: FontsEnum = FontsEnum.JETBRAINS_MONO,
+    val currentFontSize: Int = 18,
+    val currentTopography: Typography = AppTypography,
+    val showSuggestions: Boolean = true,
+    val useAutocorrect: Boolean = false
+)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -27,92 +36,77 @@ class SettingsViewModel @Inject constructor(
     private val drawingDelegate: AndroidDrawingDelegate,
     private val themeRepository: ThemeRepository
 ) : ViewModel() {
-    var selectedTheme by mutableStateOf("Systemowy")
-    val themeOptions = listOf("Systemowy", "Jasny", "Ciemny")
-    var selectedFont by mutableStateOf("JetBrains Mono")
-    var currentTypography by mutableStateOf(AppTypography)
-    val fontOptions = listOf("JetBrains Mono", "Comic Sans MS", "Bebas Neue")
-    val fonts = listOf(
-        AppTypography.bodySmall.fontFamily,
-        FontFamily(Font(R.font.comic_sans_ms)),
-        FontFamily(Font(R.font.bebas_neue_regular))
-    )
-    val fontSizeOptions = listOf("26","24","22","20","18", "16", "14","12","10")
-    var selectedFontSize by mutableStateOf("18")
 
-    var showSuggestions by mutableStateOf(true)
-    var useAutocorrect by mutableStateOf(false)
+    private val _uiState = MutableStateFlow(SettingsUiState())
+    val uiState = _uiState.asStateFlow()
 
     init {
         loadSettingsFromDataStore()
     }
 
-    fun changeSelectedTheme(){
-        val currentTheme = when (selectedTheme) {
-            "Systemowy" -> ThemeMode.SYSTEM_THEME
-            "Jasny" -> ThemeMode.LIGHT_THEME
-            "Ciemny" -> ThemeMode.DARK_THEME
-            else -> ThemeMode.SYSTEM_THEME
-        }
-        Log.d("SettingsViewModel", "Changing theme to $currentTheme")
+    fun changeSelectedTheme(newTheme: ThemeMode) {
+        _uiState.update { it.copy(currentTheme = newTheme) }
+
         viewModelScope.launch {
-            configRepository.updateTheme(currentTheme.value)
+            configRepository.updateTheme(newTheme.value)
             val theme = themeRepository.isDarkTheme()
-            Log.d("SettingsViewModel", "Theme is dark: $theme")
             drawingDelegate.updateTheme(theme)
         }
     }
 
-    fun changeSelectedFont(){
+    fun changeSelectedFont(newFont: FontsEnum) {
         viewModelScope.launch {
-            configRepository.updateFont(selectedFont)
+            configRepository.updateFont(newFont.value)
         }
-        currentTypography = getAppTopography()
+        _uiState.update {
+            it.copy(
+                currentTopography = getAppTopography(),
+                currentFont = newFont
+            )
+        }
     }
 
     fun getAppTopography(): Typography {
-        return when (selectedFont) {
-            "JetBrains Mono" -> AppTypography
-            "Comic Sans MS" -> createTypography(FontFamily(Font(R.font.comic_sans_ms)))
-            "Bebas Neue" -> createTypography(FontFamily(Font(R.font.bebas_neue_regular)))
-            else -> AppTypography
+        return when (_uiState.value.currentFont) {
+            FontsEnum.JETBRAINS_MONO -> AppTypography
+            FontsEnum.COMIC_SANS_MS -> createTypography(FontFamily(Font(R.font.comic_sans_ms)))
+            FontsEnum.BEBAS_NEUE -> createTypography(FontFamily(Font(R.font.bebas_neue_regular)))
         }
     }
 
-    fun changeSelectedFontSize(){
-        //currentFontSize = selectedFontSize.toInt()
+    fun changeSelectedFontSize(newFontSize: String) {
         viewModelScope.launch {
-            configRepository.updateFontSize(selectedFontSize.toInt())
+            configRepository.updateFontSize(_uiState.value.currentFontSize)
         }
+        _uiState.update { it.copy(currentFontSize = newFontSize.toInt()) }
     }
 
-    fun saveShowSuggestions(){
+    fun saveShowSuggestions(newValue: Boolean) {
         viewModelScope.launch {
-            configRepository.updateShowSuggestions(showSuggestions)
+            configRepository.updateShowSuggestions(newValue)
         }
+        _uiState.update { it.copy(showSuggestions = newValue) }
     }
 
-    fun saveUseAutocorrect(){
+    fun saveUseAutocorrect(newValue: Boolean) {
         viewModelScope.launch {
-            configRepository.updateUseAutocorrect(useAutocorrect)
+            configRepository.updateUseAutocorrect(newValue)
         }
+        _uiState.update { it.copy(useAutocorrect = newValue) }
     }
 
     fun loadSettingsFromDataStore() {
         viewModelScope.launch {
             val config = configRepository.readSettings().first()
-
-            selectedTheme = config.currentTheme.ifEmpty { "Systemowy" }
-            //changeSelectedTheme()
-
-            selectedFont = config.currentFont.ifEmpty { "JetBrains Mono" }
-            //changeSelectedFont()
-
-            selectedFontSize = config.currentFontSize.takeIf { it > 0 }?.toString() ?: "18"
-            //changeSelectedFontSize()
-
-            showSuggestions = config.showSuggestions
-            useAutocorrect = config.useAutocorrect
+            _uiState.update {
+                it.copy(
+                    currentTheme = ThemeMode.fromString(config.currentTheme),
+                    currentFont = FontsEnum.fromString(config.currentFont),
+                    currentFontSize = config.currentFontSize.takeIf { it > 0 } ?: 18,
+                    showSuggestions = config.showSuggestions,
+                    useAutocorrect = config.useAutocorrect
+                )
+            }
         }
     }
 }

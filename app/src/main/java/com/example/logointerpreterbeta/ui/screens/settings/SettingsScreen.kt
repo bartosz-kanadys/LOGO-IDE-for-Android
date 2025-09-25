@@ -12,22 +12,62 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.screens.settings.components.SettingsOption
 import com.example.logointerpreterbeta.ui.screens.settings.components.SettingsSwitch
+import com.example.logointerpreterbeta.ui.screens.settings.components.fontSizeOptions
+import com.example.logointerpreterbeta.ui.screens.settings.components.fonts
 import com.example.logointerpreterbeta.ui.theme.AppTypography
+import com.example.logointerpreterbeta.ui.theme.FontsEnum
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.ui.theme.ThemeMode
 
 @Composable
-fun SettingsApp(
-    settingsViewModel: SettingsViewModel = viewModel(),
+fun SettingsScreenRoot(
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = viewModel(),
+) {
+    val state = viewModel.uiState.collectAsStateWithLifecycle()
+    SettingsScreen(
+        uiState = state.value,
+        onThemeChanged = {
+            viewModel.changeSelectedTheme(it)
+        },
+        onFontChanged = {
+            viewModel.changeSelectedFont(it)
+        },
+        onFontSizeChanged = {
+            viewModel.changeSelectedFontSize(it)
+        },
+        onSuggestionsChanged = {
+            viewModel.saveShowSuggestions(it)
+        },
+        onAutocorrectChanged = {
+            viewModel.saveUseAutocorrect(it)
+        },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun SettingsScreen(
+    uiState: SettingsUiState,
+    onThemeChanged: (ThemeMode) -> Unit,
+    onFontChanged: (FontsEnum) -> Unit,
+    onFontSizeChanged: (String) -> Unit,
+    onSuggestionsChanged: (Boolean) -> Unit,
+    onAutocorrectChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -42,39 +82,48 @@ fun SettingsApp(
                 .then(modifier)
         ) {
             Text(
-                text = "Wygląd",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                style = AppTypography.bodySmall,
-                textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.primary,
+                text = stringResource(R.string.appearance),
+                style = AppTypography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp)
             )
-            SettingsOption("Motyw", settingsViewModel.themeOptions, settingsViewModel.selectedTheme,{
-                settingsViewModel.selectedTheme = it
-                settingsViewModel.changeSelectedTheme()
-                },
+            SettingsOption(
+                label = stringResource(R.string.theme),
+                options = ThemeMode.entries.map { it.value },
+                selectedOption = uiState.currentTheme.value,
+                onOptionSelected = {
+                    onThemeChanged(ThemeMode.fromString(it))
+                }
             )
-            SettingsOption("Czcionka",settingsViewModel.fontOptions, settingsViewModel.selectedFont,{
-                settingsViewModel.selectedFont = it
-                settingsViewModel.changeSelectedFont()
+            SettingsOption(
+                label = stringResource(R.string.font),
+                options = FontsEnum.entries.map { it.value },
+                selectedOption = uiState.currentFont.value,
+                onOptionSelected = {
+                    onFontChanged(FontsEnum.fromString(it))
                 },
-                fonts = settingsViewModel.fonts,
-                selectedFont = settingsViewModel.currentTypography
+                fonts = fonts,
+                selectedFont = uiState.currentTopography.bodySmall.fontFamily,
             )
-            SettingsOption("Rozmiar czcionki",settingsViewModel.fontSizeOptions, settingsViewModel.selectedFontSize,{
-                settingsViewModel.selectedFontSize = it
-                settingsViewModel.changeSelectedFontSize()
-            },
-                fontSizes = settingsViewModel.fontSizeOptions
+            SettingsOption(
+                label = stringResource(R.string.font_size),
+                options = fontSizeOptions,
+                selectedOption = uiState.currentFontSize.toString(),
+                onOptionSelected = {
+                    onFontSizeChanged(it)
+                },
+                fontSizes = fontSizeOptions,
             )
             Text(
-                text = "Przykładowy tekst",
+                text = stringResource(R.string.example_text),
                 style = TextStyle(
-                    fontFamily = settingsViewModel.currentTypography.bodySmall.fontFamily,
-                    fontSize = settingsViewModel.selectedFontSize.toInt().sp
+                    fontFamily = uiState.currentTopography.bodySmall.fontFamily,
+                    fontSize = uiState.currentFontSize.sp
                 ),
                 textAlign = TextAlign.Center,
                 modifier = Modifier
@@ -82,47 +131,46 @@ fun SettingsApp(
                     .padding(top = 24.dp, bottom = 8.dp)
             )
             Text(
-                text = "Ustawienia edytora",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                style = AppTypography.bodySmall,
+                text = stringResource(R.string.editor_settings),
+                style = AppTypography.titleLarge.copy(
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.Bold
+                ),
                 textAlign = TextAlign.Start,
-                color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 8.dp, top = 16.dp)
             )
             SettingsSwitch(
-                label="Podpowiedzi",
-                isSwitchOn = settingsViewModel.showSuggestions,
+                label = stringResource(R.string.hints),
+                isSwitchOn = uiState.showSuggestions,
                 onSwitchToggled = {
-                    settingsViewModel.saveShowSuggestions()
+                    onSuggestionsChanged(it)
                 }
             )
-//            SettingsSwitch(
-//                label="Autokorekta",
-//                isSwitchOn = SettingsViewModel.useAutocorrect,
-//                onSwitchToggled = {
-//                    SettingsViewModel.useAutocorrect = it
-//                    settingsViewModel.saveUseAutocorrect()
-//                }
-//            )
+            SettingsSwitch(
+                label = stringResource(R.string.autocorrect),
+                isSwitchOn = uiState.useAutocorrect,
+                onSwitchToggled = {
+                    onAutocorrectChanged(it)
+                }
+            )
         }
     }
 }
 
 
-//
-//@Preview(showBackground = true, showSystemUi = false)
-//@Composable
-//fun SettingsPreview() {
-//    LogoInterpreterBetaTheme {
-//        Scaffold(
-//            topBar = {
-//                TopBarWithMenu("Ustawienia")
-//            }
-//        ) { @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter") innerPadding ->
-//           // SettingsApp(Modifier.padding(innerPadding))
-//        }
-//    }
-//}
+@Preview(showBackground = true, showSystemUi = false)
+@Composable
+fun SettingsPreview() {
+    LogoInterpreterBetaTheme {
+        SettingsScreen(
+            uiState = SettingsUiState(),
+            onThemeChanged = {},
+            onFontChanged = {},
+            onFontSizeChanged = {},
+            onSuggestionsChanged = {},
+            onAutocorrectChanged = {}
+        )
+    }
+}

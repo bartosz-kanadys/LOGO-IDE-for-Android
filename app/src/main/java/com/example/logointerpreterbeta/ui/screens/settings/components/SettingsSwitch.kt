@@ -29,21 +29,19 @@ fun SettingsSwitch(
             .padding(vertical = 8.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically, // Wyśrodkowanie w pionie
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-            // Tekst opcji po lewej stronie
             Text(
                 text = label,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 style = AppTypography.bodySmall,
                 textAlign = TextAlign.Start,
-                modifier = Modifier.weight(1f) // Zajmowanie całej dostępnej przestrzeni
+                modifier = Modifier.weight(1f)
             )
-            // Przełącznik po prawej stronie
             Switch(
                 checked = isSwitchOn,
                 onCheckedChange = onSwitchToggled

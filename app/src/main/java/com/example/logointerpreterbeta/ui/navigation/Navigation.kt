@@ -30,7 +30,7 @@ import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 import com.example.logointerpreterbeta.ui.screens.library.components.LibraryAddProcedureForm
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectsApp
-import com.example.logointerpreterbeta.ui.screens.settings.SettingsApp
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsScreenRoot
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import com.example.logointerpreterbeta.ui.screens.start.StartScreenRoot
 import com.example.logointerpreterbeta.ui.screens.start.StartScreenViewModel
@@ -110,7 +110,10 @@ fun AppNavHost(
             }
             composable<Settings> {
                 Layout({ modifier ->
-                    SettingsApp(modifier = modifier, settingsViewModel = settingsViewModel)
+                    SettingsScreenRoot(
+                        modifier = modifier,
+                        viewModel = settingsViewModel
+                    )
                 }, "Ustawienia", navController)
             }
             composable<Libraries> {
