@@ -38,7 +38,7 @@ class ProjectRepositoryImpl @Inject constructor(
         return folderMap
     }
 
-    override fun getProject(name: String): Project? {
+    override suspend fun getProject(name: String): Project? {
         val directory = File(context.getExternalFilesDir(null), "Projects/$name")
         if (!directory.exists() || !directory.isDirectory) {
             // Jeśli folder nie istnieje lub nie jest katalogiem, zwróć null

@@ -23,4 +23,12 @@
     <string name="editor_settings">Ustawienia edytora</string>
     <string name="hints">Podpowiedzi</string>
     <string name="autocorrect">Autokorekta</string>
+    <string name="confirm_delete">Potwierdzenie usunięcia</string>
+    <string name="confirm_delete_project_desc">Czy na pewno chcesz usunąć projekt \'%1$s\'?</string>
+    <string name="delete">Usuń</string>
+    <string name="cancel">Anuluj</string>
+    <string name="project_exist">Projekt o podanej nazwie już istnieje!</string>
+    <string name="project_name">Nazwa projeku</string>
+    <string name="enter_name">Podaj nazwę</string>
+    <string name="new_project">Nowy projekt</string>
 </resources>

@@ -81,9 +81,6 @@ fun InterpreterApp(
     var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
     var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val actualFileName by projectViewModel.actualFileName.collectAsStateWithLifecycle()
-    val actualProjectName by projectViewModel.actualProjectName.collectAsStateWithLifecycle()
-    val project by projectViewModel.project.collectAsStateWithLifecycle()
     val errors by interpreterViewModel.errors.collectAsStateWithLifecycle()
 
     val image by interpreterViewModel.img.collectAsStateWithLifecycle()
@@ -99,6 +96,8 @@ fun InterpreterApp(
 
     val fileRepository = FileRepositoryImpl(context)
 
+    val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
+
     val config by configRepository.readSettings().collectAsState(
         initial = Config()
     )
@@ -106,8 +105,9 @@ fun InterpreterApp(
     LaunchedEffect(Unit) {
         val config = configRepository.readSettings().first()
         projectViewModel.updateActualProjectName(config.lastModifiedProject)
+        debuggerState.breakpoints.clear()
 
-        if (actualProjectName.isEmpty()) {
+        if (projectState.actualProjectName.isEmpty()) {
             navController.navigate(StartScreen)
             return@LaunchedEffect
         } else {
@@ -115,13 +115,13 @@ fun InterpreterApp(
         }
     }
 
-    LaunchedEffect(project) {
-        projectViewModel.updateActualFileName(project?.files?.firstOrNull()?.name)
+    LaunchedEffect(projectState.project) {
+        projectViewModel.updateActualFileName(projectState.project?.files?.firstOrNull()?.name)
 
-        val actualFile = project?.files?.firstOrNull()?.name
+        val actualFile = projectState.project?.files?.firstOrNull()?.name
 
         if (actualFile != null) {
-            val content = fileRepository.readFileContent(context, actualFile, project!!.name)
+            val content = fileRepository.readFileContent(context, actualFile, projectState.project!!.name)
             if (content != null) {
                 interpreterViewModel.updateCodeState(content)
                 interpreterViewModel.colorCode()
@@ -131,14 +131,14 @@ fun InterpreterApp(
             interpreterViewModel.updateCodeState("")
             isAlertEmptyProjectVisable = true
         }
-        isAlertEmptyProjectVisable = project?.files?.isEmpty() ?: false
+        isAlertEmptyProjectVisable = projectState.project?.files?.isEmpty() ?: false
     }
 
     //alert gdy pusty projekt
     Alert(
         isVisible = isAlertEmptyProjectVisable,
         title = "Pusty projekt",
-        content = "W projekcie '${actualProjectName}' nie ma jeszcze żadnego pliku! Wpisz niżej nazwę pierwszego pliku aby go utworzyć.",
+        content = "W projekcie '${projectState.actualProjectName}' nie ma jeszcze żadnego pliku! Wpisz niżej nazwę pierwszego pliku aby go utworzyć.",
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
                 projectViewModel.createFileInEmptyProject(newFileName)
@@ -214,11 +214,11 @@ fun InterpreterApp(
                         .height(35.dp)
                         .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
-                    project?.files?.let { files ->
+                    projectState.project?.files?.let { files ->
                         items(files) { projectFile ->
                             Box(modifier = Modifier
                                 .background(
-                                    if (actualFileName == projectFile.name)
+                                    if (projectState.actualFileName == projectFile.name)
                                         MaterialTheme.colorScheme.tertiaryContainer
                                     else
                                         MaterialTheme.colorScheme.secondaryContainer,
@@ -235,7 +235,7 @@ fun InterpreterApp(
                                                 fileRepository,
                                                 context,
                                                 projectFile,
-                                                project,
+                                                projectState.project,
                                                 projectViewModel
                                             )
                                         }
@@ -287,7 +287,15 @@ fun InterpreterApp(
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
                         fontFamily = config.currentFont,
-                        fontSize = config.currentFontSize
+                        fontSize = config.currentFontSize,
+                        onSave = {
+                            fileRepository.writeFileContent(
+                                context,
+                                projectState.actualFileName!!,
+                                projectState.actualProjectName,
+                                interpreterViewModel.getCodeStateAsString()
+                            )
+                        }
                         )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
@@ -326,11 +334,11 @@ fun InterpreterApp(
                             .height(35.dp)
                             .padding(horizontal = 2.dp, vertical = 0.dp)
                     ) {
-                        project?.files?.let { files ->
+                        projectState.project?.files?.let { files ->
                             items(files) { projectFile ->
                                 Box(modifier = Modifier
                                     .background(
-                                        if (actualFileName == projectFile.name)
+                                        if (projectState.actualFileName == projectFile.name)
                                             MaterialTheme.colorScheme.inversePrimary
                                         else
                                             MaterialTheme.colorScheme.secondaryContainer,
@@ -347,7 +355,7 @@ fun InterpreterApp(
                                                     fileRepository,
                                                     context,
                                                     projectFile,
-                                                    project,
+                                                    projectState.project,
                                                     projectViewModel
                                                 )
                                             }

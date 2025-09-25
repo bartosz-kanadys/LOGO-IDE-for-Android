@@ -28,8 +28,8 @@ import com.example.logointerpreterbeta.ui.screens.library.LibraryProceduresScree
 import com.example.logointerpreterbeta.ui.screens.library.LibraryScreen
 import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 import com.example.logointerpreterbeta.ui.screens.library.components.LibraryAddProcedureForm
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectScreenRoot
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
-import com.example.logointerpreterbeta.ui.screens.projects.ProjectsApp
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsScreenRoot
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 import com.example.logointerpreterbeta.ui.screens.start.StartScreenRoot
@@ -77,7 +77,7 @@ fun AppNavHost(
                 Scaffold(
                     topBar = {
                         InterpreterTopBar(
-                            projectViewModel.actualProjectName.value,
+                            config.lastModifiedProject,
                             interpreterViewModel,
                             navController
                         )
@@ -100,7 +100,7 @@ fun AppNavHost(
                     },
                     modifier = Modifier.padding(0.dp)
                 ) { innerPadding ->
-                    ProjectsApp(
+                    ProjectScreenRoot(
                         projectViewModel,
                         Modifier.padding(innerPadding),
                         navController = navController

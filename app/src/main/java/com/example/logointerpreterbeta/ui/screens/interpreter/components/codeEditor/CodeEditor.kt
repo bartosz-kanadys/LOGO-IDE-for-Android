@@ -73,6 +73,7 @@ fun CodeEditor(
     useAutocorrect: Boolean = false,
     showSuggestions: Boolean = true,
     currentLine: Int,
+    onSave: () -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val linesCount = codeState.text.lines().size
@@ -180,12 +181,7 @@ fun CodeEditor(
                         } else { emptyList() }
                         onCodeChange(newValue)
                         if (isSaveOnChange) {
-                            fileRepository!!.writeFileContent(
-                                context,
-                                projectViewModel!!.actualFileName.value!!,
-                                projectViewModel.actualProjectName.value,
-                                interpreterViewModel!!.getCodeStateAsString()
-                            )
+                            onSave()
                         }
                     },
                     minLines = lines,
