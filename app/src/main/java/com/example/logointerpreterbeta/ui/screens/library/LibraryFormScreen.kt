@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens.library
 
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,39 +8,34 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.ui.screens.library.components.FormButton
+import com.example.logointerpreterbeta.ui.screens.library.components.FormTextField
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 
 @Composable
 fun LibraryFormScreen(
     libraryViewModel: LibraryViewModel,
+    onBack: () -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavController
 ) {
     var libraryName by rememberSaveable { mutableStateOf("") }
     var libraryDescription by rememberSaveable { mutableStateOf("") }
     var libraryAuthor by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
+
     Column(
         modifier = modifier
             .padding(15.dp)
@@ -47,22 +43,22 @@ fun LibraryFormScreen(
         FormTextField(
             state = libraryName,
             onValueChange = { libraryName = it },
-            label = "Nazwa Biblioteki",
-            placeholder = "Podaj nazwę"
+            label = stringResource(R.string.library_name),
+            placeholder = stringResource(R.string.enter_name)
         )
         Spacer(Modifier.height(5.dp))
         FormTextField(
             state = libraryDescription,
             onValueChange = { libraryDescription = it },
-            label = "Opis",
-            placeholder = "Dodaj opis"
+            label = stringResource(R.string.description_label),
+            placeholder = stringResource(R.string.add_description_label)
         )
         Spacer(Modifier.height(5.dp))
         FormTextField(
             state = libraryAuthor,
             onValueChange = { libraryAuthor = it },
-            label = "Autor",
-            placeholder = "Podaj Autora"
+            label = stringResource(R.string.author),
+            placeholder = stringResource(R.string.enter_author)
         )
         Spacer(Modifier.height(15.dp))
         Row(
@@ -70,54 +66,26 @@ fun LibraryFormScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             FormButton(
-                text = "Anuluj",
+                text = stringResource(R.string.cancel),
                 MaterialTheme.colorScheme.errorContainer
-            ) { navController.popBackStack() }
-            FormButton(text = "Zatwierdź", MaterialTheme.colorScheme.primary) {
-                if (libraryViewModel.createLibrary(
-                        context,
-                        libraryName,
-                        libraryDescription,
-                        libraryAuthor
-                    )
-                ) {
-                    navController.popBackStack()
+            ) {
+                onBack()
+            }
+            FormButton(
+                text = stringResource(R.string.confirm),
+                color = MaterialTheme.colorScheme.primary
+            ) {
+                val creatingResult = libraryViewModel.createLibrary(
+                    name = libraryName,
+                    desc = libraryDescription,
+                    author = libraryAuthor
+                )
+                makeToast(context, creatingResult)
+                if (creatingResult == LibraryCodes.OK) {
+                    onBack()
                 }
             }
         }
-
-    }
-}
-
-@Composable
-fun FormTextField(
-    state: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    placeholder: String
-) {
-    OutlinedTextField(
-        value = state,
-        onValueChange = { newValue -> onValueChange(newValue) },
-        label = { Text(text = label) },
-        placeholder = { Text(text = placeholder) },
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.secondary
-        ),
-        modifier = Modifier
-            .fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp)
-    )
-}
-
-@Composable
-fun FormButton(text: String, color: Color, onClick: () -> Unit) {
-    Button(
-        colors = ButtonDefaults.buttonColors(color),
-        onClick = { onClick() }
-    ) {
-        Text(text = text)
     }
 }
 
@@ -128,7 +96,7 @@ fun PreviewLibraryFormScreen() {
         LibraryFormScreen(
             modifier = Modifier,
             libraryViewModel = hiltViewModel(),
-            navController = rememberNavController()
+            onBack = {}
         )
     }
 }

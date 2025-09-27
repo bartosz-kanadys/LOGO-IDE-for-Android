@@ -1,5 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.library
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +37,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,41 +46,70 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.navigation.LibraryForm
 import com.example.logointerpreterbeta.ui.navigation.LibraryProcedures
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
+import com.example.logointerpreterbeta.ui.screens.library.components.AddNewLibraryButton
+import com.example.logointerpreterbeta.ui.screens.library.components.LibraryCard
+import com.example.logointerpreterbeta.ui.screens.start.Screen
+
+@Composable
+fun LibraryScreenRoot(
+    libraryViewModel: LibraryViewModel,
+    navController: NavController,
+    modifier: Modifier = Modifier
+) {
+    val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
+
+    LibraryScreen(
+        modifier = modifier,
+        uiState = uiState,
+        onLibraryFormNavigate = {
+            navController.navigate(LibraryForm)
+        },
+        onLibraryDelete = {
+            libraryViewModel.deleteLibrary(it)
+        },
+        onLibraryUpdate = {
+            libraryViewModel.updateActualLibrary(it)
+            navController.navigate(LibraryProcedures)
+        }
+    )
+}
 
 @Composable
 fun LibraryScreen(
+    uiState: LibraryUiState,
+    onLibraryFormNavigate: () -> Unit,
+    onLibraryDelete: (String) -> Unit,
+    onLibraryUpdate: (String) -> Unit,
     modifier: Modifier = Modifier,
-    navController: NavController,
-    libraryViewModel: LibraryViewModel
 ) {
-    val libraries by libraryViewModel.libraries.collectAsStateWithLifecycle()
     var libraryToDelete by rememberSaveable { mutableStateOf<String?>(null) }
 
     AnimatedVisibility(libraryToDelete != null) {
         AlertDialog(
             onDismissRequest = { libraryToDelete = null },
-            title = { Text("Potwierdzenie usunięcia") },
-            text = { Text("Czy na pewno chcesz usunąć biblioteke '${libraryToDelete}'?") },
+            title = { Text(stringResource(R.string.confirm_delete)) },
+            text = { Text(stringResource(R.string.delete_library_text, libraryToDelete!!)) },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        libraryViewModel.deleteLibrary(libraryToDelete!!)
+                        onLibraryDelete(libraryToDelete!!)
                         libraryToDelete = null
                     }
                 ) {
-                    Text("Usuń")
+                    Text(stringResource(R.string.delete))
                 }
             },
             dismissButton = {
                 TextButton(
                     onClick = { libraryToDelete = null } // Anuluj usunięcie
                 ) {
-                    Text("Anuluj")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -91,17 +123,18 @@ fun LibraryScreen(
         modifier = modifier
     ) {
         item {
-            AddNewLibraryButton { navController.navigate(LibraryForm) }
+            AddNewLibraryButton {
+                onLibraryFormNavigate()
+            }
         }
-        items(libraries) { library ->
+        items(uiState.libraries) { library ->
             LibraryCard(
                 libraryName = library.name,
                 libraryDescription = library.description,
                 procedureCount = library.procedures.size,
                 author = library.author,
                 onClick = {
-                    libraryViewModel.updateActualLibrary(library.name)
-                    navController.navigate(LibraryProcedures)
+                    onLibraryUpdate(library.name)
                 },
                 onDeleteClick = { libraryToDelete = library.name }
             )
@@ -109,119 +142,19 @@ fun LibraryScreen(
     }
 }
 
-@Composable
-fun LibraryCard(
-    libraryName: String,
-    libraryDescription: String,
-    procedureCount: Int,
-    author: String,
-    onClick: () -> Unit,
-    onDeleteClick: () -> Unit
-) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        ),
-        modifier = Modifier
-            .height(160.dp)
-            .clickable { onClick() }
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(10.dp)
-        ) {
-            Column(
-                Modifier.fillMaxSize()
-            ) {
-                Text(
-                    text = libraryName,
-                    textAlign = TextAlign.Center,
-                    fontSize = 30.sp,
-                    style = AppTypography.bodySmall,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    text = libraryDescription,
-                    style = AppTypography.bodySmall,
-                    fontSize = 10.sp,
-                    modifier = Modifier.height(55.dp)
-                )
-                Spacer(Modifier.height(5.dp))
-                Row(
-                    modifier = Modifier.height(14.dp)
-                ) {
-                    Icon(imageVector = Icons.Filled.Bookmarks, contentDescription = null)
-
-                    Text(
-                        text = procedureCount.toString(),
-                        style = AppTypography.bodySmall,
-                        modifier = Modifier.padding(start = 5.dp)
-                    )
-                }
-                Spacer(Modifier.height(5.dp))
-                Row(
-                    modifier = Modifier
-                        .height(14.dp)
-
-                ) {
-                    Icon(imageVector = Icons.Filled.AccountCircle, contentDescription = null)
-
-                    Text(
-                        text = author,
-                        style = AppTypography.bodySmall,
-                        modifier = Modifier.padding(start = 5.dp)
-                    )
-                }
-            }
-            TextButton(
-                onClick = {
-                    onDeleteClick()
-                },
-                contentPadding = PaddingValues(0.dp),
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(25.dp)
-                    .padding(0.dp)
-
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Delete,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier
-                        .size(20.dp)
-                )
-            }
-
+fun makeToast(context: Context, code: LibraryCodes) {
+    when (code) {
+        LibraryCodes.DESC_TOO_LONG -> {
+            Toast.makeText(context, context.getString(R.string.desc_too_long), Toast.LENGTH_LONG).show()
         }
-    }
-}
-
-@Composable
-fun AddNewLibraryButton(onAddLibraryClick: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary,
-            contentColor = MaterialTheme.colorScheme.onSurface
-        ),
-        modifier = Modifier
-            .height(160.dp)
-            .fillMaxSize()
-            .clickable { onAddLibraryClick() }
-    ) {
-        Column(
-            Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                imageVector = Icons.Filled.Add,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(100.dp)
-            )
+        LibraryCodes.PROCEDURE_EXIST -> { }
+        LibraryCodes.FILL_ALL_FIELDS -> {
+            Toast.makeText(context, context.getString(R.string.fill_all_fields), Toast.LENGTH_LONG).show()
         }
+        LibraryCodes.LIBRARY_EXIST -> {
+            Toast.makeText(context, context.getString(R.string.library_exists), Toast.LENGTH_LONG).show()
+        }
+        LibraryCodes.OK -> { }
     }
 }
 
@@ -232,8 +165,10 @@ fun PreviewLibraryScreen() {
     LogoInterpreterBetaTheme {
         LibraryScreen(
             modifier = Modifier,
-            libraryViewModel = hiltViewModel(),
-            navController = rememberNavController()
+            uiState = LibraryUiState(),
+            onLibraryFormNavigate = { },
+            onLibraryDelete = { },
+            onLibraryUpdate = { }
         )
     }
 }

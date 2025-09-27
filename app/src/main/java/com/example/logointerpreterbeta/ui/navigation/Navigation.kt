@@ -9,14 +9,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.navigation.topBars.InterpreterTopBar
@@ -24,10 +26,10 @@ import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterApp
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.screens.library.LibraryFormScreen
-import com.example.logointerpreterbeta.ui.screens.library.LibraryProceduresScreen
-import com.example.logointerpreterbeta.ui.screens.library.LibraryScreen
+import com.example.logointerpreterbeta.ui.screens.library.LibraryProceduresScreenRoot
+import com.example.logointerpreterbeta.ui.screens.library.LibraryScreenRoot
 import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
-import com.example.logointerpreterbeta.ui.screens.library.components.LibraryAddProcedureForm
+import com.example.logointerpreterbeta.ui.screens.library.LibraryAddProcedureForm
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectScreenRoot
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsScreenRoot
@@ -96,7 +98,7 @@ fun AppNavHost(
             composable<Projects> {
                 Scaffold(
                     topBar = {
-                        TopBarWithMenu("Projekty", navController)
+                        TopBarWithMenu(stringResource(R.string.projects), navController)
                     },
                     modifier = Modifier.padding(0.dp)
                 ) { innerPadding ->
@@ -114,34 +116,34 @@ fun AppNavHost(
                         modifier = modifier,
                         viewModel = settingsViewModel
                     )
-                }, "Ustawienia", navController)
+                }, stringResource(R.string.settings), navController)
             }
             composable<Libraries> {
                 Layout({ modifier ->
-                    LibraryScreen(
-                        modifier = modifier,
+                    LibraryScreenRoot(
+                        navController = navController,
                         libraryViewModel = libraryViewModel,
-                        navController = navController
+                        modifier = modifier
                     )
-                }, "Biblioteki", navController)
+                }, stringResource(R.string.libraries), navController)
             }
             composable<LibraryForm> {
                 Layout({ modifier ->
                     LibraryFormScreen(
                         modifier = modifier,
                         libraryViewModel = libraryViewModel,
-                        navController = navController
+                        onBack = { navController.popBackStack() }
                     )
-                }, "Dodaj biblioteke", navController)
+                }, stringResource(R.string.add_library), navController)
             }
             composable<LibraryProcedures> {
                 Layout({ modifier ->
-                    LibraryProceduresScreen(
+                    LibraryProceduresScreenRoot(
                         libraryViewModel = libraryViewModel,
-                        navController = navController,
+                        onNavigate = { navController.navigate(LibraryProcedureForm)},
                         modifier = modifier
                     )
-                }, libraryViewModel.actualLibrary.value!!, navController)
+                }, libraryViewModel.uiState.value.actualLibrary!!, navController)
             }
             composable<LibraryProcedureForm> {
                 Layout(
@@ -153,14 +155,17 @@ fun AppNavHost(
                             modifier = modifier
                         )
                     },
-                    "Dodaj procedure do ${libraryViewModel.actualLibrary.value!!}",
+                    stringResource(
+                        R.string.add_procedure_to_,
+                        libraryViewModel.uiState.value.actualLibrary!!
+                    ),
                     navController
                 )
             }
             composable<TutorialScreen> {
                 Layout({ modifier ->
                     TutorialScreen(modifier = modifier, navController)
-                }, "Poradniki", navController)
+                }, stringResource(R.string.tutorials), navController)
             }
             composable(
                 route = "TutorialContentScreen/{tutorialName}",
@@ -171,7 +176,7 @@ fun AppNavHost(
                 val tutorialName = backStackEntry.arguments?.getString("tutorialName")
                 Layout(
                     content = { modifier ->
-                        TutorialContentScreen(tutorialName!!, modifier = modifier)
+                        TutorialContentScreen(tutorialName, modifier = modifier)
                     },
                     title = tutorialName!!,
                     navController = navController

@@ -31,4 +31,25 @@
     <string name="project_name">Nazwa projeku</string>
     <string name="enter_name">Podaj nazwę</string>
     <string name="new_project">Nowy projekt</string>
+    <string name="complete_procedure_info">Uzupełnij informacje o procedurze</string>
+    <string name="procedure_name">Nazwa procedury</string>
+    <string name="procedure_description">Opis procedury</string>
+    <string name="procedure_author">Autor procedury</string>
+    <string name="enter_procedure_code">Podaj kod procedury</string>
+    <string name="confirm">Zatwierdź</string>
+    <string name="library_name">Nazwa Biblioteki</string>
+    <string name="description_label">Opis</string>
+    <string name="add_description_label">Dodaj opis</string>
+    <string name="author">Autor</string>
+    <string name="enter_author">Podaj Autora</string>
+    <string name="delete_procedure">Usuń procedure</string>
+    <string name="delete_procedure_text">Czy napewno chcesz usunąć wybraną procedure?</string>
+    <string name="back">Wstecz</string>
+    <string name="empty_library_text">Nie ma jeszcze procedur w tej bibliotece</string>
+    <string name="delete_library_text">Czy na pewno chcesz usunąć biblioteke \'%1$s\'?</string>
+    <string name="desc_too_long">Opis nie może być dłuższy niż 50 znaków</string>
+    <string name="fill_all_fields">Uzupełnij wszystkie pola</string>
+    <string name="library_exists">Biblioteka o takiej nazwie już istnieje</string>
+    <string name="add_library">Dodaj biblioteke</string>
+    <string name="add_procedure_to_">Dodaj procedure do %1$s</string>
 </resources>
