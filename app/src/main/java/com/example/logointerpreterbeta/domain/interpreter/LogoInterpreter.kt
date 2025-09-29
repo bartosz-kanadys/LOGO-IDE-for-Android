@@ -4,12 +4,8 @@ import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoLexer
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
 import com.example.logointerpreterbeta.domain.interpreter.errors.MyErrorListener
-import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
-import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
-import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
-import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoLibraryVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import org.antlr.v4.runtime.CharStreams
@@ -29,9 +25,6 @@ class LogoInterpreter @Inject constructor(
         isDarkMode = isDarkMode,
     )
     private val myLogoLibraryVisitor = MyLogoLibraryVisitor()
-    private val debuggerVisitor = DebuggerVisitor(
-        drawingDelegate = drawingDelegate
-    )
 
     fun getProceduresFromLibrary(): MutableMap<String, logoParser.ProcedureDeclarationContext> {
         return myLogoLibraryVisitor.getProcedures()
@@ -43,37 +36,6 @@ class LogoInterpreter @Inject constructor(
 
         return if (errorListener.errors.isEmpty()) {
             myVisitor.visit(tree)
-            InterpreterResult(
-                success = true,
-                errors = emptyList(),
-            )
-        } else {
-            InterpreterResult(
-                success = false,
-                errors = errorListener.errors,
-            )
-        }
-    }
-
-    fun debug(
-        input: String
-    ): InterpreterResult {
-        val errorListener = MyErrorListener()
-        val tree = parseInput(input + "\n", errorListener)
-
-        return if (errorListener.errors.isEmpty()) {
-            debuggerVisitor.resetTurtleState()
-            try {
-                debuggerVisitor.startNewDebugSession()
-                for (line in tree.line()) {
-                    debuggerVisitor.updateCurrentLine(line.start.line + 1)
-                    debuggerVisitor.handleDebugPause(line.start.line) // <- tu czekasz
-                    debuggerVisitor.visit(line)
-                }
-            } catch (e: StopException) {
-            } finally {
-                debuggerVisitor.stopDebuggingSession()
-            }
             InterpreterResult(
                 success = true,
                 errors = emptyList(),
@@ -116,42 +78,5 @@ class LogoInterpreter @Inject constructor(
         val tree = parser.prog()
 
         myLogoLibraryVisitor.visit(tree)
-    }
-
-    fun getDebuggerState(): DebuggerState {
-        return debuggerVisitor.state
-    }
-
-    fun clearBreakpoints() {
-        debuggerVisitor.clearBreakpoints()
-    }
-
-    fun toggleBreakpoint(lineNumber: Int) {
-        debuggerVisitor.toggleBreakpoint(lineNumber)
-    }
-
-    fun nextStep() {
-        debuggerVisitor.nextStep()
-    }
-
-    fun enableDebugging() {
-        debuggerVisitor.startNewDebugSession()
-    }
-
-    fun disableDebugging() {
-        debuggerVisitor.stopDebuggingSession()
-    }
-
-    fun continueExecution() {
-        debuggerVisitor.continueExecution()
-        debuggerVisitor.nextStep()
-    }
-
-    fun stepIn() {
-        debuggerVisitor.stepIn()
-    }
-
-    fun stepOut() {
-        debuggerVisitor.stepOut()
     }
 }

@@ -86,8 +86,6 @@ fun InterpreterApp(
     val image by interpreterViewModel.img.collectAsStateWithLifecycle()
     val arrowImage by interpreterViewModel.arrowImg.collectAsStateWithLifecycle()
 
-    val isDebugging by interpreterViewModel.isDebugging.collectAsStateWithLifecycle()
-
     val debuggerState by interpreterViewModel.debuggerState.collectAsStateWithLifecycle()
 
     val turtleState by interpreterViewModel.turtleState.collectAsStateWithLifecycle()
@@ -279,7 +277,7 @@ fun InterpreterApp(
                 )
                 Box {
                     CodeEditor(
-                        projectViewModel = projectViewModel,
+//                        projectViewModel = projectViewModel,
                         interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
@@ -299,7 +297,7 @@ fun InterpreterApp(
                         )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
-                        isDebugging = isDebugging,
+                        isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
                     )
@@ -404,9 +402,8 @@ fun InterpreterApp(
             item {
                 Box {
                     CodeEditor(
-                        projectViewModel = projectViewModel,
+//                        projectViewModel = projectViewModel,
                         interpreterViewModel = interpreterViewModel,
-                        fileRepository = fileRepository,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
@@ -418,7 +415,7 @@ fun InterpreterApp(
                     )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
-                        isDebugging = isDebugging,
+                        isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
                     )

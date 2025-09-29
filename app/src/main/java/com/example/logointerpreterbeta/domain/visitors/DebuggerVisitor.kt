@@ -6,9 +6,28 @@ import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.models.DebuggerState
 import java.util.concurrent.CountDownLatch
 
+interface DebugStateListener {
+    fun onStateUpdate(newState: DebuggerState)
+}
+
 class DebuggerVisitor(
     drawingDelegate: DrawingDelegate,
 ) : MyLogoVisitor(drawingDelegate, null) {
+
+    private val listeners = mutableListOf<DebugStateListener>()
+
+    fun addListener(listener: DebugStateListener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: DebugStateListener) {
+        listeners.remove(listener)
+    }
+
+    private fun updateStateAndNotify(update: (DebuggerState) -> DebuggerState) {
+        state = update(state)
+        listeners.forEach { it.onStateUpdate(state) }
+    }
 
     enum class DebuggerMode {
         Idle,
@@ -28,7 +47,8 @@ class DebuggerVisitor(
     private var debugSignal = CountDownLatch(1)
 
     private fun resetDebuggerState() {
-        state = state.copy(currentLine = -1)
+//        state = state.copy(currentLine = -1)
+        updateStateAndNotify({ it.copy(currentLine = -1) })
         stepCount = 0
         debuggerMode = DebuggerMode.Idle
         debugSignal = CountDownLatch(0) // Reset any waiting signals
@@ -38,7 +58,8 @@ class DebuggerVisitor(
     fun startNewDebugSession() {
         stopDebuggingSession() // Clean up any previous session
         debuggerMode = DebuggerMode.Running
-
+//        state = state.copy(isDebugging = true)
+        updateStateAndNotify({ it.copy(isDebugging = true) })
     }
 
     fun stopDebuggingSession() {
@@ -47,10 +68,14 @@ class DebuggerVisitor(
             debugSignal.countDown()
         }
         resetDebuggerState()
+//        state = state.copy(isDebugging = false)
+        updateStateAndNotify({ it.copy(isDebugging = false) })
+
     }
 
     private fun pauseAtLine(line: Int) {
-        state = state.copy(currentLine = line)
+//        state = state.copy(currentLine = line)
+        updateStateAndNotify({ it.copy(currentLine = line) })
         handleDebugPause(line)
     }
 
@@ -70,7 +95,8 @@ class DebuggerVisitor(
         } else {
             newBreakpoints.add(lineNumber)
         }
-        state = state.copy(breakpoints = newBreakpoints)
+//        state = state.copy(breakpoints = newBreakpoints)
+        updateStateAndNotify({ it.copy(breakpoints = newBreakpoints) })
     }
 
     fun handleDebugPause(line: Int) {
@@ -84,7 +110,9 @@ class DebuggerVisitor(
         }
 
         if (debuggerMode == DebuggerMode.StepByStep) {
-            state = state.copy(currentLine = line)
+//            state = state.copy(currentLine = line)
+            updateStateAndNotify({ it.copy(currentLine = line) })
+
             debugSignal = CountDownLatch(1)
             debugSignal.await() // Wstrzymaj wykonanie
         }
@@ -102,17 +130,20 @@ class DebuggerVisitor(
     }
 
     fun stepOut() {
-        state = state.copy(showStepOutButton = false)
+//        state = state.copy(showStepOutButton = false)
+        updateStateAndNotify({ it.copy(showStepOutButton = false) })
         debuggerMode = DebuggerMode.StepOut
         nextStep()
     }
 
     fun updateCurrentLine(line: Int) {
-        state = state.copy(currentLine = line)
+        //state = state.copy(currentLine = line)
+        updateStateAndNotify({ it.copy(currentLine = line) })
     }
 
     fun clearBreakpoints() {
-        state = state.copy(breakpoints = mutableListOf())
+//        state = state.copy(breakpoints = mutableListOf())
+        updateStateAndNotify({ it.copy(breakpoints = mutableListOf()) })
     }
 
     override fun visitRepeat_(ctx: logoParser.Repeat_Context?): Int {
@@ -183,13 +214,14 @@ class DebuggerVisitor(
 
         try {
             for (line in ctx!!.line()) {
-                state = state.copy(currentLine = line.start.line)
+                //state = state.copy(currentLine = line.start.line)
+                updateStateAndNotify({ it.copy(currentLine = line.start.line) })
 
                 // Tutaj upewniamy się, że to jest moment do zatrzymania
                 handleDebugPause(line.start.line)
 
-                state = state.copy(showStepInButton = procedures.containsKey(line.start.text))
-
+                //state = state.copy(showStepInButton = procedures.containsKey(line.start.text))
+                updateStateAndNotify({ it.copy(showStepInButton = procedures.containsKey(line.start.text)) })
                 visit(line)
                 drawingDelegate.updateTurtleBitmap(turtleState)
             }

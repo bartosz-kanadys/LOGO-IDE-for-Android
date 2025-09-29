@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.logointerpreterbeta.domain.interpreter.LogoDebugger
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
@@ -27,14 +28,18 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
+import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
     private val logo: LogoInterpreter,
+    private val logoDebugger: LogoDebugger,
     drawingDelegate: UIDrawingDelegate,
     configRepository: ConfigRepository,
     private val themeRepository: ThemeRepository
-) : ViewModel() {
+) : ViewModel(), DebugStateListener {
+
+    val INIT_TURTLE_IMAGE_COMMAND = "st"
     private val debugMutex = Mutex()
 
     private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
@@ -45,9 +50,6 @@ class InterpreterViewModel @Inject constructor(
 
     private val _debuggerState = MutableStateFlow(DebuggerState())
     val debuggerState: StateFlow<DebuggerState> = _debuggerState.asStateFlow()
-
-    private val _isDebugging = MutableStateFlow(false)
-    var isDebugging = _isDebugging.asStateFlow()
 
     private val _img = drawingDelegate.bitmapFlow
     val img: StateFlow<Bitmap> = _img
@@ -64,20 +66,24 @@ class InterpreterViewModel @Inject constructor(
     var config by mutableStateOf(configRepository.readSettings())
 
     init {
-        logo.interpret("st")
+        logo.interpret(INIT_TURTLE_IMAGE_COMMAND)
+        logoDebugger.addDebugStateListener(this)
+    }
+
+    //Observer method
+    override fun onStateUpdate(newState: DebuggerState) {
+        viewModelScope.launch(Dispatchers.Main) {
+            _debuggerState.value = newState
+        }
     }
 
     fun updateCodeState(newCode: String) {
         codeState = TextFieldValue(newCode)
     }
 
-    fun getCodeStateAsString(): String {
-        return codeState.text
-    }
+    fun getCodeStateAsString(): String = codeState.text
 
-    fun getCodeStateAsTextFieldValue(): TextFieldValue {
-        return codeState
-    }
+    fun getCodeStateAsTextFieldValue(): TextFieldValue = codeState
 
     fun onCodeChange(newCode: TextFieldValue) {
         val isDarkMode = themeRepository.isDarkTheme()
@@ -105,49 +111,28 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun enableDebugging() {
-        _isDebugging.update { true }
-        logo.enableDebugging()
+        _debuggerState.update { it.copy(isDebugging = true) }
+        logoDebugger.enableDebugging()
         debugCode()
-    }
-
-    fun disableDebugging() {
-        _isDebugging.update { false }
-        logo.disableDebugging()
     }
 
     fun clearErrors() {
         _errors.value = emptyList()
     }
 
-    fun nextStep() {
-        logo.nextStep()
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun disableDebugging() = logoDebugger.disableDebugging()
 
-    fun stepIn() {
-        logo.stepIn()
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun nextStep() = logoDebugger.nextStep()
 
-    fun stepOut() {
-        logo.stepOut()
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun stepIn() = logoDebugger.stepIn()
 
-    fun continueExecution() {
-        logo.continueExecution()
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun stepOut() = logoDebugger.stepOut()
 
-    fun toggleBreakpoint(lineNumber: Int) {
-        logo.toggleBreakpoint(lineNumber)
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun continueExecution() = logoDebugger.continueExecution()
 
-    fun clearBreakpoints() {
-        logo.clearBreakpoints()
-        _debuggerState.value = logo.getDebuggerState()
-    }
+    fun toggleBreakpoint(lineNumber: Int) = logoDebugger.toggleBreakpoint(lineNumber)
+
+    fun clearBreakpoints() = logoDebugger.clearBreakpoints()
 
     fun interpretCode(text: String = codeState.text) {
         viewModelScope.launch {
@@ -166,11 +151,8 @@ class InterpreterViewModel @Inject constructor(
             debugMutex.withLock {
                 clearErrors()
 
-                val result = logo.debug(codeState.text)
+                val result = logoDebugger.debug(codeState.text)
 
-                viewModelScope.launch(Dispatchers.Main) {
-                    _debuggerState.update { logo.getDebuggerState() }
-                }
                 withContext(Dispatchers.Main) {
                     if (!result.success) {
                         _errors.value = result.errors
