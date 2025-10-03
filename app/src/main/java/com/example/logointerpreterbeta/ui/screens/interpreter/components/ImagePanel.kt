@@ -1,13 +1,11 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter.components
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -46,11 +44,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.ui.MyImageHeight
-import com.example.logointerpreterbeta.ui.MyImageWidth
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import kotlin.math.roundToInt
-
 
 val OffsetSaver = Saver<Offset, List<Float>>(
     save = { listOf(it.x, it.y) },
@@ -67,12 +62,9 @@ fun ImagePanel(
     var scale by rememberSaveable { mutableFloatStateOf(2f) }
     var offset by rememberSaveable(stateSaver = OffsetSaver) { mutableStateOf(Offset.Zero) }
     var isBlocked by rememberSaveable { mutableStateOf(false) }
-    var isPickerVisable by rememberSaveable { mutableStateOf(false) }
-    var isInfoVisable by rememberSaveable { mutableStateOf(false) }
-//    var isDarkTheme by rememberSaveable { mutableStateOf(false) }
-//    isDarkTheme = isSystemInDarkTheme()
-//    val emptyBitmap = Bitmap.createBitmap(MyImageWidth, MyImageHeight, Bitmap.Config.ARGB_8888)
-//    emptyBitmap.eraseColor(android.graphics.Color.TRANSPARENT)
+    var isPickerVisible by rememberSaveable { mutableStateOf(false) }
+    var isInfoVisible by rememberSaveable { mutableStateOf(false) }
+
     Box(
         modifier = Modifier
             .pointerInput(Unit) {
@@ -104,12 +96,11 @@ fun ImagePanel(
                 .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
                 .scale(scale)
         )
-        AnimatedVisibility(visible = isPickerVisable, modifier = Modifier.align(Alignment.Center)) {
+        AnimatedVisibility(visible = isPickerVisible, modifier = Modifier.align(Alignment.Center)) {
             ColorPicker(
                 initialColor = turtleState.penState.color,
                 onSelectClick = {
-                    isPickerVisable = !isPickerVisable
-                   // turtleState.penState.color = it!!.toArgb()
+                    isPickerVisible = !isPickerVisible
                 },
                 context = LocalContext.current
             )
@@ -121,8 +112,8 @@ fun ImagePanel(
                 .align(Alignment.BottomEnd)
                 .padding(end = 3.dp, bottom = 40.dp)
         ) {
-            ImageButton(Icons.Filled.Info) { isInfoVisable = !isInfoVisable }
-            ImageButton(Icons.Filled.Palette) { isPickerVisable = !isPickerVisable }
+            ImageButton(Icons.Filled.Info) { isInfoVisible = !isInfoVisible }
+            ImageButton(Icons.Filled.Palette) { isPickerVisible = !isPickerVisible }
             Spacer(modifier = Modifier.weight(1f))
             ImageButton(Icons.Filled.ZoomIn) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
             ImageButton(Icons.Filled.ZoomOut) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
@@ -133,11 +124,11 @@ fun ImagePanel(
             }
             ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
         }
-        AnimatedVisibility(visible = isInfoVisable, modifier = Modifier.align(Alignment.TopEnd)) {
+        AnimatedVisibility(visible = isInfoVisible, modifier = Modifier.align(Alignment.TopEnd)) {
             TurtleInfo(
                 turtleState = turtleState,
             ) {
-                isInfoVisable = !isInfoVisable
+                isInfoVisible = !isInfoVisible
             }
         }
     }

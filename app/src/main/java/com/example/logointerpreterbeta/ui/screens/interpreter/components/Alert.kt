@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter.components
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -8,7 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.R
 
 
 @Composable
@@ -19,7 +22,7 @@ fun Alert(
     confirmButtonAction: () -> Unit,
     dismissButtonAction: () -> Unit,
     textField: @Composable (() -> Unit)? = null,
-    confirmButtonText: String = "Dalej"
+    @StringRes confirmButtonText: Int
 ) {
     AnimatedVisibility(isVisible) {
         AlertDialog(
@@ -46,7 +49,7 @@ fun Alert(
                         confirmButtonAction()
                     }
                 ) {
-                    Text(confirmButtonText)
+                    Text(stringResource(confirmButtonText))
                 }
             },
             dismissButton = {
@@ -55,7 +58,7 @@ fun Alert(
                         dismissButtonAction()
                     }
                 ) {
-                    Text("Wstecz")
+                    Text(stringResource(R.string.back))
                 }
             }
         )

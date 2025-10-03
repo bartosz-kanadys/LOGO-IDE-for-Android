@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.readTutorialsFromRaw
-import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.DisplayOnlyCodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
 @Composable
@@ -52,17 +52,8 @@ fun TutorialContentScreen(tutorialName: String, modifier: Modifier) {
                 val coloredCode = LogoTextColorizer.colorizeText(paragraph.code, false)
                 item {
                     Text(text = paragraph.content + "\n", textAlign = TextAlign.Justify)
-                    val linesCount = paragraph.code.lines().size
-                    CodeEditor(
+                    DisplayOnlyCodeEditor(
                         codeState = TextFieldValue(coloredCode),
-                        isSaveOnChange = false,
-                        isEnabled = false,
-                        isScrollable = false,
-                        lines = linesCount,
-                        fontSize = 15,                                    //fontSize + 5
-                        modifier = Modifier.height((30 + (linesCount - 1) * 20).dp),
-                        breakpoints = emptyList(),
-                        currentLine = -1,
                     )
                     Spacer(Modifier.height(5.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {

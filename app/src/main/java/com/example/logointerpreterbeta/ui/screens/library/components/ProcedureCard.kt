@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
-import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.DisplayOnlyCodeEditor
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
@@ -53,16 +53,8 @@ fun ProcedureCard(
             }
 
             Spacer(modifier = Modifier.height(10.dp))
-            CodeEditor(
+            DisplayOnlyCodeEditor(
                 codeState = TextFieldValue(coloredCode),
-                isSaveOnChange = false,
-                isEnabled = false,
-                isScrollable = false,
-                lines = linesCount,
-                modifier = Modifier.height((30 + (linesCount - 1) * 23).dp),
-                breakpoints = emptyList(),
-                currentLine = -1,
-                fontFamily = AppTypography.bodyMedium.fontFamily!!.toString()
             )
         }
     }

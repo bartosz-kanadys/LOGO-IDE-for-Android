@@ -22,8 +22,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 
 
@@ -31,7 +33,7 @@ import com.example.logointerpreterbeta.ui.theme.AppTypography
 fun ErrorsList(
     errors: String,
     isErrorListExpanded: Boolean,
-    isErrorListVisable: Boolean,
+    isErrorListVisible: Boolean,
     onClick: () -> Unit
 ) {
     val errorsList = if (errors.isNotEmpty()) {
@@ -41,7 +43,7 @@ fun ErrorsList(
             .toList()
     } else listOf(":)")
 
-    AnimatedVisibility(isErrorListVisable) {
+    AnimatedVisibility(isErrorListVisible) {
 
         Column {
             Row(
@@ -53,7 +55,7 @@ fun ErrorsList(
                     .fillMaxWidth()
             ) {
                 Text(
-                    text = "Wykryto ${errorsList.size} błędy/ów z kodem!",
+                    text = stringResource(R.string.errors_in_code, errorsList.size),
                     style = AppTypography.bodySmall,
                     modifier = Modifier
                         .align(Alignment.CenterVertically),

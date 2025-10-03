@@ -53,6 +53,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,6 +63,7 @@ import androidx.core.content.FileProvider
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.framework.ImageExportManager
 import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.Projects
@@ -70,13 +72,13 @@ import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
-import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
 import java.io.BufferedReader
-import java.io.File
-import java.io.FileOutputStream
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.util.Date
+import androidx.core.graphics.createBitmap
+import java.io.File
+import java.io.FileOutputStream
 
 class InterpreterTopBar : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -96,7 +98,7 @@ fun InterpreterTopBar(
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
     var exportMenuExpanded by remember { mutableStateOf(false) }
-    var saevFileExpanded by remember { mutableStateOf(false) }
+    var saveFileExpanded by remember { mutableStateOf(false) }
     var openFileExpanded by remember { mutableStateOf(false) }
     val fileName by remember { mutableStateOf(TextFieldValue("")) }
 
@@ -114,7 +116,8 @@ fun InterpreterTopBar(
                 OutputStreamWriter(outputStream).use { writer ->
                     writer.write(viewModel.getCodeStateAsString())
                 }
-                Toast.makeText(context, "Zapisano plik: ${fileName.text} ", Toast.LENGTH_SHORT)
+                Toast.makeText(context,
+                    context.getString(R.string.file_saved_info, fileName.text), Toast.LENGTH_SHORT)
                     .show()
             }
         }
@@ -135,7 +138,8 @@ fun InterpreterTopBar(
             }
 
 //            viewModel.onCodeChange(TextFieldValue(stringBuilder.toString()), null)  // Zaktualizuj stan kodu
-            Toast.makeText(context, "Wczytano plik 👍", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,
+                context.getString(R.string.file_readed_toast), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -166,7 +170,7 @@ fun InterpreterTopBar(
             IconButton(onClick = { dropdownExpanded = true }) {
                 Icon(
                     imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu"
+                    contentDescription = stringResource(R.string.menu)
                 )
             }
             // Menu kontekstowe (Dropdown)
@@ -179,19 +183,19 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { MenuElement("Projekty", icon = Icons.Filled.Folder) }
+                    text = { MenuElement(stringResource(R.string.projects), icon = Icons.Filled.Folder) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(TutorialScreen) },
-                    text = { MenuElement("Poradniki", icon = Icons.Filled.School) }
+                    text = { MenuElement(stringResource(R.string.tutorials), icon = Icons.Filled.School) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Libraries) },
-                    text = { MenuElement("Biblioteki", icon = Icons.AutoMirrored.Filled.MenuBook) }
+                    text = { MenuElement(stringResource(R.string.libraries), icon = Icons.AutoMirrored.Filled.MenuBook) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Settings) },
-                    text = { MenuElement("Ustawienia", icon = Icons.Filled.Settings) }
+                    text = { MenuElement(stringResource(R.string.settings), icon = Icons.Filled.Settings) }
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
@@ -200,7 +204,7 @@ fun InterpreterTopBar(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement("Exportuj rysunek", icon = Icons.Filled.Image)
+                            MenuElement(stringResource(R.string.export_image), icon = Icons.Filled.Image)
                             if (exportMenuExpanded) {
                                 Icon(
                                     imageVector = Icons.Filled.ExpandLess,
@@ -230,85 +234,89 @@ fun InterpreterTopBar(
                                 exportManager.checkPermissions(context)
                                 val jpgFile = exportManager.saveBitmapAsJpg(
                                     context,
-                                    Bitmap.createBitmap(100,100,Bitmap.Config.ARGB_8888),
+                                    viewModel.img.value,
                                     "LogoImage" + Date()
                                 )
                                 Toast.makeText(
                                     context,
-                                    if (jpgFile) "Zapisano JPG 🤓" else "Nie udało się zapisać JPG 🤷‍♂️",
+                                    if (jpgFile) context.getString(R.string.saved_jpg) else context.getString(
+                                        R.string.not_able_to_save_jpg
+                                    ),
                                     Toast.LENGTH_SHORT
                                 ).show()
                                 dropdownExpanded = false
                             },
-                            text = { MenuElement("Jako JPG", icon = Icons.Filled.Image) }
+                            text = { MenuElement(stringResource(R.string.as_jpg), icon = Icons.Filled.Image) }
                         )
 
                         DropdownMenuItem(
                             onClick = {
-//                                exportManager.checkPermissions(context)
-//                                val pdfFile =
-//                                    exportManager.saveBitmapAsPdf(context, MyLogoVisitor.image, "MyBitmapImage")
-//                                Toast.makeText(
-//                                    context,
-//                                    if (pdfFile) "Zapisano PDF 👌" else "Nie udało się zapisać PDF 😯",
-//                                    Toast.LENGTH_SHORT
-//                                ).show()
-//                                dropdownExpanded = false
+                                exportManager.checkPermissions(context)
+                                val pdfFile =
+                                    exportManager.saveBitmapAsPdf(context, viewModel.img.value, "MyBitmapImage")
+                                Toast.makeText(
+                                    context,
+                                    if (pdfFile) context.getString(R.string.saved_pdf) else context.getString(
+                                        R.string.not_able_to_save_pdf
+                                    ),
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                dropdownExpanded = false
                             },
                             text = {
                                 MenuElement(
-                                    "Zapisz PDF",
+                                    stringResource(R.string.save_pdf),
                                     icon = Icons.Filled.PictureAsPdf
                                 )
                             }
                         )
                         DropdownMenuItem(
                             onClick = {
-//                                try {
-//                                    // Krok 1: Zapisanie bitmapy do pliku
-//                                    val file = File(context.cacheDir, "shared_image.png")
-//                                    FileOutputStream(file).use { fos ->
-//                                        MyLogoVisitor.image.compress(
-//                                            Bitmap.CompressFormat.PNG,
-//                                            100,
-//                                            fos
-//                                        )
-//                                    }
-//
-//                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
-//                                    val uri = FileProvider.getUriForFile(
-//                                        context,
-//                                        "${context.packageName}.fileprovider",
-//                                        file
-//                                    )
-//
-//                                    // Krok 3: Tworzenie Intentu do udostępnienia
-//                                    val shareIntent = Intent().apply {
-//                                        action = Intent.ACTION_SEND
-//                                        type = "image/png"
-//                                        putExtra(Intent.EXTRA_STREAM, uri)
-//                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
-//                                    }
-//
-//                                    // Uruchamianie Intentu
-//                                    context.startActivity(
-//                                        Intent.createChooser(
-//                                            shareIntent,
-//                                            "Share image via"
-//                                        )
-//                                    )
-//                                } catch (e: Exception) {
-//                                    e.printStackTrace()
-//                                    Toast.makeText(
-//                                        context,
-//                                        "Failed to share image: ${e.message}",
-//                                        Toast.LENGTH_SHORT
-//                                    ).show()
-//                                }
+                                try {
+                                    // Krok 1: Zapisanie bitmapy do pliku
+                                    val file = File(context.cacheDir, "shared_image.png")
+                                    FileOutputStream(file).use { fos ->
+                                        viewModel.img.value.compress(
+                                            Bitmap.CompressFormat.PNG,
+                                            100,
+                                            fos
+                                        )
+                                    }
+
+                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
+                                    val uri = FileProvider.getUriForFile(
+                                        context,
+                                        "${context.packageName}.fileprovider",
+                                        file
+                                    )
+
+                                    // Krok 3: Tworzenie Intentu do udostępnienia
+                                    val shareIntent = Intent().apply {
+                                        action = Intent.ACTION_SEND
+                                        type = "image/png"
+                                        putExtra(Intent.EXTRA_STREAM, uri)
+                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
+                                    }
+
+                                    // Uruchamianie Intentu
+                                    context.startActivity(
+                                        Intent.createChooser(
+                                            shareIntent,
+                                            "Share image via"
+                                        )
+                                    )
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Toast.makeText(
+                                        context,
+                                        context.getString(R.string.failed_to_share_image, e.message),
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             },
                             text = {
                                 MenuElement(
-                                    "Udostępnij",
+                                    stringResource(R.string.share),
                                     icon = Icons.Filled.Share
                                 )
                             }
@@ -317,14 +325,14 @@ fun InterpreterTopBar(
                 }
 
                 DropdownMenuItem(
-                    onClick = { saevFileExpanded = !saevFileExpanded },
+                    onClick = { saveFileExpanded = !saveFileExpanded },
                     text = {
                         Row(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement("Zapisz program", icon = Icons.Filled.SaveAs)
-                            if (saevFileExpanded) {
+                            MenuElement(stringResource(R.string.save_program), icon = Icons.Filled.SaveAs)
+                            if (saveFileExpanded) {
                                 Icon(
                                     imageVector = Icons.Filled.ExpandLess,
                                     contentDescription = null,
@@ -342,7 +350,7 @@ fun InterpreterTopBar(
                         }
                     }
                 )
-                AnimatedVisibility(visible = saevFileExpanded) {
+                AnimatedVisibility(visible = saveFileExpanded) {
                     Column(
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.secondary)
@@ -352,7 +360,7 @@ fun InterpreterTopBar(
                             onClick = {
                                 saveFileLauncher.launch(fileName.text)
                             },
-                            text = { MenuElement("Zapisz do pliku", icon = Icons.Filled.FileOpen) }
+                            text = { MenuElement(stringResource(R.string.save_to_file), icon = Icons.Filled.FileOpen) }
                         )
 
                         DropdownMenuItem(
@@ -377,7 +385,7 @@ fun InterpreterTopBar(
                             },
                             text = {
                                 MenuElement(
-                                    "Udostępnij",
+                                    stringResource(R.string.share),
                                     icon = Icons.Filled.Share
                                 )
                             }
@@ -391,7 +399,7 @@ fun InterpreterTopBar(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement("Wczytaj program", icon = Icons.Filled.Download)
+                            MenuElement(stringResource(R.string.open_program), icon = Icons.Filled.Download)
                             if (openFileExpanded) {
                                 Icon(
                                     imageVector = Icons.Filled.ExpandLess,
@@ -427,7 +435,7 @@ fun InterpreterTopBar(
                             },
                             text = {
                                 MenuElement(
-                                    "Wczytaj z pliku",
+                                    stringResource(R.string.read_from_file),
                                     icon = Icons.Filled.UploadFile
                                 )
                             }
@@ -439,7 +447,7 @@ fun InterpreterTopBar(
                             },
                             text = {
                                 MenuElement(
-                                    "Wczytaj z dysku",
+                                    stringResource(R.string.read_from_disc),
                                     icon = Icons.Filled.AddToDrive
                                 )
                             }
@@ -457,7 +465,7 @@ fun InterpreterTopBar(
                 )
             }
         },
-        modifier = Modifier.height(60.dp)
+        modifier = Modifier.height(80.dp)
     )
 }
 

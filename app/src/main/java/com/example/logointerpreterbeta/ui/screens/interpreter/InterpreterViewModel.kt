@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
+import android.content.Context
 import android.graphics.Bitmap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -8,11 +9,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.domain.interpreter.LogoDebugger
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
+import com.example.logointerpreterbeta.domain.models.Project
+import com.example.logointerpreterbeta.domain.models.ProjectFile
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
+import com.example.logointerpreterbeta.domain.repository.FileRepository
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
@@ -29,6 +34,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
 import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
@@ -36,7 +42,8 @@ class InterpreterViewModel @Inject constructor(
     private val logoDebugger: LogoDebugger,
     drawingDelegate: UIDrawingDelegate,
     configRepository: ConfigRepository,
-    private val themeRepository: ThemeRepository
+    private val themeRepository: ThemeRepository,
+    private val fileRepository: FileRepository
 ) : ViewModel(), DebugStateListener {
 
     val INIT_TURTLE_IMAGE_COMMAND = "st"
@@ -160,5 +167,37 @@ class InterpreterViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun saveFile(context: Context, actualFileName: String, actualProjectName: String, content: String) {
+        fileRepository.writeFileContent(
+            context,
+            actualFileName,
+            actualProjectName,
+            content
+        )
+    }
+
+    fun onTapFileAction(
+        context: Context,
+        projectFile: ProjectFile,
+        project: Project?,
+        updateActualFileName: (String) -> Unit,
+    ) {
+        clearBreakpoints()
+        updateCodeState(
+            fileRepository.readFileContent(
+                context,
+                projectFile.name,
+                project!!.name
+            )!!
+        )
+        colorCode()
+        updateActualFileName(projectFile.name)
+    }
+
+    fun readFileFromRepository(context: Context, actualFile: String, projectName: String): String? {
+        return fileRepository.readFileContent(context, actualFile, projectName)
+
     }
 }

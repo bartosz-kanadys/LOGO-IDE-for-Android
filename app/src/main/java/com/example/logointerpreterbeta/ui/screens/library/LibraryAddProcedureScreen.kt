@@ -97,7 +97,9 @@ fun LibraryAddProcedureForm(
                 isSaveOnChange = false,
                 modifier = Modifier,
                 breakpoints = emptyList(),
-                currentLine = -1
+                currentLine = -1,
+                onSave = {  },
+                onToggleBreakpoint = { }
             )
         }
         item {

@@ -5,7 +5,6 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Build
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
@@ -28,9 +27,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColor
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.github.skydoves.colorpicker.compose.AlphaSlider
 import com.github.skydoves.colorpicker.compose.AlphaTile
@@ -52,7 +53,6 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             .padding(8.dp)
             .clip(shape = RoundedCornerShape(10.dp))
             .background(MaterialTheme.colorScheme.inversePrimary)
-
     ) {
         AlphaTile(
             controller = controller,
@@ -68,7 +68,6 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
             modifier = Modifier
                 .size(160.dp)
                 .padding(horizontal = 8.dp)
-
         )
         AlphaSlider(
             controller = controller,
@@ -97,7 +96,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
 //            })
 
         PickerButton(
-            text = "Kopiuj",
+            text = stringResource(R.string.copy),
             onClick = {
                 onSelectClick()
                 val clipboard =
@@ -109,7 +108,7 @@ fun ColorPicker(initialColor: Int, onSelectClick: () -> Unit, context: Context) 
                     "setpc [ ${(color.red() * 255).toInt()} ${(color.green() * 255).toInt()} ${(color.blue() * 255).toInt()} ]"
                 )
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(context, "Tekst skopiowany do schowka", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show()
             }
         )
     }

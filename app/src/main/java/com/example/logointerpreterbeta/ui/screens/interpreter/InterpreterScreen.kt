@@ -1,10 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -34,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -44,15 +40,18 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
+import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.data.repository.ConfigRepositoryImpl
 import com.example.logointerpreterbeta.domain.models.Config
-import com.example.logointerpreterbeta.domain.models.Project
-import com.example.logointerpreterbeta.domain.models.ProjectFile
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.navigation.StartScreen
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.Alert
@@ -61,8 +60,8 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePa
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import kotlinx.coroutines.flow.first
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -71,31 +70,21 @@ fun InterpreterApp(
     projectViewModel: ProjectViewModel = viewModel(),
     navController: NavController,
     configRepository: ConfigRepository,
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var isAlertEmptyProjectVisable by rememberSaveable { mutableStateOf(false) }
-    var isAlertNewFileVisable by rememberSaveable { mutableStateOf(false) }
+    var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
+    var isAlertNewFileVisible by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
-
     var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
     var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
 
     val errors by interpreterViewModel.errors.collectAsStateWithLifecycle()
-
     val image by interpreterViewModel.img.collectAsStateWithLifecycle()
     val arrowImage by interpreterViewModel.arrowImg.collectAsStateWithLifecycle()
-
     val debuggerState by interpreterViewModel.debuggerState.collectAsStateWithLifecycle()
-
     val turtleState by interpreterViewModel.turtleState.collectAsStateWithLifecycle()
-
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
-
-    val fileRepository = FileRepositoryImpl(context)
-
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
-
     val config by configRepository.readSettings().collectAsState(
         initial = Config()
     )
@@ -119,7 +108,7 @@ fun InterpreterApp(
         val actualFile = projectState.project?.files?.firstOrNull()?.name
 
         if (actualFile != null) {
-            val content = fileRepository.readFileContent(context, actualFile, projectState.project!!.name)
+            val content = interpreterViewModel.readFileFromRepository(context, actualFile, projectState.actualProjectName)
             if (content != null) {
                 interpreterViewModel.updateCodeState(content)
                 interpreterViewModel.colorCode()
@@ -127,69 +116,71 @@ fun InterpreterApp(
             }
         } else {
             interpreterViewModel.updateCodeState("")
-            isAlertEmptyProjectVisable = true
+            isAlertEmptyProjectVisible = true
         }
-        isAlertEmptyProjectVisable = projectState.project?.files?.isEmpty() ?: false
+        isAlertEmptyProjectVisible = projectState.project?.files?.isEmpty() ?: false
     }
 
-    //alert gdy pusty projekt
+    //alert when project is empty
     Alert(
-        isVisible = isAlertEmptyProjectVisable,
-        title = "Pusty projekt",
-        content = "W projekcie '${projectState.actualProjectName}' nie ma jeszcze żadnego pliku! Wpisz niżej nazwę pierwszego pliku aby go utworzyć.",
+        isVisible = isAlertEmptyProjectVisible,
+        title = stringResource(R.string.empty_project),
+        content = stringResource(R.string.empty_project_full_text, projectState.actualProjectName),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
                 projectViewModel.createFileInEmptyProject(newFileName)
                 interpreterViewModel.interpretCode("")
-                isAlertEmptyProjectVisable = false
+                isAlertEmptyProjectVisible = false
                 newFileName = ""
             }
         },
         dismissButtonAction = {
-            isAlertEmptyProjectVisable = false
+            isAlertEmptyProjectVisible = false
             navController.popBackStack()
         },
         textField = {
             TextField(
                 value = newFileName,
-                onValueChange = { newValue -> newFileName = newValue },
-            )
-        }
+                onValueChange = { newValue -> newFileName = newValue }
+                )
+        },
+        confirmButtonText = R.string.continue_step
     )
 
-    //alert gdy tworznie nowego pliku
+    //alert when creating new file
     Alert(
-        isVisible = isAlertNewFileVisable,
-        title = "Nowy plik",
-        content = "Podaj nazwę pliku, który zostanie dodany do projektu,",
+        isVisible = isAlertNewFileVisible,
+        title = stringResource(R.string.new_file),
+        content = stringResource(R.string.enter_new_file_name_text),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
                 projectViewModel.createFileInProject(newFileName)
-                isAlertNewFileVisable = false
+                isAlertNewFileVisible = false
                 newFileName = ""
             }
         },
-        dismissButtonAction = { isAlertNewFileVisable = false },
+        dismissButtonAction = { isAlertNewFileVisible = false },
         textField = {
             TextField(
                 value = newFileName,
                 onValueChange = { newValue -> newFileName = newValue }
             )
-        }
+        },
+        confirmButtonText = R.string.continue_step
     )
 
-    //alert potwierdzenia usuniecia
+    //alert file to delete
     Alert(
         isVisible = fileToDelete != null,
-        title = "Potwierdzenie usunięcia",
-        content = "Czy na pewno chcesz usunąć plik '${fileToDelete}'?",
+        title = stringResource(R.string.confirm_delete_file),
+        content = stringResource(R.string.confirm_delete_file_full_text, fileToDelete ?: ""),
         confirmButtonAction = {
-            isAlertEmptyProjectVisable =
+            isAlertEmptyProjectVisible =
                 projectViewModel.deleteFileFromProject(fileToDelete!!)
             fileToDelete = null
         },
         dismissButtonAction = { fileToDelete = null },
-        confirmButtonText = "Usuń"
+        confirmButtonText = R.string.delete
     )
 
     val configuration = LocalConfiguration.current
@@ -228,13 +219,11 @@ fun InterpreterApp(
                                             visibleMenuFileName = projectFile.name
                                         },
                                         onTap = {
-                                            onTapFileAction(
-                                                interpreterViewModel,
-                                                fileRepository,
-                                                context,
-                                                projectFile,
-                                                projectState.project,
-                                                projectViewModel
+                                            interpreterViewModel.onTapFileAction(
+                                                context = context,
+                                                projectFile = projectFile,
+                                                project = projectState.project,
+                                                updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
                                             )
                                         }
                                     )
@@ -247,7 +236,7 @@ fun InterpreterApp(
                                     onDismissRequest = { visibleMenuFileName = null }
                                 ) {
                                     DropdownMenuItem(
-                                        text = { Text("Usuń") },
+                                        text = { Text(stringResource(R.string.delete)) },
                                         onClick = {
                                             fileToDelete = projectFile.name
                                             visibleMenuFileName = null
@@ -260,7 +249,7 @@ fun InterpreterApp(
 
                     item {
                         TextButton(
-                            onClick = { isAlertNewFileVisable = true },
+                            onClick = { isAlertNewFileVisible = true },
                             contentPadding = PaddingValues(0.dp),
                             modifier = Modifier
                                 .width(30.dp)
@@ -271,14 +260,12 @@ fun InterpreterApp(
                 }
                 ErrorsList(
                     errors = errors.toString(),
-                    isErrorListVisable = errors.isNotEmpty(),
+                    isErrorListVisible = errors.isNotEmpty(),
                     isErrorListExpanded = isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
                 Box {
                     CodeEditor(
-//                        projectViewModel = projectViewModel,
-                        interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
@@ -287,14 +274,17 @@ fun InterpreterApp(
                         fontFamily = config.currentFont,
                         fontSize = config.currentFontSize,
                         onSave = {
-                            fileRepository.writeFileContent(
+                            interpreterViewModel.saveFile(
                                 context,
                                 projectState.actualFileName!!,
                                 projectState.actualProjectName,
-                                interpreterViewModel.getCodeStateAsString()
+                                it
                             )
+                        },
+                        onToggleBreakpoint = {
+                            interpreterViewModel.toggleBreakpoint(it)
                         }
-                        )
+                    )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
                         isDebugging = debuggerState.isDebugging,
@@ -348,13 +338,11 @@ fun InterpreterApp(
                                                 visibleMenuFileName = projectFile.name
                                             },
                                             onTap = {
-                                                onTapFileAction(
-                                                    interpreterViewModel,
-                                                    fileRepository,
-                                                    context,
-                                                    projectFile,
-                                                    projectState.project,
-                                                    projectViewModel
+                                                interpreterViewModel.onTapFileAction(
+                                                    context = context,
+                                                    projectFile = projectFile,
+                                                    project = projectState.project,
+                                                    updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
                                                 )
                                             }
                                         )
@@ -367,7 +355,7 @@ fun InterpreterApp(
                                         onDismissRequest = { visibleMenuFileName = null }
                                     ) {
                                         DropdownMenuItem(
-                                            text = { Text("Usuń") },
+                                            text = { Text(stringResource(R.string.delete)) },
                                             onClick = {
                                                 fileToDelete = projectFile.name
                                                 visibleMenuFileName = null
@@ -380,7 +368,7 @@ fun InterpreterApp(
 
                         item {
                             TextButton(
-                                onClick = { isAlertNewFileVisable = true },
+                                onClick = { isAlertNewFileVisible = true },
                                 contentPadding = PaddingValues(0.dp),
                                 modifier = Modifier
                                     .width(30.dp)
@@ -394,7 +382,7 @@ fun InterpreterApp(
             item {
                 ErrorsList(
                     errors = errors.toString(),
-                    isErrorListVisable = errors.isNotEmpty(),
+                    isErrorListVisible = errors.isNotEmpty(),
                     isErrorListExpanded = isErrorListExpanded,
                     onClick = { interpreterViewModel.toggleErrorListVisibility() }
                 )
@@ -402,8 +390,6 @@ fun InterpreterApp(
             item {
                 Box {
                     CodeEditor(
-//                        projectViewModel = projectViewModel,
-                        interpreterViewModel = interpreterViewModel,
                         codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
                         onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
@@ -411,7 +397,18 @@ fun InterpreterApp(
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
                         fontFamily = config.currentFont,
-                        fontSize = config.currentFontSize
+                        fontSize = config.currentFontSize,
+                        onToggleBreakpoint = {
+                            interpreterViewModel.toggleBreakpoint(it)
+                        },
+                        onSave = {
+                            interpreterViewModel.saveFile(
+                                context,
+                                projectState.actualFileName!!,
+                                projectState.actualProjectName,
+                                it
+                            )
+                        }
                     )
                     InterpreterButtons(
                         viewModel = interpreterViewModel,
@@ -423,31 +420,8 @@ fun InterpreterApp(
             }
         }
     }
-
-
 }
 
-
-private fun onTapFileAction(
-    interpreterViewModel: InterpreterViewModel,
-    fileRepository: FileRepositoryImpl,
-    context: Context,
-    projectFile: ProjectFile,
-    project: Project?,
-    projectViewModel: ProjectViewModel
-) {
-    interpreterViewModel.clearBreakpoints()
-    interpreterViewModel.updateCodeState(
-        fileRepository.readFileContent(
-            context,
-            projectFile.name,
-            project!!.name
-        )!!
-    )
-    interpreterViewModel.colorCode()
-    projectViewModel.updateActualFileName(projectFile.name)
-}
-//
 //@RequiresApi(Build.VERSION_CODES.O)
 //@Preview(showBackground = true, showSystemUi = true)
 //@Composable
@@ -456,7 +430,7 @@ private fun onTapFileAction(
 //        InterpreterApp(
 //            interpreterViewModel = hiltViewModel(),
 //            navController = rememberNavController(),
-//            configRepository = ConfigRepository()
+//            configRepository = null
 //        )
 //    }
 //}

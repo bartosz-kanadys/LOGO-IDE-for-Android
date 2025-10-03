@@ -1,6 +1,5 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter.components
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -10,8 +9,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.PlayArrow
@@ -27,8 +26,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
-import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
-
 
 @Composable
 fun InterpreterButtons(
@@ -54,7 +51,7 @@ fun InterpreterButtons(
                     MaterialTheme.colorScheme.errorContainer
                 ) { viewModel.disableDebugging() }
 
-                CodeEditorButton(Icons.Filled.ArrowForward) { viewModel.nextStep() }
+                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.nextStep() }
                 if (isStepInButtonVisible) {
                     CodeEditorButton(Icons.Filled.ArrowDownward) { viewModel.stepIn() }
                 }

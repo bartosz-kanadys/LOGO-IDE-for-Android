@@ -52,4 +52,36 @@
     <string name="library_exists">Biblioteka o takiej nazwie już istnieje</string>
     <string name="add_library">Dodaj biblioteke</string>
     <string name="add_procedure_to_">Dodaj procedure do %1$s</string>
+    <string name="empty_project">Pusty projekt</string>
+    <string name="empty_project_full_text">W projekcie \'%1$s\' nie ma jeszcze żadnego pliku! Wpisz niżej nazwę pierwszego pliku aby go utworzyć.</string>
+    <string name="new_file">Nowy plik</string>
+    <string name="enter_new_file_name_text">Podaj nazwę pliku, który zostanie dodany do projektu,</string>
+    <string name="confirm_delete_file">Potwierdzenie usunięcia</string>
+    <string name="confirm_delete_file_full_text">Czy na pewno chcesz usunąć plik \'%1$s\'?</string>
+    <string name="continue_step">Dalej</string>
+    <string name="copy">Kopiuj</string>
+    <string name="errors_in_code">Wykryto %1$d błędy/ów z kodem!</string>
+    <string name="turtle">Żółwik</string>
+    <string name="turtle_info_angle">Kąt = %1$s°</string>
+    <string name="turtle_info_visible">Widoczny = %1$b</string>
+    <string name="turtle_info_pen_down">Opuszczony = %1$b</string>
+    <string name="turtle_info_size">Rozmiar = %1$s</string>
+    <string name="turtle_info_color">Kolor</string>
+    <string name="file_saved_info">"Zapisano plik: %1$s "</string>
+    <string name="file_readed_toast">Wczytano plik 👍</string>
+    <string name="menu">Menu</string>
+    <string name="export_image">Exportuj rysunek</string>
+    <string name="saved_jpg">"Zapisano JPG 👌"</string>
+    <string name="not_able_to_save_jpg">Nie udało się zapisać JPG 🤷‍♂️</string>
+    <string name="as_jpg">Jako JPG</string>
+    <string name="save_pdf">Zapisz PDF</string>
+    <string name="share">Udostępnij</string>
+    <string name="save_program">Zapisz program</string>
+    <string name="save_to_file">Zapisz do pliku</string>
+    <string name="open_program">Wczytaj program</string>
+    <string name="read_from_file">Wczytaj z pliku</string>
+    <string name="read_from_disc">Wczytaj z dysku</string>
+    <string name="saved_pdf">Zapisano PDF 👌</string>
+    <string name="not_able_to_save_pdf">Nie udało się zapisać PDF 😯</string>
+    <string name="failed_to_share_image">Failed to share image: %1$s</string>
 </resources>

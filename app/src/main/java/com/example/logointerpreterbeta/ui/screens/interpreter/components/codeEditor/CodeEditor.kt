@@ -1,179 +1,88 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.logointerpreterbeta.domain.interpreter.errors.prepareErrorList
-import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.replaceAnnotatedSubstring
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
-import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.theme.ThemeUtils
 
 @Composable
 fun CodeEditor(
-    projectViewModel: ProjectViewModel? = null,
-    interpreterViewModel: InterpreterViewModel? = null,
-    fileRepository: FileRepositoryImpl? = null,
     codeState: TextFieldValue,
+    currentLine: Int,
+    modifier: Modifier = Modifier,
     errors: String = "",
     onCodeChange: (TextFieldValue) -> Unit = {},
     isSaveOnChange: Boolean = true,
-    isEnabled: Boolean = true,
-    isScrollable: Boolean = true,
     lines: Int = 10,
     fontSize: Int = 18,
     fontFamily: String = "JetBrains Mono",
     breakpoints: List<Int>,
     useAutocorrect: Boolean = false,
     showSuggestions: Boolean = true,
-    currentLine: Int,
-    onSave: () -> Unit = {},
-    @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
+    onSave: (String) -> Unit = {},
+    onToggleBreakpoint: (Int) -> Unit,
 ) {
     val linesCount = codeState.text.lines().size
     val scrollState = rememberScrollState()
-    val errorsList = if (errors.isNotEmpty()) {
-        errors.removeSurrounding("[", "]")
-            .split(",")
-            .toMutableList()
-    } else mutableListOf(":)")
-    val errorMap = prepareErrorList(errorsList)
+
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
     var cursorPosition by remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
-    val interactionSource = remember { MutableInteractionSource() }
+
     Row(
         modifier = modifier
-            .height(300.dp)
+            .height(350.dp)
             .fillMaxWidth()
             .shadow(18.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxHeight()
-                .verticalScroll(scrollState)
-                .width(33.dp)
-                .background(MaterialTheme.colorScheme.inversePrimary)
-                .padding(top = 2.dp)
-
+        EditorLines(
+            scrollState = scrollState,
+            linesCount = linesCount,
+            breakpoints = breakpoints,
+            currentLine = currentLine,
+            fontSize = fontSize,
+            fontFamily = fontFamily,
+            errors = errors,
         ) {
-            for (i in 1..linesCount) {
-                if (i in breakpoints) {
-                    // Jeśli numer linii jest w breakpointach, wyświetl czerwone koło
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize() // Ustal wymiary tła
-                            .background(
-                                when (i) {
-                                    in errorMap -> MaterialTheme.colorScheme.errorContainer
-                                    currentLine -> MaterialTheme.colorScheme.secondary
-                                    else -> MaterialTheme.colorScheme.inversePrimary
-                                }
-                            )
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size((fontSize*1.4).dp) // Ustal rozmiar koła
-                                .background(
-                                    MaterialTheme.colorScheme.errorContainer,
-                                    shape = CircleShape
-                                ) // Czerwone koło
-                                .align(Alignment.Center)
-                                .clickable(
-                                    interactionSource = interactionSource,
-                                    indication = null
-                                ) {
-                                    interpreterViewModel!!.toggleBreakpoint(i) // Przełącz breakpoint
-                                    //DebuggerVisitor.breakpoints=i
-                                },
-
-                            )
-                    }
-                } else {
-                    // W przeciwnym razie wyświetl numer linii
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = i.toString(),
-                        color = MaterialTheme.colorScheme.onSurface,
-                        fontSize = fontSize.sp,
-                        style = TextStyle(
-                            platformStyle = PlatformTextStyle(includeFontPadding = false),
-                            fontFamily = ThemeUtils.fontFamilyFromString(fontFamily)
-                        ),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                when (i) {
-                                    in errorMap -> MaterialTheme.colorScheme.errorContainer
-                                    currentLine -> MaterialTheme.colorScheme.secondary
-                                    else -> MaterialTheme.colorScheme.inversePrimary
-                                }
-                            )
-                            .clickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {
-                                interpreterViewModel?.toggleBreakpoint(i) // Przełącz breakpoint
-                            }
-                    )
-                }
-            }
+            onToggleBreakpoint(it)
         }
         Column {
             Box(modifier = modifier.fillMaxSize()) {
                 BasicTextField(
-                    enabled = isEnabled,
                     value = codeState,
                     onValueChange = { newValue ->
-                        onCodeChange(newValue)
                         cursorPosition = newValue.selection.start
                         val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
                         filteredSuggestions = if (wordToMatch.isNotEmpty()) {
@@ -181,7 +90,7 @@ fun CodeEditor(
                         } else { emptyList() }
                         onCodeChange(newValue)
                         if (isSaveOnChange) {
-                            onSave()
+                            onSave(newValue.text)
                         }
                     },
                     minLines = lines,
@@ -205,7 +114,7 @@ fun CodeEditor(
                     ),
                     modifier = modifier
                         .fillMaxSize()
-                        .then(if (isScrollable) Modifier.verticalScroll(scrollState) else Modifier)
+                        .verticalScroll(scrollState)
                         .background(MaterialTheme.colorScheme.surfaceContainer)
                         .padding(top = 2.dp, start = 10.dp, end = 10.dp)
                 )
@@ -231,21 +140,4 @@ fun CodeEditor(
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun AA() {
-    CodeEditor(
-        projectViewModel = hiltViewModel(),
-        interpreterViewModel = hiltViewModel(),
-        codeState = TextFieldValue("t\n\n\n\n\n\n\n\n papap"),
-        errors = "",
-        onCodeChange = { },
-        isSaveOnChange = true,
-        modifier = Modifier,
-        breakpoints = emptyList(),
-        currentLine = 0,
-        fontFamily = "Sans"
-    )
 }
