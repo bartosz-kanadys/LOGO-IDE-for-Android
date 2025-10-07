@@ -24,23 +24,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 
-class TopBar : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            TopBarWithMenu("Test")
-        }
-    }
-}
+//class TopBar : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            TopBarWithMenu("Test")
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,7 +70,7 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
             }
         },
         navigationIcon = {
-            // Ikona menu kontekstowego
+            // Menu icon
             IconButton(onClick = { navController.popBackStack() }) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -77,38 +79,34 @@ fun TopBarWithMenu(title: String, navController: NavHostController = rememberNav
             }
         },
         actions = {
-
-
             IconButton(onClick = { expanded = true }) {
                 Icon(
                     imageVector = Icons.Default.Menu,
                     contentDescription = "Menu"
                 )
             }
-            // Menu kontekstowe (Dropdown)
+            // Menu (Dropdown)
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { Text("Otwórz projekt") }
+                    text = { Text(stringResource(R.string.projects)) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(TutorialScreen) },
-                    text = { Text("Poradniki") }
+                    text = { Text(stringResource(R.string.tutorials)) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Libraries) },
-                    text = { Text("Biblioteki") }
+                    text = { Text(stringResource(R.string.libraries))}
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Settings) },
-                    text = { Text("Ustawienia") }
+                    text = { Text(stringResource(R.string.settings)) }
                 )
             }
-
-
         }
     )
 }

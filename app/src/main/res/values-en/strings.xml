@@ -67,7 +67,7 @@
     <string name="turtle_info_pen_down">Pen down = %1$b</string>
     <string name="turtle_info_size">Size = %1$s</string>
     <string name="turtle_info_color">Color</string>
-    <string name="file_saved_info">File saved: %1$s</string>
+    <string name="file_saved_info">File saved</string>
     <string name="file_readed_toast">File loaded 👍</string>
     <string name="menu">Menu</string>
     <string name="export_image">Export drawing</string>

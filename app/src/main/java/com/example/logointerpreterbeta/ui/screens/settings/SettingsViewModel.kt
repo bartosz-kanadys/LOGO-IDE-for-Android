@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class SettingsUiState(
+    val lastModifiedProject: String = "",
     val currentTheme: ThemeMode = ThemeMode.SYSTEM_THEME,
     val currentFont: FontsEnum = FontsEnum.JETBRAINS_MONO,
     val currentFontSize: Int = 18,
@@ -97,15 +98,17 @@ class SettingsViewModel @Inject constructor(
 
     fun loadSettingsFromDataStore() {
         viewModelScope.launch {
-            val config = configRepository.readSettings().first()
-            _uiState.update {
-                it.copy(
-                    currentTheme = ThemeMode.fromString(config.currentTheme),
-                    currentFont = FontsEnum.fromString(config.currentFont),
-                    currentFontSize = config.currentFontSize.takeIf { it > 0 } ?: 18,
-                    showSuggestions = config.showSuggestions,
-                    useAutocorrect = config.useAutocorrect
-                )
+            configRepository.readSettings().collect { config ->
+                _uiState.update {
+                    it.copy(
+                        lastModifiedProject = config.lastModifiedProject,
+                        currentTheme = ThemeMode.fromString(config.currentTheme),
+                        currentFont = FontsEnum.fromString(config.currentFont),
+                        currentFontSize = config.currentFontSize.takeIf { it > 0 } ?: 18,
+                        showSuggestions = config.showSuggestions,
+                        useAutocorrect = config.useAutocorrect
+                    )
+                }
             }
         }
     }

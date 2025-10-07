@@ -67,7 +67,7 @@
     <string name="turtle_info_pen_down">Opuszczony = %1$b</string>
     <string name="turtle_info_size">Rozmiar = %1$s</string>
     <string name="turtle_info_color">Kolor</string>
-    <string name="file_saved_info">"Zapisano plik: %1$s "</string>
+    <string name="file_saved_info">"Zapisano plik"</string>
     <string name="file_readed_toast">Wczytano plik 👍</string>
     <string name="menu">Menu</string>
     <string name="export_image">Exportuj rysunek</string>

@@ -29,7 +29,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,18 +40,13 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.data.repository.ConfigRepositoryImpl
-import com.example.logointerpreterbeta.domain.models.Config
-import com.example.logointerpreterbeta.domain.repository.ConfigRepository
+import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.ui.navigation.StartScreen
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.Alert
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.ErrorsList
@@ -60,16 +54,16 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePa
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
-import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import kotlinx.coroutines.flow.first
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsUiState
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun InterpreterApp(
+    projectName: String?,
     interpreterViewModel: InterpreterViewModel = viewModel(),
     projectViewModel: ProjectViewModel = viewModel(),
     navController: NavController,
-    configRepository: ConfigRepository,
+    config: SettingsUiState
 ) {
     val context = LocalContext.current
     var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
@@ -85,15 +79,17 @@ fun InterpreterApp(
     val turtleState by interpreterViewModel.turtleState.collectAsStateWithLifecycle()
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
-    val config by configRepository.readSettings().collectAsState(
-        initial = Config()
-    )
 
     LaunchedEffect(Unit) {
-        val config = configRepository.readSettings().first()
-        projectViewModel.updateActualProjectName(config.lastModifiedProject)
-        debuggerState.breakpoints.clear()
+        if (projectName != null) {
+            projectViewModel.updateActualProjectName(projectName)
+            debuggerState.breakpoints.clear()
+        } else {
+            navController.navigate(StartScreen)
+        }
+    }
 
+    LaunchedEffect(projectState.actualProjectName) {
         if (projectState.actualProjectName.isEmpty()) {
             navController.navigate(StartScreen)
             return@LaunchedEffect
@@ -271,7 +267,7 @@ fun InterpreterApp(
                         errors = errors.toString(),
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont,
+                        fontFamily = config.currentFont.value,
                         fontSize = config.currentFontSize,
                         onSave = {
                             interpreterViewModel.saveFile(
@@ -396,7 +392,7 @@ fun InterpreterApp(
                         modifier = Modifier,
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont,
+                        fontFamily = config.currentFont.value,
                         fontSize = config.currentFontSize,
                         onToggleBreakpoint = {
                             interpreterViewModel.toggleBreakpoint(it)

@@ -31,6 +31,7 @@ class ProjectViewModel @Inject constructor(
 
     init {
         updateProjectsMap()
+        loadLastProject()
     }
 
     fun updateActualProjectName(newProjectName: String) {
@@ -40,7 +41,7 @@ class ProjectViewModel @Inject constructor(
         }
     }
 
-    fun loadLastProjectFromJSON() {
+    fun loadLastProject() {
         _uiState.update {
             it.copy(actualProjectName = configRepository.readLastProject().toString())
         }
@@ -110,12 +111,21 @@ class ProjectViewModel @Inject constructor(
         updateProject()
         return isCreated
     }
+//
+//    fun openProject(name: String) {
+//        updateActualProjectName(name)
+////        viewModelScope.launch {
+////            configRepository.updateLastProject(name)
+////        }
+//        updateProject()
+//    }
 
     fun openProject(name: String) {
-        updateActualProjectName(name)
         viewModelScope.launch {
+            _uiState.update { it.copy(actualProjectName = name) }
+            val loadedProject = projectRepository.getProject(name)
+            _uiState.update { it.copy(project = loadedProject) }
             configRepository.updateLastProject(name)
         }
-        updateProject()
     }
 }

@@ -7,6 +7,7 @@ import com.example.logointerpreterbeta.data.repository.AndroidSystemThemeProvide
 import com.example.logointerpreterbeta.data.repository.ThemeRepositoryImpl
 import com.example.logointerpreterbeta.domain.repository.SystemThemeProvider
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
+import com.example.logointerpreterbeta.framework.ImageExportManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,6 +32,12 @@ object AppModule {
         systemThemeProvider: SystemThemeProvider
     ): ThemeRepository {
         return ThemeRepositoryImpl(dataStore, systemThemeProvider)
+    }
+
+    @Provides
+    @Singleton
+    fun provideExportManager(): ImageExportManager {
+        return ImageExportManager()
     }
 
 }

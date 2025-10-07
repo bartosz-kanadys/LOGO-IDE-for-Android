@@ -51,7 +51,7 @@ fun ProjectScreenRoot(
         onCreatingProject = { projectViewModel.createNewProject(it) },
         onOpenProject = {
             projectViewModel.openProject(it)
-            navController.navigate(Interpreter)
+            navController.navigate("InterpreterApp/$it")
         },
         modifier = modifier,
     )

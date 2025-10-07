@@ -1,12 +1,7 @@
 package com.example.logointerpreterbeta.ui.navigation.topBars
 
-import android.content.Intent
-import android.graphics.Bitmap
-import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -59,42 +54,33 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.framework.ImageExportManager
 import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
-import java.util.Date
-import androidx.core.graphics.createBitmap
-import java.io.File
-import java.io.FileOutputStream
 
-class InterpreterTopBar : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            TopBarWithMenu("Test")
-        }
-    }
-}
+//class InterpreterTopBar : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            TopBarWithMenu("Test")
+//        }
+//    }
+//}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InterpreterTopBar(
     title: String,
     viewModel: InterpreterViewModel,
-    navController: NavHostController = rememberNavController()
+    topBarViewModel: TopBarViewModel,
+    navController: NavHostController
 ) {
     var dropdownExpanded by remember { mutableStateOf(false) }
     var exportMenuExpanded by remember { mutableStateOf(false) }
@@ -102,44 +88,32 @@ fun InterpreterTopBar(
     var openFileExpanded by remember { mutableStateOf(false) }
     val fileName by remember { mutableStateOf(TextFieldValue("")) }
 
-    val menuTextStyle = AppTypography.bodySmall // Ustawiona globalna czcionka
-
     val context = LocalContext.current
-    val exportManager = ImageExportManager()
 
-    // Launcher do wyboru pliku do zapisu
+    val uiState by topBarViewModel.uiState.collectAsStateWithLifecycle()
+
+    uiState.showToast?.let {
+        Toast.makeText(context, context.getString(it), Toast.LENGTH_SHORT).show()
+        topBarViewModel.clearOneTimeEvents()
+    }
+
+    // Launcher to save file
     val saveFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("text/plain")
     ) { uri ->
         uri?.let {
-            context.contentResolver.openOutputStream(uri)?.use { outputStream ->
-                OutputStreamWriter(outputStream).use { writer ->
-                    writer.write(viewModel.getCodeStateAsString())
-                }
-                Toast.makeText(context,
-                    context.getString(R.string.file_saved_info, fileName.text), Toast.LENGTH_SHORT)
-                    .show()
-            }
+            topBarViewModel.onWriteFileRequested(context, uri, viewModel.getCodeStateAsString(), fileName.text)
         }
     }
 
-    // Launcher do wyboru pliku do wczytania
+    // Launcher to write file
     val openFileLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            val inputStream = context.contentResolver.openInputStream(uri)
-            val reader = BufferedReader(InputStreamReader(inputStream))
-            val stringBuilder = StringBuilder()
-            reader.use {
-                it.forEachLine { line ->
-                    stringBuilder.appendLine(line)
-                }
-            }
-
-//            viewModel.onCodeChange(TextFieldValue(stringBuilder.toString()), null)  // Zaktualizuj stan kodu
-            Toast.makeText(context,
-                context.getString(R.string.file_readed_toast), Toast.LENGTH_SHORT).show()
+            val code = topBarViewModel.onLoadFileRequested(context, uri)
+            viewModel.updateCodeState(code)
+            viewModel.colorCode()
         }
     }
 
@@ -162,7 +136,7 @@ fun InterpreterTopBar(
                     text = title,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = menuTextStyle
+                    style = AppTypography.bodySmall
                 )
             }
         },
@@ -173,13 +147,12 @@ fun InterpreterTopBar(
                     contentDescription = stringResource(R.string.menu)
                 )
             }
-            // Menu kontekstowe (Dropdown)
+            // Menu (Dropdown)
             DropdownMenu(
                 expanded = dropdownExpanded,
                 onDismissRequest = { dropdownExpanded = false },
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.primaryContainer)
-                //.fillMaxWidth(0.60f)
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
@@ -231,19 +204,7 @@ fun InterpreterTopBar(
                     ) {
                         DropdownMenuItem(
                             onClick = {
-                                exportManager.checkPermissions(context)
-                                val jpgFile = exportManager.saveBitmapAsJpg(
-                                    context,
-                                    viewModel.img.value,
-                                    "LogoImage" + Date()
-                                )
-                                Toast.makeText(
-                                    context,
-                                    if (jpgFile) context.getString(R.string.saved_jpg) else context.getString(
-                                        R.string.not_able_to_save_jpg
-                                    ),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                topBarViewModel.onImageExportJpgRequested(context, viewModel.img.value)
                                 dropdownExpanded = false
                             },
                             text = { MenuElement(stringResource(R.string.as_jpg), icon = Icons.Filled.Image) }
@@ -251,16 +212,7 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                                exportManager.checkPermissions(context)
-                                val pdfFile =
-                                    exportManager.saveBitmapAsPdf(context, viewModel.img.value, "MyBitmapImage")
-                                Toast.makeText(
-                                    context,
-                                    if (pdfFile) context.getString(R.string.saved_pdf) else context.getString(
-                                        R.string.not_able_to_save_pdf
-                                    ),
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                topBarViewModel.onImageExportPdfRequested(context, viewModel.img.value)
                                 dropdownExpanded = false
                             },
                             text = {
@@ -272,47 +224,8 @@ fun InterpreterTopBar(
                         )
                         DropdownMenuItem(
                             onClick = {
-                                try {
-                                    // Krok 1: Zapisanie bitmapy do pliku
-                                    val file = File(context.cacheDir, "shared_image.png")
-                                    FileOutputStream(file).use { fos ->
-                                        viewModel.img.value.compress(
-                                            Bitmap.CompressFormat.PNG,
-                                            100,
-                                            fos
-                                        )
-                                    }
-
-                                    // Krok 2: Uzyskanie URI pliku za pomocą FileProvider
-                                    val uri = FileProvider.getUriForFile(
-                                        context,
-                                        "${context.packageName}.fileprovider",
-                                        file
-                                    )
-
-                                    // Krok 3: Tworzenie Intentu do udostępnienia
-                                    val shareIntent = Intent().apply {
-                                        action = Intent.ACTION_SEND
-                                        type = "image/png"
-                                        putExtra(Intent.EXTRA_STREAM, uri)
-                                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION) // Umożliwia odczyt pliku innym aplikacjom
-                                    }
-
-                                    // Uruchamianie Intentu
-                                    context.startActivity(
-                                        Intent.createChooser(
-                                            shareIntent,
-                                            "Share image via"
-                                        )
-                                    )
-                                } catch (e: Exception) {
-                                    e.printStackTrace()
-                                    Toast.makeText(
-                                        context,
-                                        context.getString(R.string.failed_to_share_image, e.message),
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+                                topBarViewModel.shareImage(context, viewModel.img.value)
+                                dropdownExpanded = false
                             },
                             text = {
                                 MenuElement(
@@ -365,23 +278,7 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                                val shareIntent = Intent().apply {
-                                    action = Intent.ACTION_SEND
-                                    type = "text/plain" // Typ MIME dla tekstu
-                                    putExtra(
-                                        Intent.EXTRA_TEXT,
-                                        viewModel.getCodeStateAsString()
-                                    ) // Tekst do udostępnienia
-                                }
-
-                                // Utwórz chooser i uruchom Intent
-                                context.startActivity(
-                                    Intent.createChooser(
-                                        shareIntent,
-                                        "Share via"
-                                    )
-                                )
-
+                               topBarViewModel.shareCode(viewModel.getCodeStateAsString(), context)
                             },
                             text = {
                                 MenuElement(
@@ -457,8 +354,7 @@ fun InterpreterTopBar(
             }
         },
         actions = {
-            // Ikona menu kontekstowego
-            IconButton(onClick = { navController.navigate(Settings) }) { //To tak tymczasowo bo teraz mi się nie chce
+            IconButton(onClick = { navController.navigate(Settings) }) {
                 Icon(
                     imageVector = Icons.Default.Settings,
                     contentDescription = "Settings"
@@ -491,17 +387,16 @@ fun InterpreterTopBarPreview() {
     LogoInterpreterBetaTheme {
         MenuElement(text = "test", icon = Icons.Filled.SaveAs)
     }
-
 }
 
-@Preview(showBackground = true)
-@Composable
-fun InterpreterTopBarPreview2() {
-    LogoInterpreterBetaTheme(darkTheme = true) {
-        InterpreterTopBar(
-            "Test",
-            viewModel = hiltViewModel(),
-            navController = rememberNavController()
-        )
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun InterpreterTopBarPreview2() {
+//    LogoInterpreterBetaTheme(darkTheme = true) {
+//        InterpreterTopBar(
+//            "Test",
+//            viewModel = hiltViewModel(),
+//            navController = rememberNavController()
+//        )
+//    }
+//}

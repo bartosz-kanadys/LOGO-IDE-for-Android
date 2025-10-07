@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -19,17 +19,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.domain.models.Config
-import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.ui.navigation.topBars.InterpreterTopBar
+import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarViewModel
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarWithMenu
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterApp
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
+import com.example.logointerpreterbeta.ui.screens.library.LibraryAddProcedureForm
 import com.example.logointerpreterbeta.ui.screens.library.LibraryFormScreen
 import com.example.logointerpreterbeta.ui.screens.library.LibraryProceduresScreenRoot
 import com.example.logointerpreterbeta.ui.screens.library.LibraryScreenRoot
 import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
-import com.example.logointerpreterbeta.ui.screens.library.LibraryAddProcedureForm
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectScreenRoot
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsScreenRoot
@@ -39,6 +38,7 @@ import com.example.logointerpreterbeta.ui.screens.start.StartScreenViewModel
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialContentScreen
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.ui.theme.ThemeMode
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.Serializable
 
@@ -48,52 +48,60 @@ import kotlinx.serialization.Serializable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: Any = StartScreen,
-    projectViewModel: ProjectViewModel = hiltViewModel(),
-    configRepository: ConfigRepository
 ) {
-    val interpreterViewModel: InterpreterViewModel = hiltViewModel()
     val libraryViewModel: LibraryViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
-    val startScreenViewModel: StartScreenViewModel = hiltViewModel()
+    val projectViewModel: ProjectViewModel = hiltViewModel()
 
-    val config by configRepository.readSettings().collectAsState(
-        initial = Config()
-    )
+    val config by settingsViewModel.uiState.collectAsStateWithLifecycle()
 
     LogoInterpreterBetaTheme(
-                darkTheme = when(config.currentTheme){
-                    "System" -> isSystemInDarkTheme()
-                    "Light" -> false
-                    "Dark" -> true
-                    else -> isSystemInDarkTheme()
-                }
+        darkTheme = when(config.currentTheme){
+            ThemeMode.SYSTEM_THEME -> isSystemInDarkTheme()
+            ThemeMode.LIGHT_THEME -> false
+            ThemeMode.DARK_THEME -> true
+        }
     ) {
         NavHost(
             navController = navController,
             startDestination = startDestination
         ) {
             composable<StartScreen> {
+                val startScreenViewModel: StartScreenViewModel = hiltViewModel()
+
                 StartScreenRoot(navController, viewModel = startScreenViewModel)
             }
-            composable<Interpreter> {
+            composable(
+                route = "InterpreterApp/{projectName}",
+                arguments = listOf(navArgument("projectName"){
+                    type = NavType.StringType})
+            ) { backStackEntry ->
+                val projectName = backStackEntry.arguments?.getString("projectName")
+
+                val interpreterViewModel: InterpreterViewModel = hiltViewModel()
+                val topBarViewModel: TopBarViewModel = hiltViewModel()
+
                 Scaffold(
                     topBar = {
                         InterpreterTopBar(
-                            config.lastModifiedProject,
+                            projectViewModel.uiState.value.actualProjectName,
                             interpreterViewModel,
+                            topBarViewModel,
                             navController
                         )
                     }
                 ) { innerPadding ->
                     Column(Modifier.padding(innerPadding)) {
                         InterpreterApp(
+                            projectName,
                             interpreterViewModel,
                             projectViewModel,
                             navController,
-                            configRepository
+                            config
                         )
                     }
                 }
+
             }
             composable<Projects> {
                 Scaffold(
@@ -108,7 +116,6 @@ fun AppNavHost(
                         navController = navController
                     )
                 }
-
             }
             composable<Settings> {
                 Layout({ modifier ->
@@ -146,6 +153,8 @@ fun AppNavHost(
                 }, libraryViewModel.uiState.value.actualLibrary!!, navController)
             }
             composable<LibraryProcedureForm> {
+                val interpreterViewModel: InterpreterViewModel = hiltViewModel()
+
                 Layout(
                     { modifier ->
                         LibraryAddProcedureForm(

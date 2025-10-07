@@ -44,7 +44,7 @@ fun StartScreenRoot(
 
     uiState.navigateTo?.let { screen ->
         when (screen) {
-            Screen.Interpreter -> navController.navigate(Interpreter)
+            Screen.Interpreter -> {}
             Screen.Projects -> navController.navigate(Projects)
             Screen.Tutorials -> navController.navigate(TutorialScreen)
             Screen.Libraries -> navController.navigate(Libraries)
@@ -57,7 +57,7 @@ fun StartScreenRoot(
         showAlertDialog = uiState.showAlert,
         navigateTo = { viewModel.onNavigate(it) },
         onDialogDismiss = { viewModel.onDialogDismiss() },
-        onContinueProjectClicked = { viewModel.onContinueProjectClicked() }
+        onContinueProjectClicked = { viewModel.onContinueProjectClicked(navController) }
     )
 }
 
