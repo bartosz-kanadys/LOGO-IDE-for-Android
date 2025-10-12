@@ -7,6 +7,7 @@ import com.example.logointerpreterbeta.data.dataStore.ConfigKeys
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,8 +26,13 @@ class ConfigRepositoryImpl @Inject constructor(
     override fun readLastProject(): Flow<String?> =
         dataStore.data.map { prefs -> prefs[ConfigKeys.LAST_PROJECT] }
 
+
     override fun readTheme(): Flow<String> =
-        dataStore.data.map { prefs -> prefs[ConfigKeys.THEME] as String }
+        dataStore.data.map { prefs ->
+            prefs[ConfigKeys.THEME] ?: "System"
+        }.catch { exception ->
+            emit("System")
+        }
 
     override suspend fun updateTheme(newTheme: String) {
         dataStore.edit { it[ConfigKeys.THEME] = newTheme }

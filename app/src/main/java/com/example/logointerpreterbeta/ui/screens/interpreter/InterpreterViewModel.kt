@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
-import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -9,15 +9,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.logointerpreterbeta.data.repository.FileRepositoryImpl
 import com.example.logointerpreterbeta.domain.interpreter.LogoDebugger
-import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.domain.models.ProjectFile
-import com.example.logointerpreterbeta.domain.repository.ConfigRepository
-import com.example.logointerpreterbeta.domain.repository.FileRepository
+import com.example.logointerpreterbeta.domain.usecase.InterpretCodeUseCase
+import com.example.logointerpreterbeta.domain.usecase.ReadConfigSettingsUseCase
+import com.example.logointerpreterbeta.domain.usecase.ReadFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.SaveFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.ThemeModeCheckUseCase
+import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
@@ -32,21 +34,22 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import com.example.logointerpreterbeta.domain.repository.ThemeRepository
-import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
-import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
-    private val logo: LogoInterpreter,
-    private val logoDebugger: LogoDebugger,
+    readConfigSettingsUseCase: ReadConfigSettingsUseCase,
     drawingDelegate: UIDrawingDelegate,
-    configRepository: ConfigRepository,
-    private val themeRepository: ThemeRepository,
-    private val fileRepository: FileRepository
+    private val logoDebugger: LogoDebugger,
+    private val themeModeCheckUseCase: ThemeModeCheckUseCase,
+    private val interpretCodeUseCase: InterpretCodeUseCase,
+    private val saveFileUseCase: SaveFileUseCase,
+    private val readFilesUseCase: ReadFileUseCase,
 ) : ViewModel(), DebugStateListener {
 
-    val INIT_TURTLE_IMAGE_COMMAND = "st"
+    companion object {
+        private const val INIT_TURTLE_IMAGE_COMMAND = "st"
+    }
+
     private val debugMutex = Mutex()
 
     private var codeState by mutableStateOf(TextFieldValue("\n\n\n\n\n\n\n\n\n\n\n"))
@@ -70,10 +73,10 @@ class InterpreterViewModel @Inject constructor(
     private val _turtleState = drawingDelegate.turtleUi
     val turtleState: StateFlow<TurtleUI> = _turtleState
 
-    var config by mutableStateOf(configRepository.readSettings())
+    var config by mutableStateOf(readConfigSettingsUseCase)
 
     init {
-        logo.interpret(INIT_TURTLE_IMAGE_COMMAND)
+        interpretCodeUseCase(INIT_TURTLE_IMAGE_COMMAND)
         logoDebugger.addDebugStateListener(this)
     }
 
@@ -93,7 +96,7 @@ class InterpreterViewModel @Inject constructor(
     fun getCodeStateAsTextFieldValue(): TextFieldValue = codeState
 
     fun onCodeChange(newCode: TextFieldValue) {
-        val isDarkMode = themeRepository.isDarkTheme()
+        val isDarkMode = themeModeCheckUseCase()
         cursorPosition = newCode.selection.start
         codeState = newCode.copy(
             annotatedString = textDiffrence(
@@ -110,7 +113,7 @@ class InterpreterViewModel @Inject constructor(
     }
 
     fun colorCode() {
-        val isDarkMode = themeRepository.isDarkTheme()
+        val isDarkMode = themeModeCheckUseCase()
 
         codeState = codeState.copy(
             annotatedString = LogoTextColorizer.colorizeText(codeState.text, isDarkMode)
@@ -144,8 +147,7 @@ class InterpreterViewModel @Inject constructor(
     fun interpretCode(text: String = codeState.text) {
         viewModelScope.launch {
             clearErrors()
-
-            val result = logo.interpret(text)
+            val result = interpretCodeUseCase(text)
 
             if (!result.success) {
                 _errors.value = result.errors
@@ -169,35 +171,38 @@ class InterpreterViewModel @Inject constructor(
         }
     }
 
-    fun saveFile(context: Context, actualFileName: String, actualProjectName: String, content: String) {
-        fileRepository.writeFileContent(
-            context,
-            actualFileName,
-            actualProjectName,
-            content
-        )
+    fun saveFile(actualFileName: String, actualProjectName: String, content: String) {
+        val result = saveFileUseCase(actualFileName, actualProjectName, content)
+
+        result.onFailure {
+            Log.e("InterpreterViewModel", "Error saving file", it)
+        }
+    }
+
+    fun readFileFromRepository(fileName: String, projectName: String): Result<String> {
+        return readFilesUseCase(fileName, projectName)
     }
 
     fun onTapFileAction(
-        context: Context,
         projectFile: ProjectFile,
         project: Project?,
         updateActualFileName: (String) -> Unit,
     ) {
+        if (project == null) {
+            _errors.value = listOf("Project not selected.")
+            return
+        }
+
         clearBreakpoints()
-        updateCodeState(
-            fileRepository.readFileContent(
-                context,
-                projectFile.name,
-                project!!.name
-            )!!
-        )
-        colorCode()
-        updateActualFileName(projectFile.name)
-    }
-
-    fun readFileFromRepository(context: Context, actualFile: String, projectName: String): String? {
-        return fileRepository.readFileContent(context, actualFile, projectName)
-
+        readFilesUseCase(projectFile.name, project.name)
+            .onSuccess { codeFromFile ->
+                updateCodeState(codeFromFile)
+                colorCode()
+                updateActualFileName(projectFile.name)
+            }
+            .onFailure { exception ->
+                _errors.value = listOf("Error reading file: ${exception.message}")
+                Log.e("InterpreterViewModel", "Failed to read file", exception)
+            }
     }
 }

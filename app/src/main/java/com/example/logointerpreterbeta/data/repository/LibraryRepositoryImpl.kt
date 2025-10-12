@@ -7,151 +7,125 @@ import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class LibraryRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    // Wstrzykujemy zewnętrzny scope, aby repozytorium nie umarło z ViewModelami
+    private val externalScope: CoroutineScope
 ): LibraryRepository {
-    override fun addProcedureToLibrary(libraryName: String, procedure: Procedure) {
-        val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+    private val gson = Gson()
+    private val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+    private val listType = object : TypeToken<List<Library>>() {}.type
 
-        if (!libraryFile.exists()) {
-            return
+    // Mutex, aby chronić dostęp do pliku i stanu
+    private val mutex = Mutex()
+
+    // źródło prawdy w pamięci
+    private val _librariesFlow = MutableStateFlow<List<Library>>(emptyList())
+
+    init {
+        // Przy starcie wczytujemy dane z pliku do Flow
+        externalScope.launch {
+            _librariesFlow.value = loadLibrariesFromFile()
         }
+    }
 
-        val jsonString = libraryFile.readText()
+    override fun getLibraries(): Flow<List<Library>> {
+        // Zwracamy Flow, aby UI mogło go obserwować
+        return _librariesFlow.asStateFlow()
+    }
 
-        val gson = Gson()
-        val listType = object : TypeToken<List<Library>>() {}.type
+    override fun getCurrentLibraries(): List<Library> {
+        // Zwracamy aktualną wartość z Flow
+        return _librariesFlow.value
+    }
 
-        // Deserializujemy JSON do listy obiektów Library
-        val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
+    override suspend fun createLibrary(library: Library) = mutex.withLock {
+        val currentLibraries = _librariesFlow.value.toMutableList()
+        currentLibraries.add(library)
+        _librariesFlow.value = currentLibraries
+        saveLibrariesToFile(currentLibraries)
+    }
 
-        // Znajdujemy bibliotekę o podanej nazwie
-        val library = libraries.find { it.name == libraryName }
-        if (library != null) {
-            // Tworzymy nową listę procedur z dodaną nową procedurą
-            val updatedProcedures = library.procedures.toMutableList().apply {
-                add(procedure)
+    override suspend fun deleteLibrary(libraryName: String) = mutex.withLock {
+        val currentLibraries = _librariesFlow.value.toMutableList()
+        val updatedList = currentLibraries.filter { it.name != libraryName }
+        _librariesFlow.value = updatedList
+        saveLibrariesToFile(updatedList)
+    }
+
+    override suspend fun addProcedureToLibrary(libraryName: String, procedure: Procedure) = mutex.withLock {
+        val currentLibraries = _librariesFlow.value
+        val libraryIndex = currentLibraries.indexOfFirst { it.name == libraryName }
+
+        if (libraryIndex != -1) {
+            val libraryToUpdate = currentLibraries[libraryIndex]
+
+            val updatedLibrary = libraryToUpdate.copy(
+                procedures = libraryToUpdate.procedures + procedure
+            )
+
+            val updatedLibraries = currentLibraries.mapIndexed { index, library ->
+                if (index == libraryIndex) updatedLibrary else library
             }
 
-            // Tworzymy nowy obiekt Library z zaktualizowaną listą procedur
-            val updatedLibrary = library.copy(procedures = updatedProcedures)
-
-            // Aktualizujemy listę bibliotek
-            libraries[libraries.indexOf(library)] = updatedLibrary
-
-            // Przekształcamy zaktualizowaną listę bibliotek na JSON i zapisujemy do pliku
-            val updatedJson = gson.toJson(libraries)
-            libraryFile.writeText(updatedJson)
+            _librariesFlow.value = updatedLibraries
+            saveLibrariesToFile(updatedLibraries)
         }
     }
 
-    override fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) {
-        val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+    override suspend fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) = mutex.withLock {
+        val currentLibraries = _librariesFlow.value.toMutableList()
+        val libraryIndex = currentLibraries.indexOfFirst { it.name == libraryName }
 
-        if (!libraryFile.exists()) {
-            return
-        }
-
-        val jsonString = libraryFile.readText()
-        val gson = Gson()
-        val listType = object : TypeToken<List<Library>>() {}.type
-
-        // Deserializujemy JSON do listy obiektów Library
-        val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
-
-        // Znajdujemy bibliotekę o podanej nazwie
-        val library = libraries.find { it.name == libraryName }
-        if (library != null) {
-            // Tworzymy nową listę procedur bez procedury o podanej nazwie
+        if (libraryIndex != -1) {
+            val library = currentLibraries[libraryIndex]
             val updatedProcedures = library.procedures.filter { it.name != procedureName }
-
-            // Tworzymy nowy obiekt Library z zaktualizowaną listą procedur
             val updatedLibrary = library.copy(procedures = updatedProcedures)
 
-            // Aktualizujemy listę bibliotek
-            libraries[libraries.indexOf(library)] = updatedLibrary
-
-            // Przekształcamy zaktualizowaną listę bibliotek na JSON i zapisujemy do pliku
-            val updatedJson = gson.toJson(libraries)
-            libraryFile.writeText(updatedJson)
+            currentLibraries[libraryIndex] = updatedLibrary
+            _librariesFlow.value = currentLibraries
+            saveLibrariesToFile(currentLibraries)
         }
     }
 
-    override fun loadLibraries(): MutableList<Library> {
-        val libraryFile = File(context.getExternalFilesDir(null), "library.json")
-
-        // Sprawdź, czy plik istnieje
-        if (!libraryFile.exists()) {
-            // Jeśli plik nie istnieje, zwróć pustą listę
-            return mutableListOf()
-        }
-
-        // Wczytujemy zawartość pliku JSON
-        val jsonString = libraryFile.readText()
-
-        // Inicjalizujemy Gson i TypeToken
-        val gson = Gson()
-        val listType = object : TypeToken<List<Library>>() {}.type
-
-        // Deserializujemy JSON do listy obiektów Library
-        return gson.fromJson(jsonString, listType)
+    override suspend fun libraryExists(name: String): Boolean {
+        // Sprawdzamy na aktualnej wartości z Flow, bez czytania pliku
+        return _librariesFlow.value.any { it.name == name }
     }
 
-    override fun deleteLibrary(libraryName: String) {
-        val libraryFile = File(context.getExternalFilesDir(null), "library.json")
-
-        if (!libraryFile.exists()) {
-            return
-        }
-
-        val jsonString = libraryFile.readText()
-
-        val gson = Gson()
-        val listType = object : TypeToken<List<Library>>() {}.type
-
-        // Deserializujemy JSON do listy obiektów Library
-        val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
-
-        // Usuwamy bibliotekę na podstawie nazwy
-        val libraryToRemove = libraries.find { it.name == libraryName }
-        if (libraryToRemove != null) {
-            libraries.remove(libraryToRemove)
-
-            // Przekształć zaktualizowaną listę z powrotem na JSON i zapisz do pliku
-            val updatedJson = gson.toJson(libraries)
-            libraryFile.writeText(updatedJson)
-        }
+    override suspend fun procedureExistsInLibrary(libraryName: String, procedureName: String): Boolean {
+        val currentLibraries = _librariesFlow.value
+        val library = currentLibraries.find { it.name == libraryName }
+        return library?.procedures?.any { it.name == procedureName } ?: false
     }
 
-    override fun createLibrary(library: Library) {
-        val libraryFile = File(context.getExternalFilesDir(null), "library.json")
+    // Prywatna funkcja do zapisu w tle
+    private suspend fun saveLibrariesToFile(libraries: List<Library>) = withContext(Dispatchers.IO) {
+        val jsonString = gson.toJson(libraries)
+        libraryFile.writeText(jsonString)
+    }
 
-        // Jeśli plik nie istnieje, utwórz go z jedną biblioteką
-        if (!libraryFile.exists()) {
-            val gson = Gson()
-            val jsonString = gson.toJson(listOf(library)) // Zamień bibliotekę na JSON w postaci listy
-            libraryFile.writeText(jsonString)
-            return
+    // Prywatna funkcja do odczytu w tle
+    private fun loadLibrariesFromFile(): List<Library> {
+        return if (libraryFile.exists()) {
+            val jsonString = libraryFile.readText()
+            gson.fromJson(jsonString, listType) ?: emptyList()
+        } else {
+            emptyList()
         }
-
-        // Jeśli plik już istnieje, wczytujemy dane
-        val gson = Gson()
-        val jsonString = libraryFile.readText()
-
-        // Zdeserializuj JSON na listę obiektów Library
-        val listType = object : TypeToken<List<Library>>() {}.type
-        val libraries: MutableList<Library> = gson.fromJson(jsonString, listType)
-
-        // Dodaj nową bibliotekę do listy
-        libraries.add(library)
-
-        // Przekształć zaktualizowaną listę z powrotem na JSON i zapisz do pliku
-        val updatedJson = gson.toJson(libraries)
-        libraryFile.writeText(updatedJson)
     }
 }

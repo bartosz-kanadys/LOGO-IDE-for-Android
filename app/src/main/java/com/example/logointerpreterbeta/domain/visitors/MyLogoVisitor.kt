@@ -8,6 +8,7 @@ import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 import com.example.logointerpreterbeta.domain.models.drawing.TurtleState
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
+import kotlinx.coroutines.flow.first
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -434,7 +435,7 @@ open class MyLogoVisitor(
             libraryRepository = libraryRepository!!,
             isDarkMode,
         )
-        val libraries = libraryRepository.loadLibraries()
+        val libraries = libraryRepository.getCurrentLibraries()
         val library = libraries.find { it.name == libraryName }
         val procedureList = library!!.procedures
         for (procedure in procedureList) {

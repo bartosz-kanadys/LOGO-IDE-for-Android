@@ -49,24 +49,20 @@ class FileRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun readFileContent(context: Context, fileName: String, projectName: String): String? {
+    override fun readFileContent(fileName: String, projectName: String): Result<String> {
         val file = File(context.getExternalFilesDir(null), "Projects/$projectName/$fileName")
 
-        return if (file.exists() && file.isFile) {
-            try {
-                file.readText()
-            } catch (e: IOException) {
-                Log.e("ReadFile", "Błąd podczas odczytu pliku: ${e.message}")
-                null
+        return runCatching {
+            require(file.exists() && file.isFile) {
+                "File: '$fileName' in project '$projectName' doesn't exist or is not a file."
             }
-        } else {
-            Log.e("ReadFile", "Plik nie istnieje lub nie jest plikiem")
-            null
+            file.readText()
+        }.onFailure { e ->
+            Log.e("ReadFile", "Error during reading file: ${e.message}", e)
         }
     }
 
     override fun writeFileContent(
-        context: Context,
         fileName: String,
         projectName: String,
         content: String

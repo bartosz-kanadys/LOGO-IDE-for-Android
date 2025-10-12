@@ -24,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.enums.LibraryCodes
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
@@ -48,6 +49,13 @@ fun LibraryAddProcedureForm(
         mutableStateOf("")
     }
     val context = LocalContext.current
+
+    val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
+
+    uiState.toastMessage?.let {
+        makeToast(context, it)
+        libraryViewModel.toastMessageConsumed()
+    }
 
     LaunchedEffect(Unit) {
         interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -126,21 +134,19 @@ fun LibraryAddProcedureForm(
                         null,
                         code.trim()
                     )
-                    val procedureResult = libraryViewModel.checkProcedureAddForm(
+                    val procedureResult = libraryViewModel.addProcedureToLibrary(
                         procedureName,
-                        procedureAuthor,
-                        procedureDescription,
-                        code.trim(),
+                        procedure,
+                        author = procedureAuthor,
+                        onSuccess = {
+                            interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n")
+                            navController.popBackStack()
+                        }
                     )
-                    makeToast(context, procedureResult)
-                    if (procedureResult == LibraryCodes.OK) {
-                        libraryViewModel.addProcedureToLibrary(
-                            libraryName = libraryViewModel.uiState.value.actualLibrary!!,
-                            procedure = procedure
-                        )
-                        interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n")
-                        navController.popBackStack()
-                    }
+//                    makeToast(context, procedureResult)
+//                    if (procedureResult == LibraryCodes.OK) {
+//                        navController.popBackStack()
+//                    }
                 }
             }
         }

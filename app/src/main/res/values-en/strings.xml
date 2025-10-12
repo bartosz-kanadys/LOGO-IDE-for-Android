@@ -84,4 +84,5 @@
     <string name="saved_pdf">PDF saved 👌</string>
     <string name="not_able_to_save_pdf">Couldn’t save PDF 😯</string>
     <string name="failed_to_share_image">Failed to share image: %1$s</string>
+    <string name="unknown_error">Nieznany błąd</string>
 </resources>

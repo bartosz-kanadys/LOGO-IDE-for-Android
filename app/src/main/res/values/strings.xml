@@ -84,4 +84,6 @@
     <string name="saved_pdf">Zapisano PDF 👌</string>
     <string name="not_able_to_save_pdf">Nie udało się zapisać PDF 😯</string>
     <string name="failed_to_share_image">Failed to share image: %1$s</string>
+    <string name="unknown_error">Nieznany błąd</string>
+    <string name="library_created">Biblioteka została sworzona\n</string>
 </resources>

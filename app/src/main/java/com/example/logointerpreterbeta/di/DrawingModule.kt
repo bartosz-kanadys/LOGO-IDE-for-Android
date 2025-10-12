@@ -15,8 +15,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DrawingModule {
-
-
     @Provides
     @Singleton
     fun provideAndroidDrawingDelegate(@ApplicationContext context: Context, themeRepository: ThemeRepository): AndroidDrawingDelegate {

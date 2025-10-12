@@ -65,7 +65,6 @@ fun InterpreterApp(
     navController: NavController,
     config: SettingsUiState
 ) {
-    val context = LocalContext.current
     var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
     var isAlertNewFileVisible by rememberSaveable { mutableStateOf(false) }
     var newFileName by rememberSaveable { mutableStateOf("") }
@@ -104,12 +103,17 @@ fun InterpreterApp(
         val actualFile = projectState.project?.files?.firstOrNull()?.name
 
         if (actualFile != null) {
-            val content = interpreterViewModel.readFileFromRepository(context, actualFile, projectState.actualProjectName)
-            if (content != null) {
-                interpreterViewModel.updateCodeState(content)
+            val content = interpreterViewModel.readFileFromRepository( actualFile, projectState.actualProjectName)
+            content.onSuccess {
+                interpreterViewModel.updateCodeState(it)
                 interpreterViewModel.colorCode()
                 interpreterViewModel.interpretCode("")
             }
+//            if (content != null) {
+//                interpreterViewModel.updateCodeState(content)
+//                interpreterViewModel.colorCode()
+//                interpreterViewModel.interpretCode("")
+//            }
         } else {
             interpreterViewModel.updateCodeState("")
             isAlertEmptyProjectVisible = true
@@ -216,7 +220,6 @@ fun InterpreterApp(
                                         },
                                         onTap = {
                                             interpreterViewModel.onTapFileAction(
-                                                context = context,
                                                 projectFile = projectFile,
                                                 project = projectState.project,
                                                 updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
@@ -271,7 +274,6 @@ fun InterpreterApp(
                         fontSize = config.currentFontSize,
                         onSave = {
                             interpreterViewModel.saveFile(
-                                context,
                                 projectState.actualFileName!!,
                                 projectState.actualProjectName,
                                 it
@@ -335,7 +337,6 @@ fun InterpreterApp(
                                             },
                                             onTap = {
                                                 interpreterViewModel.onTapFileAction(
-                                                    context = context,
                                                     projectFile = projectFile,
                                                     project = projectState.project,
                                                     updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
@@ -399,7 +400,6 @@ fun InterpreterApp(
                         },
                         onSave = {
                             interpreterViewModel.saveFile(
-                                context,
                                 projectState.actualFileName!!,
                                 projectState.actualProjectName,
                                 it

@@ -1,38 +1,48 @@
 package com.example.logointerpreterbeta.ui.screens.library
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.logointerpreterbeta.domain.enums.LibraryCodes
 import com.example.logointerpreterbeta.domain.models.Library
 import com.example.logointerpreterbeta.domain.models.Procedure
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
+import com.example.logointerpreterbeta.domain.usecase.AddProcedureToLibraryUseCase
+import com.example.logointerpreterbeta.domain.usecase.CreateLibraryUseCase
+import com.example.logointerpreterbeta.domain.usecase.DeleteLibraryUseCase
+import com.example.logointerpreterbeta.domain.usecase.DeleteProcedureFromLibraryUseCase
+import com.example.logointerpreterbeta.domain.usecase.LibraryCreateResult
+import com.example.logointerpreterbeta.domain.usecase.LibraryValidationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-enum class LibraryCodes {
-    DESC_TOO_LONG,
-    PROCEDURE_EXIST,
-    FILL_ALL_FIELDS,
-    LIBRARY_EXIST,
-    OK
-}
 
 data class LibraryUiState(
     val libraries: List<Library> = emptyList(),
-    val actualLibrary: String? = null
+    val actualLibrary: String? = null,
+    val toastMessage: LibraryCodes? = null
 )
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val libraryRepository: LibraryRepository
+    private val libraryRepository: LibraryRepository,
+    private val createLibraryUseCase: CreateLibraryUseCase,
+    private val deleteLibraryUseCase: DeleteLibraryUseCase,
+    private val addProcedureToLibraryUseCase: AddProcedureToLibraryUseCase,
+    private val deleteProcedureFromLibraryUseCase: DeleteProcedureFromLibraryUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<LibraryUiState>(LibraryUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
-        updateLibraries()
+        viewModelScope.launch {
+            libraryRepository.getLibraries().collect { libraries ->
+                _uiState.update { it.copy(libraries = libraries) }
+            }
+        }
     }
 
     fun updateActualLibrary(name: String?) {
@@ -43,73 +53,59 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    fun addLibrary(library: Library) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                libraries = currentState.libraries + library
-            )
-        }
-    }
-
     fun deleteLibrary(libraryName: String) {
-        _uiState.update { currentState ->
-            currentState.copy(
-                libraries = currentState.libraries.filter { it.name != libraryName }
-            )
-        }
-        libraryRepository.deleteLibrary(libraryName)
-    }
-
-    fun updateLibraries() {
-        _uiState.update {
-            it.copy(
-                libraries = libraryRepository.loadLibraries()
-            )
+        viewModelScope.launch {
+            val result = deleteLibraryUseCase(libraryName)
+            result.onFailure {
+                _uiState.update {
+                    it.copy(toastMessage = LibraryCodes.UNKNOWN_ERROR)
+                }
+            }
         }
     }
 
-    fun createLibrary(name: String, desc: String, author: String): LibraryCodes {
-        if (name.isEmpty() || desc.isEmpty() || author.isEmpty()) {
-            return LibraryCodes.FILL_ALL_FIELDS
-        } else if (desc.length > 50) {
-            return LibraryCodes.DESC_TOO_LONG
-        } else if (_uiState.value.libraries.find { it.name == name } != null) {
-            return LibraryCodes.LIBRARY_EXIST
+    fun createLibrary(name: String, desc: String, author: String, onSuccess: () -> Unit){
+        viewModelScope.launch {
+            val result = createLibraryUseCase(name, desc, author)
+            when (result) {
+                is LibraryCreateResult.Success -> { onSuccess() }
+                else -> {
+                    _uiState.update {
+                        it.copy(toastMessage = result.code)
+                    }
+                }
+            }
         }
-
-        val library =
-            Library(name = name, description = desc, author = author, procedures = emptyList())
-        libraryRepository.createLibrary(library)
-        addLibrary(library)
-        return LibraryCodes.OK
     }
 
-    fun checkProcedureAddForm(
-        name: String,
-        author: String,
-        desc: String,
-        code: String,
-    ): LibraryCodes {
-        if (name.isEmpty() || author.isEmpty() || desc.isEmpty() || code.isEmpty()) {
-            return LibraryCodes.FILL_ALL_FIELDS
-        } else if (_uiState.value.libraries.find {
-                it.name == _uiState.value.actualLibrary
-            }?.procedures?.find {
-                it.name == name
-            } != null
-        ) {
-            return LibraryCodes.PROCEDURE_EXIST
+    fun addProcedureToLibrary(libraryName: String, procedure: Procedure, author: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            if (_uiState.value.actualLibrary != null ) {
+                val result = addProcedureToLibraryUseCase(libraryName, procedure, author)
+                when (result) {
+                    is LibraryValidationResult.Success -> { onSuccess() }
+                    else -> {
+                        _uiState.update {
+                            it.copy(toastMessage = result.code)
+                        }
+                    }
+                }
+            }
         }
-        return LibraryCodes.OK
-    }
-
-    fun addProcedureToLibrary(libraryName: String, procedure: Procedure) {
-        libraryRepository.addProcedureToLibrary(libraryName, procedure)
-        updateLibraries()
     }
 
     fun deleteProcedureFromLibrary(libraryName: String, procedureName: String) {
-        libraryRepository.deleteProcedureFromLibrary(libraryName, procedureName)
-        updateLibraries()
+        viewModelScope.launch {
+            val result = deleteProcedureFromLibraryUseCase(libraryName, procedureName)
+            result.onFailure {
+                _uiState.update {
+                    it.copy(toastMessage = LibraryCodes.UNKNOWN_ERROR)
+                }
+            }
+        }
+    }
+
+    fun toastMessageConsumed() {
+        _uiState.update { it.copy(toastMessage = null) }
     }
 }

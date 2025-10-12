@@ -20,7 +20,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.enums.LibraryCodes
 import com.example.logointerpreterbeta.ui.screens.library.components.FormButton
 import com.example.logointerpreterbeta.ui.screens.library.components.FormTextField
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
@@ -35,6 +37,12 @@ fun LibraryFormScreen(
     var libraryDescription by rememberSaveable { mutableStateOf("") }
     var libraryAuthor by rememberSaveable { mutableStateOf("") }
     val context = LocalContext.current
+    val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
+
+    uiState.toastMessage?.let {
+        makeToast(context, it)
+        libraryViewModel.toastMessageConsumed()
+    }
 
     Column(
         modifier = modifier
@@ -75,15 +83,12 @@ fun LibraryFormScreen(
                 text = stringResource(R.string.confirm),
                 color = MaterialTheme.colorScheme.primary
             ) {
-                val creatingResult = libraryViewModel.createLibrary(
+                libraryViewModel.createLibrary(
                     name = libraryName,
                     desc = libraryDescription,
-                    author = libraryAuthor
+                    author = libraryAuthor,
+                    onSuccess = { onBack() }
                 )
-                makeToast(context, creatingResult)
-                if (creatingResult == LibraryCodes.OK) {
-                    onBack()
-                }
             }
         }
     }
