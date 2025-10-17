@@ -5,11 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.enums.LibraryCodes
 import com.example.logointerpreterbeta.domain.models.Library
 import com.example.logointerpreterbeta.domain.models.Procedure
-import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import com.example.logointerpreterbeta.domain.usecase.library.AddProcedureToLibraryUseCase
 import com.example.logointerpreterbeta.domain.usecase.library.CreateLibraryUseCase
 import com.example.logointerpreterbeta.domain.usecase.library.DeleteLibraryUseCase
 import com.example.logointerpreterbeta.domain.usecase.library.DeleteProcedureFromLibraryUseCase
+import com.example.logointerpreterbeta.domain.usecase.library.GetLibrariesUseCase
 import com.example.logointerpreterbeta.domain.usecase.library.LibraryCreateResult
 import com.example.logointerpreterbeta.domain.usecase.library.LibraryValidationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,19 +27,19 @@ data class LibraryUiState(
 
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
-    private val libraryRepository: LibraryRepository,
+    private val getLibrariesUseCase: GetLibrariesUseCase,
     private val createLibraryUseCase: CreateLibraryUseCase,
     private val deleteLibraryUseCase: DeleteLibraryUseCase,
     private val addProcedureToLibraryUseCase: AddProcedureToLibraryUseCase,
     private val deleteProcedureFromLibraryUseCase: DeleteProcedureFromLibraryUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<LibraryUiState>(LibraryUiState())
+    private val _uiState = MutableStateFlow(LibraryUiState())
     val uiState = _uiState.asStateFlow()
 
     init {
         viewModelScope.launch {
-            libraryRepository.getLibraries().collect { libraries ->
+            getLibrariesUseCase().collect { libraries ->
                 _uiState.update { it.copy(libraries = libraries) }
             }
         }
