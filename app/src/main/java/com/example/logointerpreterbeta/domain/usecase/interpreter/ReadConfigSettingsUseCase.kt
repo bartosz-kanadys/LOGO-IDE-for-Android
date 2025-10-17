@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.usecase
+package com.example.logointerpreterbeta.domain.usecase.interpreter
 
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository

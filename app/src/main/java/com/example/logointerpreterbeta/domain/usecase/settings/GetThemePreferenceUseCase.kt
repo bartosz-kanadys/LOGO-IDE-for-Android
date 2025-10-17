@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.usecase
+package com.example.logointerpreterbeta.domain.usecase.settings
 
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
 import com.example.logointerpreterbeta.ui.theme.ThemeMode

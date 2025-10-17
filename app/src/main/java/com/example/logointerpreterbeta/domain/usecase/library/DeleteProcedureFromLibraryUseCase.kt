@@ -1,16 +1,16 @@
-package com.example.logointerpreterbeta.domain.usecase
+package com.example.logointerpreterbeta.domain.usecase.library
 
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import jakarta.inject.Inject
 import jakarta.inject.Singleton
 
 @Singleton
-class DeleteLibraryUseCase @Inject constructor(
+class DeleteProcedureFromLibraryUseCase @Inject constructor(
     private val libraryRepository: LibraryRepository
 ) {
-    suspend operator fun invoke(libraryName: String): Result<Unit> {
+    suspend operator fun invoke(libraryName: String, procedureName: String): Result<Unit> {
         try {
-            libraryRepository.deleteLibrary(libraryName)
+            libraryRepository.deleteProcedureFromLibrary(libraryName, procedureName)
             return Result.success(Unit)
         } catch (e: Exception) {
             return Result.failure(e)

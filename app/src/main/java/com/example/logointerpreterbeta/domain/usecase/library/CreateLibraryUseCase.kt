@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.usecase
+package com.example.logointerpreterbeta.domain.usecase.library
 
 import com.example.logointerpreterbeta.domain.enums.LibraryCodes
 import com.example.logointerpreterbeta.domain.models.Library

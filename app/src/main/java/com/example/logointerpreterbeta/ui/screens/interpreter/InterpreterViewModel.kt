@@ -14,11 +14,11 @@ import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.domain.models.ProjectFile
-import com.example.logointerpreterbeta.domain.usecase.InterpretCodeUseCase
-import com.example.logointerpreterbeta.domain.usecase.ReadConfigSettingsUseCase
-import com.example.logointerpreterbeta.domain.usecase.ReadFileUseCase
-import com.example.logointerpreterbeta.domain.usecase.SaveFileUseCase
-import com.example.logointerpreterbeta.domain.usecase.ThemeModeCheckUseCase
+import com.example.logointerpreterbeta.domain.usecase.interpreter.InterpretCodeUseCase
+import com.example.logointerpreterbeta.domain.usecase.interpreter.ReadConfigSettingsUseCase
+import com.example.logointerpreterbeta.domain.usecase.file.ReadFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.file.SaveFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.interpreter.ThemeModeCheckUseCase
 import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.models.TurtleUI

@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.usecase
+package com.example.logointerpreterbeta.domain.usecase.interpreter
 
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
 import jakarta.inject.Inject
