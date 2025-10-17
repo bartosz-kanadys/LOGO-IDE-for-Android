@@ -38,7 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -46,7 +45,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.ui.navigation.StartScreen
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.Alert
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.ErrorsList
@@ -79,6 +77,7 @@ fun InterpreterApp(
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
 
+
     LaunchedEffect(Unit) {
         if (projectName != null) {
             projectViewModel.updateActualProjectName(projectName)
@@ -92,8 +91,6 @@ fun InterpreterApp(
         if (projectState.actualProjectName.isEmpty()) {
             navController.navigate(StartScreen)
             return@LaunchedEffect
-        } else {
-            projectViewModel.updateProject()
         }
     }
 
@@ -109,11 +106,6 @@ fun InterpreterApp(
                 interpreterViewModel.colorCode()
                 interpreterViewModel.interpretCode("")
             }
-//            if (content != null) {
-//                interpreterViewModel.updateCodeState(content)
-//                interpreterViewModel.colorCode()
-//                interpreterViewModel.interpretCode("")
-//            }
         } else {
             interpreterViewModel.updateCodeState("")
             isAlertEmptyProjectVisible = true
@@ -128,8 +120,8 @@ fun InterpreterApp(
         content = stringResource(R.string.empty_project_full_text, projectState.actualProjectName),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
-                projectViewModel.createFileInEmptyProject(newFileName)
-                interpreterViewModel.interpretCode("")
+                projectViewModel.createFile(newFileName)
+//                interpreterViewModel.interpretCode("")
                 isAlertEmptyProjectVisible = false
                 newFileName = ""
             }
@@ -154,7 +146,7 @@ fun InterpreterApp(
         content = stringResource(R.string.enter_new_file_name_text),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
-                projectViewModel.createFileInProject(newFileName)
+                projectViewModel.createFile(newFileName)
                 isAlertNewFileVisible = false
                 newFileName = ""
             }
@@ -175,8 +167,7 @@ fun InterpreterApp(
         title = stringResource(R.string.confirm_delete_file),
         content = stringResource(R.string.confirm_delete_file_full_text, fileToDelete ?: ""),
         confirmButtonAction = {
-            isAlertEmptyProjectVisible =
-                projectViewModel.deleteFileFromProject(fileToDelete!!)
+            projectViewModel.deleteFile(fileToDelete!!)
             fileToDelete = null
         },
         dismissButtonAction = { fileToDelete = null },

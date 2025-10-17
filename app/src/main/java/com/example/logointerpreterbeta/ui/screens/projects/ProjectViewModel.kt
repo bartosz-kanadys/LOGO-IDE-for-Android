@@ -3,12 +3,24 @@ package com.example.logointerpreterbeta.ui.screens.projects
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.logointerpreterbeta.domain.models.Project
-import com.example.logointerpreterbeta.domain.repository.ConfigRepository
-import com.example.logointerpreterbeta.domain.repository.FileRepository
-import com.example.logointerpreterbeta.domain.repository.ProjectRepository
+import com.example.logointerpreterbeta.domain.usecase.config.ReadLastProjectUseCase
+import com.example.logointerpreterbeta.domain.usecase.config.UpdateLastProjectUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.CreateProjectFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.CreateProjectResult
+import com.example.logointerpreterbeta.domain.usecase.project.CreateProjectUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.DeleteProjectFileUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.DeleteProjectUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.GetProjectUseCase
+import com.example.logointerpreterbeta.domain.usecase.project.GetProjectsMapUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,33 +29,68 @@ data class ProjectUiState(
     val actualProjectName: String = "",
     val actualFileName: String? = null,
     val projectsMap: Map<String, String> = emptyMap(),
-    val project: Project? = null
+    val project: Project? = null,
+    val isCreatingNewProject: Boolean = false,
+    val newProjectName: String = "",
+    val alertState: AlertState = AlertState.None,
 )
 
+sealed class AlertState {
+    data object None : AlertState() // Brak alertu
+    data class Success(val name: String) : AlertState()
+    data object NameEmpty : AlertState()
+    data object NameTooLong : AlertState()
+    data object ProjectExists : AlertState()
+    data object GenericError : AlertState()
+    data class ConfirmDelete(val projectName: String) : AlertState()
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectViewModel @Inject constructor(
-    private val projectRepository: ProjectRepository,
-    private val configRepository: ConfigRepository,
-    private val fileRepository: FileRepository
+    private val createProjectUseCase: CreateProjectUseCase,
+    private val deleteProjectUseCase: DeleteProjectUseCase,
+    private val createProjectFileUseCase: CreateProjectFileUseCase,
+    private val deleteProjectFileUseCase: DeleteProjectFileUseCase,
+    private val readLastProjectUseCase: ReadLastProjectUseCase,
+    private val updateLastProjectUseCase: UpdateLastProjectUseCase,
+    private val getProjectUseCase: GetProjectUseCase,
+    private val getProjectsMapUseCase: GetProjectsMapUseCase
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(ProjectUiState())
-    val uiState = _uiState.asStateFlow()
+    val uiState: StateFlow<ProjectUiState> = _uiState.asStateFlow()
 
     init {
-        updateProjectsMap()
-        loadLastProject()
+        // Wczytanie początkowego stanu (ostatnio otwartego projektu)
+        viewModelScope.launch {
+            val lastProject = readLastProjectUseCase() ?: ""
+            _uiState.update { it.copy(actualProjectName = lastProject) }
+        }
+
+        viewModelScope.launch {
+            getProjectsMapUseCase().collect { projectsMap ->
+                _uiState.update { it.copy(projectsMap = projectsMap) }
+            }
+        }
+
+        viewModelScope.launch {
+            _uiState
+                .map { it.actualProjectName } // tylko zmiana nazwy
+                .distinctUntilChanged()       // Reaguj tylko, gdy nazwa faktycznie się zmieni
+                .flatMapLatest { name ->      // Anuluj poprzednie i pobierz nowe dane
+                    if (name.isNotBlank()) getProjectUseCase(name) else flowOf(null)
+                }
+                .collect { projectData ->
+                    _uiState.update { it.copy(project = projectData) }
+                }
+        }
     }
 
     fun updateActualProjectName(newProjectName: String) {
         _uiState.update { it.copy(actualProjectName = newProjectName) }
         viewModelScope.launch {
-            configRepository.updateLastProject(newProjectName)
-        }
-    }
-
-    fun loadLastProject() {
-        _uiState.update {
-            it.copy(actualProjectName = configRepository.readLastProject().toString())
+            updateLastProjectUseCase(newProjectName)
         }
     }
 
@@ -51,81 +98,94 @@ class ProjectViewModel @Inject constructor(
         _uiState.update { it.copy(actualFileName = newFileName) }
     }
 
-    private fun updateProjectsMap() {
-        _uiState.update { it.copy(projectsMap = projectRepository.getProjectsMap()) }
+    fun onNewProjectNameChange(name: String) {
+        _uiState.update { it.copy(newProjectName = name) }
     }
 
-    fun updateProject() {
+    fun toggleCreateNewProject() {
+        _uiState.update {
+            it.copy(
+                isCreatingNewProject = !it.isCreatingNewProject,
+                newProjectName = ""
+            )
+        }
+    }
+
+    fun deleteFile(fileToDelete: String) {
         viewModelScope.launch {
-            _uiState.update {
-                it.copy(project = projectRepository.getProject(_uiState.value.actualProjectName))
+            val currentState = uiState.value
+            val actualProject = currentState.actualProjectName
+            if (actualProject.isBlank()) return@launch
+
+            deleteProjectFileUseCase(actualProject, fileToDelete)
+
+            if (currentState.actualFileName == fileToDelete) {
+                // Logika wyboru nowego aktywnego pliku powinna opierać się na stanie PRZED usunięciem
+                val newFileToOpen = currentState.project?.files
+                    ?.filterNot { it.name == fileToDelete } // Logicznie usuń plik z listy w pamięci
+                    ?.firstOrNull()?.name
+                updateActualFileName(newFileToOpen)
             }
         }
     }
 
-    fun deleteFileFromProject(fileToDelete: String): Boolean {
-        fileRepository.deleteFile(
-            _uiState.value.project?.name ?: "",
-            fileToDelete
-        )
-        updateProject()
-        if (_uiState.value.project!!.files.isEmpty()) {
-            updateActualFileName(null)
-            return true
-        } else {
-            updateActualFileName(_uiState.value.project!!.files.firstOrNull()?.name)
-            return false
-        }
-    }
+    fun createFile(newFileName: String) {
+        viewModelScope.launch {
+            val actualProject = uiState.value.actualProjectName
 
-    fun createFileInProject(newFileName: String) {
-        fileRepository.createFile(_uiState.value.actualProjectName, newFileName, "")
-        updateProject()
-    }
+            val createdFileName = createProjectFileUseCase(actualProject, newFileName, "")
 
-    fun createFileInEmptyProject(newFileName: String) {
-        createFileInProject(newFileName)
-        if (_uiState.value.project!!.files.isNotEmpty()) {
-            updateActualFileName(_uiState.value.project?.files?.firstOrNull()?.name)
-        } else {
-            updateActualFileName(null)
+            createdFileName.onSuccess {
+                updateActualFileName(createdFileName.getOrThrow())
+            }
+            createdFileName.onFailure {
+                _uiState.update { it.copy(alertState = AlertState.GenericError) }
+            }
         }
     }
 
     fun deleteProjectFromList(projectToDelete: String) {
-        if (_uiState.value.actualProjectName == projectToDelete) {
-            updateActualProjectName("")
-            updateActualFileName(null)
-        }
-        projectRepository.deleteProject(projectToDelete)
-        updateProjectsMap()
         viewModelScope.launch {
-            configRepository.updateLastProject("")
+            val currentProject = uiState.value.actualProjectName
+
+            if (currentProject == projectToDelete) {
+                updateActualProjectName("")
+            }
+
+            deleteProjectUseCase(projectToDelete, currentProject)
         }
     }
 
-    fun createNewProject(newProjectName: String): Boolean {
-        val isCreated = projectRepository.createNewProject(newProjectName)
-        updateActualProjectName(newProjectName)
-        updateProjectsMap()
-        updateProject()
-        return isCreated
+    fun createNewProject() {
+        viewModelScope.launch {
+            val result = createProjectUseCase(_uiState.value.newProjectName)
+            when (result) {
+                CreateProjectResult.EmptyName -> _uiState.update { it.copy(alertState = AlertState.NameEmpty) }
+                CreateProjectResult.NameAlreadyExists -> _uiState.update { it.copy(alertState = AlertState.ProjectExists) }
+                CreateProjectResult.Success -> _uiState.update {
+                    it.copy(
+                        alertState = AlertState.Success(
+                            _uiState.value.newProjectName
+                        )
+                    )
+                }
+
+                CreateProjectResult.TooLongName -> _uiState.update { it.copy(alertState = AlertState.NameTooLong) }
+            }
+        }
     }
-//
-//    fun openProject(name: String) {
-//        updateActualProjectName(name)
-////        viewModelScope.launch {
-////            configRepository.updateLastProject(name)
-////        }
-//        updateProject()
-//    }
+
+    fun onDeleteProjectClicked(projectName: String) {
+        _uiState.update { it.copy(alertState = AlertState.ConfirmDelete(projectName)) }
+    }
+
+    fun dismissAlert() {
+        _uiState.update { it.copy(alertState = AlertState.None) }
+    }
 
     fun openProject(name: String) {
         viewModelScope.launch {
-            _uiState.update { it.copy(actualProjectName = name) }
-            val loadedProject = projectRepository.getProject(name)
-            _uiState.update { it.copy(project = loadedProject) }
-            configRepository.updateLastProject(name)
+            updateLastProjectUseCase(name)
         }
     }
 }

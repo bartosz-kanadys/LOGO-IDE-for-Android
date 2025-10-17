@@ -27,7 +27,7 @@ fun ProjectButton(
     name: String,
     date: String,
     onOpenProject: (String) -> Unit,
-    onDelete: () -> Unit
+    onDelete: (String) -> Unit
 ) {
     OutlinedButton(
         onClick = {
@@ -54,7 +54,7 @@ fun ProjectButton(
                 Text(text = date, textAlign = TextAlign.Right, fontSize = 10.sp)
             }
             TextButton(
-                onClick = { onDelete() },
+                onClick = { onDelete(name) },
                 modifier = Modifier.align(Alignment.CenterVertically)
             ) {
                 Icon(imageVector = Icons.Filled.DeleteForever, contentDescription = null)

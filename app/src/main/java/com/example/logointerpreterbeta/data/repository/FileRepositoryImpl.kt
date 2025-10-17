@@ -14,12 +14,12 @@ import javax.inject.Singleton
 class FileRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
 ): FileRepository {
-    override fun createFile(projectName: String, fileName: String, content: String) {
+    override fun createFile(projectName: String, fileName: String, content: String): Boolean {
         val newFile = File(context.getExternalFilesDir(null), "Projects/$projectName/$fileName.txt")
 
         if (newFile.exists()) {
             Log.i("File", "Plik ${newFile.absolutePath} już istnieje.")
-            return
+            return false
         }
 
         try {
@@ -27,8 +27,10 @@ class FileRepositoryImpl @Inject constructor(
                 outputStream.write(content.toByteArray())
             }
             Log.i("File", "Zapisano plik: ${newFile.absolutePath}")
+            return true
         } catch (e: IOException) {
             Log.e("File", "Błąd zapisu pliku: ${e.message}")
+            return false
         }
     }
 

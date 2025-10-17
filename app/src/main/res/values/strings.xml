@@ -86,4 +86,6 @@
     <string name="failed_to_share_image">Failed to share image: %1$s</string>
     <string name="unknown_error">Nieznany błąd</string>
     <string name="library_created">Biblioteka została sworzona\n</string>
+    <string name="generic_error">Wystąpił jakis błąd</string>
+    <string name="name_empty">Wprowadź nawę projektu</string>
 </resources>
