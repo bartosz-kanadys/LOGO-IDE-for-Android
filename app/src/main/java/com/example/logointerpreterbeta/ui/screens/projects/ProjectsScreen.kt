@@ -139,7 +139,10 @@ fun ProjectsScreen(
             .padding(top = 20.dp)
             .fillMaxSize()
     ) {
-        CreateTextFieldWithNameButton {
+        CreateTextFieldWithNameButton(
+            modifier = Modifier
+                .padding(vertical = 10.dp)
+        ) {
             onCreateProjectClicked()
             onNameChange("")
             onDismissAlert()
@@ -147,7 +150,7 @@ fun ProjectsScreen(
         AnimatedVisibility(uiState.isCreatingNewProject) {
             Row(
                 Modifier
-                    .height(60.dp)
+                    .height(70.dp)
                     .fillMaxWidth(0.9f)
             ) {
                 ProjectNameTextField(
@@ -157,7 +160,7 @@ fun ProjectsScreen(
                 CreateProjectButton(
                     Modifier
                         .weight(0.2f)
-                        .height(60.dp)
+                        .height(70.dp)
                 ) {
                     onCreatingProject()
                 }
@@ -200,7 +203,7 @@ fun ProjectsScreen(
 fun ProjectsPreview() {
     LogoInterpreterBetaTheme(darkTheme = false) {
         ProjectsScreen(
-            uiState = ProjectUiState(),
+            uiState = ProjectUiState().copy(isCreatingNewProject = true),
             onDeleteProject = {},
             onDeleteProjectClicked = {},
             onCreatingProject = { true },

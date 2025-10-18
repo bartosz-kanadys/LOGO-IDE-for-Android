@@ -73,6 +73,10 @@ class InterpreterViewModel @Inject constructor(
     private val _turtleState = drawingDelegate.turtleUi
     val turtleState: StateFlow<TurtleUI> = _turtleState
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+
     var config by mutableStateOf(readConfigSettingsUseCase)
 
     init {
@@ -85,6 +89,10 @@ class InterpreterViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Main) {
             _debuggerState.value = newState
         }
+    }
+
+    fun setIsLoading(value: Boolean) {
+        _isLoading.value = value
     }
 
     fun updateCodeState(newCode: String) {

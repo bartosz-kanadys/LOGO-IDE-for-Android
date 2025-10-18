@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -53,6 +55,10 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.Interpr
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsUiState
+import com.example.logointerpreterbeta.ui.theme.inversePrimaryLightMediumContrast
+import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
+import com.example.logointerpreterbeta.ui.theme.secondaryContainerLightMediumContrast
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -77,6 +83,9 @@ fun InterpreterApp(
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
 
+    val isFileLoading by interpreterViewModel.isLoading.collectAsStateWithLifecycle()
+    val isProjectLoading = projectState.actualProjectName.isNotBlank() && projectState.project == null
+    val isLoading = isProjectLoading || isFileLoading
 
     LaunchedEffect(Unit) {
         if (projectName != null) {
@@ -95,6 +104,7 @@ fun InterpreterApp(
     }
 
     LaunchedEffect(projectState.project) {
+        interpreterViewModel.setIsLoading(true)
         projectViewModel.updateActualFileName(projectState.project?.files?.firstOrNull()?.name)
 
         val actualFile = projectState.project?.files?.firstOrNull()?.name
@@ -111,6 +121,8 @@ fun InterpreterApp(
             isAlertEmptyProjectVisible = true
         }
         isAlertEmptyProjectVisible = projectState.project?.files?.isEmpty() ?: false
+        delay(350)
+        interpreterViewModel.setIsLoading(false)
     }
 
     //alert when project is empty
@@ -176,149 +188,42 @@ fun InterpreterApp(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    if (isLandscape) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
+    if (isLoading) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(0.55f)
-                    .zIndex(2f)
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(35.dp)
-                        .padding(horizontal = 2.dp, vertical = 0.dp)
-                ) {
-                    projectState.project?.files?.let { files ->
-                        items(files) { projectFile ->
-                            Box(modifier = Modifier
-                                .background(
-                                    if (projectState.actualFileName == projectFile.name)
-                                        MaterialTheme.colorScheme.tertiaryContainer
-                                    else
-                                        MaterialTheme.colorScheme.secondaryContainer,
-                                    RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
-                                )
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onLongPress = {
-                                            visibleMenuFileName = projectFile.name
-                                        },
-                                        onTap = {
-                                            interpreterViewModel.onTapFileAction(
-                                                projectFile = projectFile,
-                                                project = projectState.project,
-                                                updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
-                                            )
-                                        }
-                                    )
-                                }
-                                .padding(horizontal = 15.dp, vertical = 6.dp)
-                            ) {
-                                Text(text = projectFile.name)
-                                DropdownMenu(
-                                    expanded = visibleMenuFileName == projectFile.name,
-                                    onDismissRequest = { visibleMenuFileName = null }
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text(stringResource(R.string.delete)) },
-                                        onClick = {
-                                            fileToDelete = projectFile.name
-                                            visibleMenuFileName = null
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    item {
-                        TextButton(
-                            onClick = { isAlertNewFileVisible = true },
-                            contentPadding = PaddingValues(0.dp),
-                            modifier = Modifier
-                                .width(30.dp)
-                        ) {
-                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                        }
-                    }
-                }
-                ErrorsList(
-                    errors = errors.toString(),
-                    isErrorListVisible = errors.isNotEmpty(),
-                    isErrorListExpanded = isErrorListExpanded,
-                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
-                )
-                Box {
-                    CodeEditor(
-                        codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
-                        onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = errors.toString(),
-                        breakpoints = debuggerState.breakpoints,
-                        currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont.value,
-                        fontSize = config.currentFontSize,
-                        onSave = {
-                            interpreterViewModel.saveFile(
-                                projectState.actualFileName!!,
-                                projectState.actualProjectName,
-                                it
-                            )
-                        },
-                        onToggleBreakpoint = {
-                            interpreterViewModel.toggleBreakpoint(it)
-                        }
-                    )
-                    InterpreterButtons(
-                        viewModel = interpreterViewModel,
-                        isDebugging = debuggerState.isDebugging,
-                        isStepInButtonVisible = debuggerState.showStepInButton,
-                        isStepOutButtonVisible = debuggerState.showStepOutButton,
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier
-                    //.fillMaxWidth(0.5f)
-                    .zIndex(1f)
-            ) {
-                ImagePanel(turtleState = turtleState, image.asImageBitmap(), arrowImage.asImageBitmap())
-            }
+            CircularProgressIndicator()
         }
     } else {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-        ) {
-            item {
-                Box(
+        if (isLandscape) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                Column(
                     modifier = Modifier
-                        .fillParentMaxHeight(0.6f)
-                        .fillMaxWidth()
+                        .fillMaxWidth(0.55f)
+                        .zIndex(2f)
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
-                    ImagePanel(turtleState = turtleState, image.asImageBitmap(), arrowImage.asImageBitmap())
-
                     LazyRow(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.BottomStart)
                             .height(35.dp)
                             .padding(horizontal = 2.dp, vertical = 0.dp)
                     ) {
                         projectState.project?.files?.let { files ->
                             items(files) { projectFile ->
-                                Box(modifier = Modifier
+                                Box(
+                                    modifier = Modifier
                                     .background(
                                         if (projectState.actualFileName == projectFile.name)
-                                            MaterialTheme.colorScheme.inversePrimary
+                                            inversePrimaryLightMediumContrast
                                         else
-                                            MaterialTheme.colorScheme.secondaryContainer,
+                                            secondaryContainerLightMediumContrast,
                                         RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
                                     )
                                     .pointerInput(Unit) {
@@ -330,7 +235,11 @@ fun InterpreterApp(
                                                 interpreterViewModel.onTapFileAction(
                                                     projectFile = projectFile,
                                                     project = projectState.project,
-                                                    updateActualFileName = { projectViewModel.updateActualFileName(projectFile.name) }
+                                                    updateActualFileName = {
+                                                        projectViewModel.updateActualFileName(
+                                                            projectFile.name
+                                                        )
+                                                    }
                                                 )
                                             }
                                         )
@@ -365,44 +274,178 @@ fun InterpreterApp(
                             }
                         }
                     }
+                    ErrorsList(
+                        errors = errors.toString(),
+                        isErrorListVisible = errors.isNotEmpty(),
+                        isErrorListExpanded = isErrorListExpanded,
+                        onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                    )
+                    Box {
+                        CodeEditor(
+                            codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
+                            onCodeChange = interpreterViewModel::onCodeChange,
+                            errors = errors.toString(),
+                            breakpoints = debuggerState.breakpoints,
+                            currentLine = debuggerState.currentLine,
+                            fontFamily = config.currentFont.value,
+                            fontSize = config.currentFontSize,
+                            onSave = {
+                                interpreterViewModel.saveFile(
+                                    projectState.actualFileName!!,
+                                    projectState.actualProjectName,
+                                    it
+                                )
+                            },
+                            onToggleBreakpoint = {
+                                interpreterViewModel.toggleBreakpoint(it)
+                            }
+                        )
+                        InterpreterButtons(
+                            viewModel = interpreterViewModel,
+                            isDebugging = debuggerState.isDebugging,
+                            isStepInButtonVisible = debuggerState.showStepInButton,
+                            isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        )
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        //.fillMaxWidth(0.5f)
+                        .zIndex(1f)
+                ) {
+                    ImagePanel(
+                        turtleState = turtleState,
+                        image.asImageBitmap(),
+                        arrowImage.asImageBitmap()
+                    )
                 }
             }
-            item {
-                ErrorsList(
-                    errors = errors.toString(),
-                    isErrorListVisible = errors.isNotEmpty(),
-                    isErrorListExpanded = isErrorListExpanded,
-                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
-                )
-            }
-            item {
-                Box {
-                    CodeEditor(
-                        codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
-                        onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = errors.toString(),
-                        modifier = Modifier,
-                        breakpoints = debuggerState.breakpoints,
-                        currentLine = debuggerState.currentLine,
-                        fontFamily = config.currentFont.value,
-                        fontSize = config.currentFontSize,
-                        onToggleBreakpoint = {
-                            interpreterViewModel.toggleBreakpoint(it)
-                        },
-                        onSave = {
-                            interpreterViewModel.saveFile(
-                                projectState.actualFileName!!,
-                                projectState.actualProjectName,
-                                it
-                            )
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillParentMaxHeight(0.6f)
+                            .fillMaxWidth()
+                    ) {
+                        ImagePanel(
+                            turtleState = turtleState,
+                            image.asImageBitmap(),
+                            arrowImage.asImageBitmap()
+                        )
+
+                        LazyRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.BottomStart)
+                                .height(35.dp)
+                                .padding(horizontal = 2.dp, vertical = 0.dp)
+                        ) {
+                            projectState.project?.files?.let { files ->
+                                items(files) { projectFile ->
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                if (projectState.actualFileName == projectFile.name)
+                                                    inversePrimaryLightMediumContrast
+                                                else
+                                                    secondaryContainerLightMediumContrast,
+                                                RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                                            )
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onLongPress = {
+                                                    visibleMenuFileName = projectFile.name
+                                                },
+                                                onTap = {
+                                                    interpreterViewModel.onTapFileAction(
+                                                        projectFile = projectFile,
+                                                        project = projectState.project,
+                                                        updateActualFileName = {
+                                                            projectViewModel.updateActualFileName(
+                                                                projectFile.name
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                        }
+                                        .padding(horizontal = 15.dp, vertical = 6.dp)
+                                    ) {
+                                        Text(
+                                            text = projectFile.name,
+                                            color = onSurfaceLightMediumContrast
+                                        )
+                                        DropdownMenu(
+                                            expanded = visibleMenuFileName == projectFile.name,
+                                            onDismissRequest = { visibleMenuFileName = null }
+                                        ) {
+                                            DropdownMenuItem(
+                                                text = { Text(stringResource(R.string.delete)) },
+                                                onClick = {
+                                                    fileToDelete = projectFile.name
+                                                    visibleMenuFileName = null
+                                                }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+
+                            item {
+                                TextButton(
+                                    onClick = { isAlertNewFileVisible = true },
+                                    contentPadding = PaddingValues(0.dp),
+                                    modifier = Modifier
+                                        .width(30.dp)
+                                ) {
+                                    Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                                }
+                            }
                         }
+                    }
+                }
+                item {
+                    ErrorsList(
+                        errors = errors.toString(),
+                        isErrorListVisible = errors.isNotEmpty(),
+                        isErrorListExpanded = isErrorListExpanded,
+                        onClick = { interpreterViewModel.toggleErrorListVisibility() }
                     )
-                    InterpreterButtons(
-                        viewModel = interpreterViewModel,
-                        isDebugging = debuggerState.isDebugging,
-                        isStepInButtonVisible = debuggerState.showStepInButton,
-                        isStepOutButtonVisible = debuggerState.showStepOutButton,
-                    )
+                }
+                item {
+                    Box {
+                        CodeEditor(
+                            codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
+                            onCodeChange = interpreterViewModel::onCodeChange,
+                            errors = errors.toString(),
+                            modifier = Modifier,
+                            breakpoints = debuggerState.breakpoints,
+                            currentLine = debuggerState.currentLine,
+                            fontFamily = config.currentFont.value,
+                            fontSize = config.currentFontSize,
+                            onToggleBreakpoint = {
+                                interpreterViewModel.toggleBreakpoint(it)
+                            },
+                            onSave = {
+                                interpreterViewModel.saveFile(
+                                    projectState.actualFileName!!,
+                                    projectState.actualProjectName,
+                                    it
+                                )
+                            }
+                        )
+                        InterpreterButtons(
+                            viewModel = interpreterViewModel,
+                            isDebugging = debuggerState.isDebugging,
+                            isStepInButtonVisible = debuggerState.showStepInButton,
+                            isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        )
+                    }
                 }
             }
         }

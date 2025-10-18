@@ -22,13 +22,14 @@ import com.example.logointerpreterbeta.R
 
 @Composable
 fun CreateTextFieldWithNameButton(
-    onClick: () -> Unit
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
 ) {
     Button(
         onClick = { onClick() },
         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.inversePrimary),
         shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth(0.9f)
             .height(60.dp)
     ) {
