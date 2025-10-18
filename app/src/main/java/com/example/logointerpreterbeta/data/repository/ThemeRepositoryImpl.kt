@@ -17,18 +17,12 @@ class ThemeRepositoryImpl(
     private val systemThemeProvider: SystemThemeProvider
 ): ThemeRepository {
 
-    override suspend fun getCurrentTheme(): ThemeMode {
+    private suspend fun getCurrentTheme(): ThemeMode {
         return dataStore.data.map { preferences ->
             preferences[THEME]?.let {
                 ThemeMode.fromString(it)
             } ?: ThemeMode.SYSTEM_THEME
         }.first()
-    }
-
-    override suspend fun setCurrentTheme(theme: ThemeMode) {
-        dataStore.edit { preferences ->
-            preferences[THEME] = ThemeMode.toString()
-        }
     }
 
     override fun observeTheme(): Flow<ThemeMode> {

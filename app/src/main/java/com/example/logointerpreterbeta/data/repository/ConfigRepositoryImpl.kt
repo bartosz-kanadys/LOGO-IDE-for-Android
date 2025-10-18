@@ -4,10 +4,13 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.logointerpreterbeta.data.dataStore.ConfigKeys
+import com.example.logointerpreterbeta.data.dataStore.ConfigKeys.THEME
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -34,8 +37,25 @@ class ConfigRepositoryImpl @Inject constructor(
             emit("System")
         }
 
-    override suspend fun updateTheme(newTheme: String) {
-        dataStore.edit { it[ConfigKeys.THEME] = newTheme }
+    override suspend fun getCurrentTheme(): ThemeMode {
+        return dataStore.data.map { preferences ->
+            preferences[THEME]?.let {
+                ThemeMode.fromString(it)
+            } ?: ThemeMode.SYSTEM_THEME
+        }.first()
+    }
+
+//    override suspend fun setCurrentTheme(theme: ThemeMode) {
+//        dataStore.edit { preferences ->
+//            preferences[THEME] = theme.toString()
+//        }
+//    }
+
+    override suspend fun updateTheme(newTheme: ThemeMode) {
+//        dataStore.edit { it[ConfigKeys.THEME] = newTheme }
+        dataStore.edit { preferences ->
+            preferences[THEME] = newTheme.toString()
+        }
     }
 
     override suspend fun updateFont(newFont: String) {
