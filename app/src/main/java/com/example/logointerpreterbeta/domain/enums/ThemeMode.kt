@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.theme
+package com.example.logointerpreterbeta.domain.enums
 
 enum class ThemeMode(val value: String) {
     SYSTEM_THEME ("System"),

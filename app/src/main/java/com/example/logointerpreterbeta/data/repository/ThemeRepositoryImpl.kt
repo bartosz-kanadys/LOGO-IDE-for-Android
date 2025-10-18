@@ -6,7 +6,7 @@ import androidx.datastore.preferences.core.edit
 import com.example.logointerpreterbeta.data.dataStore.ConfigKeys.THEME
 import com.example.logointerpreterbeta.domain.repository.SystemThemeProvider
 import com.example.logointerpreterbeta.domain.repository.ThemeRepository
-import com.example.logointerpreterbeta.ui.theme.ThemeMode
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

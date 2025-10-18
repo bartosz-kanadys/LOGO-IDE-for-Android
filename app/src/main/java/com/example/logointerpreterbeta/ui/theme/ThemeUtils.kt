@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
 
 object ThemeUtils {
     @Composable

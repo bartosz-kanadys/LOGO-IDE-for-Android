@@ -1,6 +1,6 @@
 package com.example.logointerpreterbeta.domain.repository
 
-import com.example.logointerpreterbeta.ui.theme.ThemeMode
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
 import kotlinx.coroutines.flow.Flow
 
 interface ThemeRepository {

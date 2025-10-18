@@ -18,7 +18,7 @@ import com.example.logointerpreterbeta.domain.usecase.interpreter.InterpretCodeU
 import com.example.logointerpreterbeta.domain.usecase.interpreter.ReadConfigSettingsUseCase
 import com.example.logointerpreterbeta.domain.usecase.file.ReadFileUseCase
 import com.example.logointerpreterbeta.domain.usecase.file.SaveFileUseCase
-import com.example.logointerpreterbeta.domain.usecase.interpreter.ThemeModeCheckUseCase
+import com.example.logointerpreterbeta.domain.usecase.shared.ThemeModeCheckUseCase
 import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import com.example.logointerpreterbeta.ui.models.TurtleUI

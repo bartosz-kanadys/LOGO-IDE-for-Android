@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.ui.theme
+package com.example.logointerpreterbeta.domain.enums
 
 enum class FontsEnum(val value: String) {
     JETBRAINS_MONO("JetBrains Mono"),
@@ -12,4 +12,3 @@ enum class FontsEnum(val value: String) {
 
     override fun toString(): String = value
 }
-

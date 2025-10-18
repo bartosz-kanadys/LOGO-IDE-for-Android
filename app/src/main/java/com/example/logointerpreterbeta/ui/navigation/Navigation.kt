@@ -19,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.ui.navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarViewModel
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarWithMenu
@@ -38,9 +39,11 @@ import com.example.logointerpreterbeta.ui.screens.start.StartScreenViewModel
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialContentScreen
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.ThemeMode
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
+import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.Serializable
+import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("NewApi", "StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
@@ -48,6 +51,7 @@ import kotlinx.serialization.Serializable
 fun AppNavHost(
     navController: NavHostController = rememberNavController(),
     startDestination: Any = StartScreen,
+    drawingDelegate: AndroidDrawingDelegate
 ) {
     val libraryViewModel: LibraryViewModel = hiltViewModel()
     val settingsViewModel: SettingsViewModel = hiltViewModel()
@@ -121,7 +125,8 @@ fun AppNavHost(
                 Layout({ modifier ->
                     SettingsScreenRoot(
                         modifier = modifier,
-                        viewModel = settingsViewModel
+                        viewModel = settingsViewModel,
+                        drawingDelegate = drawingDelegate
                     )
                 }, stringResource(R.string.settings), navController)
             }

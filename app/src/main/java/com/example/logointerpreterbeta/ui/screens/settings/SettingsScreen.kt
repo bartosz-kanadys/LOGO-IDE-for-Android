@@ -10,10 +10,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,21 +28,35 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.domain.enums.FontsEnum
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
+import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.createTypography
 import com.example.logointerpreterbeta.ui.screens.settings.components.SettingsOption
 import com.example.logointerpreterbeta.ui.screens.settings.components.SettingsSwitch
 import com.example.logointerpreterbeta.ui.screens.settings.components.fontSizeOptions
 import com.example.logointerpreterbeta.ui.screens.settings.components.fonts
 import com.example.logointerpreterbeta.ui.theme.AppTypography
-import com.example.logointerpreterbeta.ui.theme.FontsEnum
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.ui.theme.ThemeMode
 
 @Composable
 fun SettingsScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(),
+    drawingDelegate: AndroidDrawingDelegate
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.value.currentTheme) {
+        viewModel.sideEffects.collect { effect ->
+            when (effect) {
+                is SettingsSideEffect.UpdateDrawingTheme -> {
+                    drawingDelegate.updateTheme(effect.isDarkTheme)
+                }
+            }
+        }
+    }
+
     SettingsScreen(
         uiState = state.value,
         onThemeChanged = {
@@ -68,6 +88,16 @@ fun SettingsScreen(
     onAutocorrectChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val currentTypography by remember(uiState.currentFont) {
+        derivedStateOf {
+            when (uiState.currentFont) {
+                FontsEnum.JETBRAINS_MONO -> AppTypography
+                FontsEnum.COMIC_SANS_MS -> createTypography(FontFamily(Font(R.font.comic_sans_ms)))
+                FontsEnum.BEBAS_NEUE -> createTypography(FontFamily(Font(R.font.bebas_neue_regular)))
+            }
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxHeight()
     ) {
@@ -108,7 +138,7 @@ fun SettingsScreen(
                     onFontChanged(FontsEnum.fromString(it))
                 },
                 fonts = fonts,
-                selectedFont = uiState.currentTopography.bodySmall.fontFamily,
+                selectedFont = currentTypography.bodySmall.fontFamily
             )
             SettingsOption(
                 label = stringResource(R.string.font_size),
@@ -122,7 +152,7 @@ fun SettingsScreen(
             Text(
                 text = stringResource(R.string.example_text),
                 style = TextStyle(
-                    fontFamily = uiState.currentTopography.bodySmall.fontFamily,
+                    fontFamily = currentTypography.bodySmall.fontFamily,
                     fontSize = uiState.currentFontSize.sp
                 ),
                 textAlign = TextAlign.Center,
