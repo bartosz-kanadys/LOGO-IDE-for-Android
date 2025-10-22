@@ -126,7 +126,7 @@ fun AppNavHost(
                     SettingsScreenRoot(
                         modifier = modifier,
                         viewModel = settingsViewModel,
-                        drawingDelegate = drawingDelegate
+//                        drawingDelegate = drawingDelegate
                     )
                 }, stringResource(R.string.settings), navController)
             }

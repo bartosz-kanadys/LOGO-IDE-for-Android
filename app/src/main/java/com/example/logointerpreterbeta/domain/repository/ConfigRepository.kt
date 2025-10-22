@@ -5,8 +5,6 @@ import com.example.logointerpreterbeta.domain.models.Config
 import kotlinx.coroutines.flow.Flow
 
 interface ConfigRepository {
-    suspend fun updateLastProject(newProjectName: String)
-    fun readLastProject(): Flow<String?>
     fun readTheme(): Flow<String>
     suspend fun getCurrentTheme(): ThemeMode
     suspend fun updateTheme(newTheme: ThemeMode)

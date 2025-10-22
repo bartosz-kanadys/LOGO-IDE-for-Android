@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -31,19 +32,22 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.codeSuggestions.CodeSuggestionPopup
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.codeSuggestions.SuggestionList
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.NearestWordFinder
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.replaceAnnotatedSubstring
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.textFunctions.textDiffrence
 import com.example.logointerpreterbeta.ui.theme.ThemeUtils
 
 @Composable
 fun CodeEditor(
-    codeState: TextFieldValue,
+    code: String,
+    isDarkMode: Boolean,
     currentLine: Int,
     modifier: Modifier = Modifier,
     errors: String = "",
-    onCodeChange: (TextFieldValue) -> Unit = {},
+    onCodeChange: (text: String, cursorPosition: Int) -> Unit = { _, _ -> },
     isSaveOnChange: Boolean = true,
     lines: Int = 10,
     fontSize: Int = 18,
@@ -54,12 +58,42 @@ fun CodeEditor(
     onSave: (String) -> Unit = {},
     onToggleBreakpoint: (Int) -> Unit,
 ) {
-    val linesCount = codeState.text.lines().size
+    val linesCount = code.lines().size
     val scrollState = rememberScrollState()
 
     var cursorOffset by remember { mutableStateOf(Offset.Zero) }
     var filteredSuggestions by remember { mutableStateOf(emptyList<String>()) }
-    var cursorPosition by remember { mutableIntStateOf(0) }
+
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                annotatedString = LogoTextColorizer.colorizeText(code, isDarkMode),
+                selection = TextRange(0)
+            )
+        )
+    }
+
+    LaunchedEffect(code, isDarkMode) {
+        if (textFieldValue.text != code) {
+            textFieldValue = TextFieldValue(
+                annotatedString = LogoTextColorizer.colorizeText(code, isDarkMode),
+                // Spróbuj zachować pozycję kursora, jeśli to możliwe
+                selection = try {
+                    val newStart = textFieldValue.selection.start.coerceIn(0, code.length)
+                    val newEnd = textFieldValue.selection.end.coerceIn(0, code.length)
+                    TextRange(newStart, newEnd)
+                } catch (e: Exception) {
+                    TextRange(code.length)
+                }
+            )
+        }
+        // Jeśli zmienił się tylko tryb ciemny, przerysuj kolorowanie
+        else if (textFieldValue.text == code) {
+            textFieldValue = textFieldValue.copy(
+                annotatedString = LogoTextColorizer.colorizeText(code, isDarkMode)
+            )
+        }
+    }
 
     Row(
         modifier = modifier
@@ -81,16 +115,45 @@ fun CodeEditor(
         Column {
             Box(modifier = modifier.fillMaxSize()) {
                 BasicTextField(
-                    value = codeState,
+                    value = textFieldValue,
                     onValueChange = { newValue ->
-                        cursorPosition = newValue.selection.start
-                        val wordToMatch = NearestWordFinder.find(newValue.text, cursorPosition)
-                        filteredSuggestions = if (wordToMatch.isNotEmpty()) {
+
+                        val oldText = textFieldValue.text
+                        val newText = newValue.text
+
+                        // Aktualizuj stan lokalny (z optymalizacją kolorowania)
+                        textFieldValue = if (oldText != newText) {
+                            // 1. Tekst się zmienił: skopiuj `newValue`, ale zastąp jego string naszym pokolorowanym
+                            newValue.copy(
+                                annotatedString = textDiffrence(
+                                    textFieldValue.annotatedString, // Użyj STAREGO pokolorowanego stringu
+                                    newText,
+                                ) { text ->
+                                    LogoTextColorizer.colorizeText(text, isDarkMode)
+                                }
+                            )
+                        } else {
+                            // Zachowaj stary, pokolorowany string (`textFieldValue.annotatedString`)
+                            // i zaktualizuj tylko selekcję z `newValue`.
+                            textFieldValue.copy(
+                                selection = newValue.selection
+                            )
+                        }
+
+                        // Logika sugestii
+                        val cursorPosition = newValue.selection.start
+                        val wordToMatch = NearestWordFinder.find(newText, cursorPosition)
+                        filteredSuggestions = if (wordToMatch.isNotEmpty() && showSuggestions) {
                             SuggestionList.suggestions.filter { it.startsWith(wordToMatch) && it != wordToMatch }
-                        } else { emptyList() }
-                        onCodeChange(newValue)
+                        } else {
+                            emptyList()
+                        }
+
+                        // Emituj surowe dane do ViewModelu
+                        onCodeChange(newText, cursorPosition)
+
                         if (isSaveOnChange) {
-                            onSave(newValue.text)
+                            onSave(newText)
                         }
                     },
                     minLines = lines,
@@ -100,7 +163,7 @@ fun CodeEditor(
                         fontFamily = ThemeUtils.fontFamilyFromString(fontFamily)
                     ),
                     onTextLayout = { textLayoutResult: TextLayoutResult ->
-                        val actualCursorPosition = codeState.selection.start
+                        val actualCursorPosition = textFieldValue.selection.start
                         if (actualCursorPosition >= 0) {
                             val cursorRect = textLayoutResult.getCursorRect(actualCursorPosition)
                             cursorOffset = Offset(cursorRect.left, cursorRect.bottom)
@@ -121,21 +184,24 @@ fun CodeEditor(
             }
             if (filteredSuggestions.isNotEmpty() && showSuggestions) {
                 CodeSuggestionPopup(filteredSuggestions, cursorOffset) { suggestion: String ->
-                    val newText = replaceAnnotatedSubstring(
-                        codeState.annotatedString,
+                    // Logika sugestii musi teraz także aktualizować stan lokalny i powiadamiać VM
+                    val newAnnotatedString = replaceAnnotatedSubstring(
+                        textFieldValue.annotatedString, // Użyj stanu lokalnego
                         NearestWordFinder.nearestSpacePositionToLeft,
                         NearestWordFinder.nearestSpacePositionToRight,
                         suggestion
                     )
+                    val newText = newAnnotatedString.text
                     val actualCursorPosition =
                         NearestWordFinder.nearestSpacePositionToLeft + suggestion.length
 
-                    onCodeChange(
-                        codeState.copy(
-                            annotatedString = newText,
-                            selection = TextRange(actualCursorPosition)
-                        )
+                    //Zaktualizuj stan lokalny
+                    textFieldValue = textFieldValue.copy(
+                        annotatedString = newAnnotatedString,
+                        selection = TextRange(actualCursorPosition)
                     )
+
+                    onCodeChange(newText, actualCursorPosition)
                 }
             }
         }

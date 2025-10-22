@@ -43,19 +43,8 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 fun SettingsScreenRoot(
     modifier: Modifier = Modifier,
     viewModel: SettingsViewModel = viewModel(),
-    drawingDelegate: AndroidDrawingDelegate
 ) {
     val state = viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(state.value.currentTheme) {
-        viewModel.sideEffects.collect { effect ->
-            when (effect) {
-                is SettingsSideEffect.UpdateDrawingTheme -> {
-                    drawingDelegate.updateTheme(effect.isDarkTheme)
-                }
-            }
-        }
-    }
 
     SettingsScreen(
         uiState = state.value,

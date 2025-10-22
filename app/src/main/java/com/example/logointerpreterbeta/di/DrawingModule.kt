@@ -18,8 +18,8 @@ object DrawingModule {
     @Provides
     @Singleton
     fun provideAndroidDrawingDelegate(@ApplicationContext context: Context, themeRepository: ThemeRepository): AndroidDrawingDelegate {
-        val isDarkMode = themeRepository.isDarkTheme()
-        return AndroidDrawingDelegate(1000, 1000, context, isDarkMode)
+//        val isDarkMode = themeRepository.isDarkTheme()
+        return AndroidDrawingDelegate(1000, 1000, context, false)
     }
 
     @Provides

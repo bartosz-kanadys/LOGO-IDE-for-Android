@@ -20,16 +20,6 @@ class ConfigRepositoryImpl @Inject constructor(
     private val dataStore: DataStore<Preferences>
 ) : ConfigRepository {
 
-    override suspend fun updateLastProject(newProjectName: String) {
-        dataStore.edit { prefs ->
-            prefs[ConfigKeys.LAST_PROJECT] = newProjectName
-        }
-    }
-
-    override fun readLastProject(): Flow<String?> =
-        dataStore.data.map { prefs -> prefs[ConfigKeys.LAST_PROJECT] }
-
-
     override fun readTheme(): Flow<String> =
         dataStore.data.map { prefs ->
             prefs[ConfigKeys.THEME] ?: "System"
@@ -45,14 +35,7 @@ class ConfigRepositoryImpl @Inject constructor(
         }.first()
     }
 
-//    override suspend fun setCurrentTheme(theme: ThemeMode) {
-//        dataStore.edit { preferences ->
-//            preferences[THEME] = theme.toString()
-//        }
-//    }
-
     override suspend fun updateTheme(newTheme: ThemeMode) {
-//        dataStore.edit { it[ConfigKeys.THEME] = newTheme }
         dataStore.edit { preferences ->
             preferences[THEME] = newTheme.toString()
         }
@@ -77,7 +60,6 @@ class ConfigRepositoryImpl @Inject constructor(
     override fun readSettings(): Flow<Config> =
         dataStore.data.map { prefs ->
             Config(
-                lastModifiedProject = prefs[ConfigKeys.LAST_PROJECT] ?: "",
                 currentTheme = prefs[ConfigKeys.THEME] ?: "System",
                 currentFont = prefs[ConfigKeys.FONT] ?: "default",
                 currentFontSize = prefs[ConfigKeys.FONT_SIZE] ?: 14,

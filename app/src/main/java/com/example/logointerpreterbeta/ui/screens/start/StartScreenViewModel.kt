@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
+import com.example.logointerpreterbeta.domain.repository.SessionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ data class StartScreenUiState(
 
 @HiltViewModel
 class StartScreenViewModel @Inject constructor(
-    private val configRepository: ConfigRepository,
+    private val sessionRepository: SessionRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(StartScreenUiState())
@@ -28,8 +29,8 @@ class StartScreenViewModel @Inject constructor(
 
     fun onContinueProjectClicked(navController: NavController) {
         viewModelScope.launch {
-            val lastProject = configRepository.readLastProject().first()
-            if (lastProject.isNullOrEmpty()) {
+            val lastProject = sessionRepository.getLastOpenedProject().first()
+            if (lastProject.isEmpty()) {
                 _uiState.update { it.copy(showAlert = true) }
             } else {
                 _uiState.update { it.copy(navigateTo = Screen.Interpreter) }

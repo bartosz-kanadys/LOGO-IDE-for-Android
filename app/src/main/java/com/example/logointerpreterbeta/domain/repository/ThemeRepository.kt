@@ -5,5 +5,6 @@ import kotlinx.coroutines.flow.Flow
 
 interface ThemeRepository {
     fun observeTheme(): Flow<ThemeMode>
-    fun isDarkTheme(): Boolean
+    fun observeThemeBoolean(): Flow<Boolean>
+    suspend fun isDarkTheme(): Boolean
 }

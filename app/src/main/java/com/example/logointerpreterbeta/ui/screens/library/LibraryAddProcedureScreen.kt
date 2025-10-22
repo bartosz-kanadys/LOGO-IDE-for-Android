@@ -31,6 +31,7 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewMod
 import com.example.logointerpreterbeta.domain.models.Procedure
 import com.example.logointerpreterbeta.ui.screens.library.components.FormButton
 import com.example.logointerpreterbeta.ui.screens.library.components.FormTextField
+import androidx.compose.runtime.collectAsState
 
 @Composable
 fun LibraryAddProcedureForm(
@@ -58,7 +59,7 @@ fun LibraryAddProcedureForm(
     }
 
     LaunchedEffect(Unit) {
-        interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n\n\n")
+        interpreterViewModel.updateCode("\n\n\n\n\n\n\n\n\n\n\n\n")
     }
 
     LazyColumn(
@@ -99,7 +100,7 @@ fun LibraryAddProcedureForm(
                 Modifier.padding(top = 15.dp)
             )
             CodeEditor(
-                codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
+                code = interpreterViewModel.code.collectAsState().value,
                 onCodeChange = interpreterViewModel::onCodeChange,
                 errors = interpreterViewModel.errors.collectAsStateWithLifecycle().toString(),
                 isSaveOnChange = false,
@@ -107,6 +108,7 @@ fun LibraryAddProcedureForm(
                 breakpoints = emptyList(),
                 currentLine = -1,
                 onSave = {  },
+                isDarkMode =  interpreterViewModel.isDarkMode.collectAsState().value,
                 onToggleBreakpoint = { }
             )
         }
@@ -127,7 +129,7 @@ fun LibraryAddProcedureForm(
                     text = stringResource(R.string.confirm),
                     MaterialTheme.colorScheme.primary
                 ) {
-                    val code = interpreterViewModel.getCodeStateAsString()
+                    val code = interpreterViewModel.code.value
                     val procedure = Procedure(
                         procedureName,
                         procedureDescription,
@@ -139,7 +141,7 @@ fun LibraryAddProcedureForm(
                         procedure,
                         author = procedureAuthor,
                         onSuccess = {
-                            interpreterViewModel.updateCodeState("\n\n\n\n\n\n\n\n\n\n")
+                            interpreterViewModel.updateCode("\n\n\n\n\n\n\n\n\n\n")
                             navController.popBackStack()
                         }
                     )

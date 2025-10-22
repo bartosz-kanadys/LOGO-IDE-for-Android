@@ -47,9 +47,6 @@ class SettingsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState = _uiState.asStateFlow()
 
-    private val _sideEffectChannel = Channel<SettingsSideEffect>()
-    val sideEffects = _sideEffectChannel.receiveAsFlow()
-
     init {
         viewModelScope.launch {
             val setting  = readSettingsUseCase()
@@ -73,8 +70,6 @@ class SettingsViewModel @Inject constructor(
     fun changeSelectedTheme(newTheme: ThemeMode) {
         viewModelScope.launch {
             updateThemeUseCase(newTheme)
-            val isDark = themeModeCheckUseCase()
-            _sideEffectChannel.send(SettingsSideEffect.UpdateDrawingTheme(isDark))
         }
     }
 

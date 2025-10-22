@@ -102,7 +102,7 @@ fun InterpreterTopBar(
         ActivityResultContracts.CreateDocument("text/plain")
     ) { uri ->
         uri?.let {
-            topBarViewModel.onWriteFileRequested(context, uri, viewModel.getCodeStateAsString(), fileName.text)
+            topBarViewModel.onWriteFileRequested(context, uri, viewModel.code.value, fileName.text)
         }
     }
 
@@ -112,8 +112,8 @@ fun InterpreterTopBar(
     ) { uri ->
         uri?.let {
             val code = topBarViewModel.onLoadFileRequested(context, uri)
-            viewModel.updateCodeState(code)
-            viewModel.colorCode()
+            viewModel.updateCode(code)
+            //viewModel.colorCode()
         }
     }
 
@@ -278,7 +278,7 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                               topBarViewModel.shareCode(viewModel.getCodeStateAsString(), context)
+                               topBarViewModel.shareCode(viewModel.code.value, context)
                             },
                             text = {
                                 MenuElement(

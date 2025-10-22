@@ -64,74 +64,86 @@ fun ImagePanel(
     var isBlocked by rememberSaveable { mutableStateOf(false) }
     var isPickerVisible by rememberSaveable { mutableStateOf(false) }
     var isInfoVisible by rememberSaveable { mutableStateOf(false) }
-
     Box(
-        modifier = Modifier
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    if (scale in 0.19999985..11.8) {
-                        scale *= zoom
-                    }
-                    if (!isBlocked) {
-                        offset = Offset(
-                            x = offset.x + pan.x,
-                            y = offset.y + pan.y
-                        )
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Box(
+            modifier = Modifier
+                .pointerInput(Unit) {
+                    detectTransformGestures { _, pan, zoom, _ ->
+                        if (scale in 0.19999985..11.8) {
+                            scale *= zoom
+                        }
+                        if (!isBlocked) {
+                            offset = Offset(
+                                x = offset.x + pan.x,
+                                y = offset.y + pan.y
+                            )
+                        }
                     }
                 }
-            }
-            .fillMaxSize()
-    ) {
-        Image(
-            bitmap = image,
-            contentDescription = null,
-            modifier = Modifier
-                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-                .scale(scale)
-        )
-        Image(
-            bitmap = arrowImage,
-            contentDescription = "Empty Bitmap",
-            modifier = Modifier
-                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
-                .scale(scale)
-        )
-        AnimatedVisibility(visible = isPickerVisible, modifier = Modifier.align(Alignment.Center)) {
-            ColorPicker(
-                initialColor = turtleState.penState.color,
-                onSelectClick = {
-                    isPickerVisible = !isPickerVisible
-                },
-                context = LocalContext.current
+                .fillMaxSize()
+        ) {
+            Image(
+                bitmap = image,
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                    .scale(scale)
+            )
+            Image(
+                bitmap = arrowImage,
+                contentDescription = "Empty Bitmap",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                    .scale(scale)
             )
         }
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                // .height(390.dp)
-                .align(Alignment.BottomEnd)
-                .padding(end = 3.dp, bottom = 40.dp)
-        ) {
-            ImageButton(Icons.Filled.Info) { isInfoVisible = !isInfoVisible }
-            ImageButton(Icons.Filled.Palette) { isPickerVisible = !isPickerVisible }
-            Spacer(modifier = Modifier.weight(1f))
-            ImageButton(Icons.Filled.ZoomIn) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
-            ImageButton(Icons.Filled.ZoomOut) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
-            if (isBlocked) {
-                ImageButton(Icons.Filled.Lock) { isBlocked = !isBlocked }
-            } else {
-                ImageButton(Icons.Filled.LockOpen) { isBlocked = !isBlocked }
-            }
-            ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
-        }
-        AnimatedVisibility(visible = isInfoVisible, modifier = Modifier.align(Alignment.TopEnd)) {
-            TurtleInfo(
-                turtleState = turtleState,
+            AnimatedVisibility(
+                visible = isPickerVisible,
+                modifier = Modifier.align(Alignment.Center)
             ) {
-                isInfoVisible = !isInfoVisible
+                ColorPicker(
+                    initialColor = turtleState.penState.color,
+                    onSelectClick = {
+                        isPickerVisible = !isPickerVisible
+                    },
+                    context = LocalContext.current
+                )
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    // .height(390.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 3.dp, bottom = 40.dp)
+            ) {
+                ImageButton(Icons.Filled.Info) { isInfoVisible = !isInfoVisible }
+                ImageButton(Icons.Filled.Palette) { isPickerVisible = !isPickerVisible }
+                Spacer(modifier = Modifier.weight(1f))
+                ImageButton(Icons.Filled.ZoomIn) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
+                ImageButton(Icons.Filled.ZoomOut) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
+                if (isBlocked) {
+                    ImageButton(Icons.Filled.Lock) { isBlocked = !isBlocked }
+                } else {
+                    ImageButton(Icons.Filled.LockOpen) { isBlocked = !isBlocked }
+                }
+                ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
+            }
+            AnimatedVisibility(
+                visible = isInfoVisible,
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                TurtleInfo(
+                    turtleState = turtleState,
+                ) {
+                    isInfoVisible = !isInfoVisible
+                }
             }
         }
-    }
+
 }
 
 

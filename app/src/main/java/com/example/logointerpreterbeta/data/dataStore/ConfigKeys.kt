@@ -5,7 +5,8 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 object ConfigKeys {
-    val LAST_PROJECT = stringPreferencesKey("last_project")
+    val LAST_PROJECT_NAME = stringPreferencesKey("last_project")
+    val LAST_FILE_NAME = stringPreferencesKey("last_file_name")
     val THEME = stringPreferencesKey("theme")
     val FONT = stringPreferencesKey("font")
     val FONT_SIZE = intPreferencesKey("font_size")

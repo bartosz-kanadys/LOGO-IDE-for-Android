@@ -1,12 +1,13 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,7 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -40,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -58,7 +59,6 @@ import com.example.logointerpreterbeta.ui.screens.settings.SettingsUiState
 import com.example.logointerpreterbeta.ui.theme.inversePrimaryLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.secondaryContainerLightMediumContrast
-import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -83,9 +83,10 @@ fun InterpreterApp(
     val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
 
-    val isFileLoading by interpreterViewModel.isLoading.collectAsStateWithLifecycle()
-    val isProjectLoading = projectState.actualProjectName.isNotBlank() && projectState.project == null
-    val isLoading = isProjectLoading || isFileLoading
+    val code by interpreterViewModel.code.collectAsStateWithLifecycle()
+    val isDarkMode = interpreterViewModel.isDarkMode.collectAsStateWithLifecycle()
+    val actualFileName = interpreterViewModel.actualFileName.collectAsStateWithLifecycle().value
+
 
     LaunchedEffect(Unit) {
         if (projectName != null) {
@@ -104,25 +105,9 @@ fun InterpreterApp(
     }
 
     LaunchedEffect(projectState.project) {
-        interpreterViewModel.setIsLoading(true)
-        projectViewModel.updateActualFileName(projectState.project?.files?.firstOrNull()?.name)
-
-        val actualFile = projectState.project?.files?.firstOrNull()?.name
-
-        if (actualFile != null) {
-            val content = interpreterViewModel.readFileFromRepository( actualFile, projectState.actualProjectName)
-            content.onSuccess {
-                interpreterViewModel.updateCodeState(it)
-                interpreterViewModel.colorCode()
-                interpreterViewModel.interpretCode("")
-            }
-        } else {
-            interpreterViewModel.updateCodeState("")
-            isAlertEmptyProjectVisible = true
+        if (projectState.project != null) {
+            interpreterViewModel.loadInitialCode(projectState.project)
         }
-        isAlertEmptyProjectVisible = projectState.project?.files?.isEmpty() ?: false
-        delay(350)
-        interpreterViewModel.setIsLoading(false)
     }
 
     //alert when project is empty
@@ -146,7 +131,7 @@ fun InterpreterApp(
             TextField(
                 value = newFileName,
                 onValueChange = { newValue -> newFileName = newValue }
-                )
+            )
         },
         confirmButtonText = R.string.continue_step
     )
@@ -188,37 +173,29 @@ fun InterpreterApp(
 
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    if (isLoading) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+
+    if (isLandscape) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
         ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        if (isLandscape) {
-            Row(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
+                    .fillMaxWidth(0.55f)
+                    .zIndex(2f)
                     .background(MaterialTheme.colorScheme.surface)
             ) {
-                Column(
+                LazyRow(
                     modifier = Modifier
-                        .fillMaxWidth(0.55f)
-                        .zIndex(2f)
-                        .background(MaterialTheme.colorScheme.surface)
+                        .fillMaxWidth()
+                        .height(35.dp)
+                        .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(35.dp)
-                            .padding(horizontal = 2.dp, vertical = 0.dp)
-                    ) {
-                        projectState.project?.files?.let { files ->
-                            items(files) { projectFile ->
-                                Box(
-                                    modifier = Modifier
+                    projectState.project?.files?.let { files ->
+                        items(files) { projectFile ->
+                            Box(
+                                modifier = Modifier
                                     .background(
                                         if (projectState.actualFileName == projectFile.name)
                                             inversePrimaryLightMediumContrast
@@ -234,19 +211,143 @@ fun InterpreterApp(
                                             onTap = {
                                                 interpreterViewModel.onTapFileAction(
                                                     projectFile = projectFile,
-                                                    project = projectState.project,
-                                                    updateActualFileName = {
-                                                        projectViewModel.updateActualFileName(
-                                                            projectFile.name
-                                                        )
-                                                    }
+                                                    project = projectState.project
                                                 )
                                             }
                                         )
                                     }
                                     .padding(horizontal = 15.dp, vertical = 6.dp)
+                            ) {
+                                Text(text = projectFile.name)
+                                DropdownMenu(
+                                    expanded = visibleMenuFileName == projectFile.name,
+                                    onDismissRequest = { visibleMenuFileName = null }
                                 ) {
-                                    Text(text = projectFile.name)
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.delete)) },
+                                        onClick = {
+                                            fileToDelete = projectFile.name
+                                            visibleMenuFileName = null
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        TextButton(
+                            onClick = { isAlertNewFileVisible = true },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier
+                                .width(30.dp)
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                        }
+                    }
+                }
+                ErrorsList(
+                    errors = errors.toString(),
+                    isErrorListVisible = errors.isNotEmpty(),
+                    isErrorListExpanded = isErrorListExpanded,
+                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                )
+                Box {
+                    CodeEditor(
+                        code = code,
+                        onCodeChange = interpreterViewModel::onCodeChange,
+                        errors = errors.toString(),
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont.value,
+                        fontSize = config.currentFontSize,
+                        onSave = {
+                            interpreterViewModel.saveFile(
+                                projectState.actualFileName!!,
+                                projectState.actualProjectName,
+                                it
+                            )
+                        },
+                        onToggleBreakpoint = {
+                            interpreterViewModel.toggleBreakpoint(it)
+                        },
+                        isDarkMode = isDarkMode.value
+                    )
+                    InterpreterButtons(
+                        viewModel = interpreterViewModel,
+                        isDebugging = debuggerState.isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    //.fillMaxWidth(0.5f)
+                    .zIndex(1f)
+            ) {
+                ImagePanel(
+                    turtleState = turtleState,
+                    image.asImageBitmap(),
+                    arrowImage.asImageBitmap()
+                )
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillParentMaxHeight(0.6f)
+                        .fillMaxWidth()
+                ) {
+                    ImagePanel(
+                        turtleState = turtleState,
+                        image.asImageBitmap(),
+                        arrowImage.asImageBitmap()
+                    )
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart)
+                            .height(35.dp)
+                            .padding(horizontal = 2.dp, vertical = 0.dp)
+                    ) {
+                        projectState.project?.files?.let { files ->
+                            items(files) { projectFile ->
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            if (actualFileName == projectFile.name)
+                                                inversePrimaryLightMediumContrast
+                                            else
+                                                secondaryContainerLightMediumContrast,
+                                            RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                                        )
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onLongPress = {
+                                                    visibleMenuFileName = projectFile.name
+                                                },
+                                                onTap = {
+                                                    interpreterViewModel.onTapFileAction(
+                                                        projectFile = projectFile,
+                                                        project = projectState.project,
+                                                        )
+                                                }
+                                            )
+                                        }
+                                        .padding(horizontal = 15.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = projectFile.name,
+                                        color = onSurfaceLightMediumContrast
+                                    )
                                     DropdownMenu(
                                         expanded = visibleMenuFileName == projectFile.name,
                                         onDismissRequest = { visibleMenuFileName = null }
@@ -274,183 +375,53 @@ fun InterpreterApp(
                             }
                         }
                     }
-                    ErrorsList(
-                        errors = errors.toString(),
-                        isErrorListVisible = errors.isNotEmpty(),
-                        isErrorListExpanded = isErrorListExpanded,
-                        onClick = { interpreterViewModel.toggleErrorListVisibility() }
-                    )
-                    Box {
-                        CodeEditor(
-                            codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
-                            onCodeChange = interpreterViewModel::onCodeChange,
-                            errors = errors.toString(),
-                            breakpoints = debuggerState.breakpoints,
-                            currentLine = debuggerState.currentLine,
-                            fontFamily = config.currentFont.value,
-                            fontSize = config.currentFontSize,
-                            onSave = {
-                                interpreterViewModel.saveFile(
-                                    projectState.actualFileName!!,
-                                    projectState.actualProjectName,
-                                    it
-                                )
-                            },
-                            onToggleBreakpoint = {
-                                interpreterViewModel.toggleBreakpoint(it)
-                            }
-                        )
-                        InterpreterButtons(
-                            viewModel = interpreterViewModel,
-                            isDebugging = debuggerState.isDebugging,
-                            isStepInButtonVisible = debuggerState.showStepInButton,
-                            isStepOutButtonVisible = debuggerState.showStepOutButton,
-                        )
-                    }
-                }
-                Box(
-                    modifier = Modifier
-                        //.fillMaxWidth(0.5f)
-                        .zIndex(1f)
-                ) {
-                    ImagePanel(
-                        turtleState = turtleState,
-                        image.asImageBitmap(),
-                        arrowImage.asImageBitmap()
-                    )
                 }
             }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.surface)
-            ) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillParentMaxHeight(0.6f)
-                            .fillMaxWidth()
-                    ) {
-                        ImagePanel(
-                            turtleState = turtleState,
-                            image.asImageBitmap(),
-                            arrowImage.asImageBitmap()
-                        )
-
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.BottomStart)
-                                .height(35.dp)
-                                .padding(horizontal = 2.dp, vertical = 0.dp)
-                        ) {
-                            projectState.project?.files?.let { files ->
-                                items(files) { projectFile ->
-                                    Box(
-                                        modifier = Modifier
-                                            .background(
-                                                if (projectState.actualFileName == projectFile.name)
-                                                    inversePrimaryLightMediumContrast
-                                                else
-                                                    secondaryContainerLightMediumContrast,
-                                                RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
-                                            )
-                                        .pointerInput(Unit) {
-                                            detectTapGestures(
-                                                onLongPress = {
-                                                    visibleMenuFileName = projectFile.name
-                                                },
-                                                onTap = {
-                                                    interpreterViewModel.onTapFileAction(
-                                                        projectFile = projectFile,
-                                                        project = projectState.project,
-                                                        updateActualFileName = {
-                                                            projectViewModel.updateActualFileName(
-                                                                projectFile.name
-                                                            )
-                                                        }
-                                                    )
-                                                }
-                                            )
-                                        }
-                                        .padding(horizontal = 15.dp, vertical = 6.dp)
-                                    ) {
-                                        Text(
-                                            text = projectFile.name,
-                                            color = onSurfaceLightMediumContrast
-                                        )
-                                        DropdownMenu(
-                                            expanded = visibleMenuFileName == projectFile.name,
-                                            onDismissRequest = { visibleMenuFileName = null }
-                                        ) {
-                                            DropdownMenuItem(
-                                                text = { Text(stringResource(R.string.delete)) },
-                                                onClick = {
-                                                    fileToDelete = projectFile.name
-                                                    visibleMenuFileName = null
-                                                }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-
-                            item {
-                                TextButton(
-                                    onClick = { isAlertNewFileVisible = true },
-                                    contentPadding = PaddingValues(0.dp),
-                                    modifier = Modifier
-                                        .width(30.dp)
-                                ) {
-                                    Icon(imageVector = Icons.Filled.Add, contentDescription = null)
-                                }
-                            }
-                        }
-                    }
-                }
-                item {
-                    ErrorsList(
+            item {
+                ErrorsList(
+                    errors = errors.toString(),
+                    isErrorListVisible = errors.isNotEmpty(),
+                    isErrorListExpanded = isErrorListExpanded,
+                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                )
+            }
+            item {
+                Box {
+                    CodeEditor(
+                        code = code,
+                        onCodeChange = interpreterViewModel::onCodeChange,
                         errors = errors.toString(),
-                        isErrorListVisible = errors.isNotEmpty(),
-                        isErrorListExpanded = isErrorListExpanded,
-                        onClick = { interpreterViewModel.toggleErrorListVisibility() }
-                    )
-                }
-                item {
-                    Box {
-                        CodeEditor(
-                            codeState = interpreterViewModel.getCodeStateAsTextFieldValue(),
-                            onCodeChange = interpreterViewModel::onCodeChange,
-                            errors = errors.toString(),
-                            modifier = Modifier,
-                            breakpoints = debuggerState.breakpoints,
-                            currentLine = debuggerState.currentLine,
-                            fontFamily = config.currentFont.value,
-                            fontSize = config.currentFontSize,
-                            onToggleBreakpoint = {
-                                interpreterViewModel.toggleBreakpoint(it)
-                            },
-                            onSave = {
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont.value,
+                        fontSize = config.currentFontSize,
+                        onSave = {
+                            if (actualFileName != null) {
                                 interpreterViewModel.saveFile(
-                                    projectState.actualFileName!!,
+                                    actualFileName,
                                     projectState.actualProjectName,
                                     it
                                 )
                             }
-                        )
-                        InterpreterButtons(
-                            viewModel = interpreterViewModel,
-                            isDebugging = debuggerState.isDebugging,
-                            isStepInButtonVisible = debuggerState.showStepInButton,
-                            isStepOutButtonVisible = debuggerState.showStepOutButton,
-                        )
-                    }
+
+                        },
+                        onToggleBreakpoint = {
+                            interpreterViewModel.toggleBreakpoint(it)
+                        },
+                        isDarkMode = isDarkMode.value
+                    )
+                    InterpreterButtons(
+                        viewModel = interpreterViewModel,
+                        isDebugging = debuggerState.isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                    )
                 }
             }
         }
     }
 }
+
 
 //@RequiresApi(Build.VERSION_CODES.O)
 //@Preview(showBackground = true, showSystemUi = true)
