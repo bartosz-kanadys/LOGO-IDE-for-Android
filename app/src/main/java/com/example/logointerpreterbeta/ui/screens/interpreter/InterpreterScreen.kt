@@ -1,13 +1,13 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Bitmap.createBitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,8 +40,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,44 +54,31 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.components.ErrorsL
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePanel
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectUiState
 import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import com.example.logointerpreterbeta.ui.screens.settings.SettingsUiState
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 import com.example.logointerpreterbeta.ui.theme.inversePrimaryLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
 import com.example.logointerpreterbeta.ui.theme.secondaryContainerLightMediumContrast
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun InterpreterApp(
+fun InterpreterScreenRoot(
     projectName: String?,
     interpreterViewModel: InterpreterViewModel = viewModel(),
     projectViewModel: ProjectViewModel = viewModel(),
     navController: NavController,
     config: SettingsUiState
 ) {
-    var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
-    var isAlertNewFileVisible by rememberSaveable { mutableStateOf(false) }
-    var newFileName by rememberSaveable { mutableStateOf("") }
-    var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
-    var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
-
-    val errors by interpreterViewModel.errors.collectAsStateWithLifecycle()
-    val image by interpreterViewModel.img.collectAsStateWithLifecycle()
-    val arrowImage by interpreterViewModel.arrowImg.collectAsStateWithLifecycle()
-    val debuggerState by interpreterViewModel.debuggerState.collectAsStateWithLifecycle()
-    val turtleState by interpreterViewModel.turtleState.collectAsStateWithLifecycle()
-    val isErrorListExpanded by interpreterViewModel.isErrorListExpanded.collectAsStateWithLifecycle()
     val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
 
-    val code by interpreterViewModel.code.collectAsStateWithLifecycle()
-    val isDarkMode = interpreterViewModel.isDarkMode.collectAsStateWithLifecycle()
-    val actualFileName = interpreterViewModel.actualFileName.collectAsStateWithLifecycle().value
-
+    val interpreterState by interpreterViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         if (projectName != null) {
             projectViewModel.updateActualProjectName(projectName)
-            debuggerState.breakpoints.clear()
+            interpreterState.debuggerState.breakpoints.clear()
         } else {
             navController.navigate(StartScreen)
         }
@@ -106,26 +93,60 @@ fun InterpreterApp(
 
     LaunchedEffect(projectState.project) {
         if (projectState.project != null) {
-            interpreterViewModel.loadInitialCode(projectState.project)
+            interpreterViewModel.onEvent(InterpreterEvent.LoadInitialCode(projectState.project))
         }
     }
+
+    InterpreterScreen(
+        interpreterUiState = interpreterState,
+        projectUiState = projectState,
+        onEvent = interpreterViewModel::onEvent,
+        config = config,
+        onCreateFile = projectViewModel::createFile,
+        onDeleteFile = projectViewModel::deleteFile,
+        onBack = { navController.popBackStack() }
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun InterpreterScreen(
+    interpreterUiState: InterpreterUiState,
+    projectUiState: ProjectUiState,
+    onEvent: (InterpreterEvent) -> Unit,
+    config: SettingsUiState,
+    onCreateFile: (String) -> Unit,
+    onDeleteFile: (String) -> Unit,
+    onBack: () -> Unit,
+) {
+    var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
+    var isAlertNewFileVisible by rememberSaveable { mutableStateOf(false) }
+    var newFileName by rememberSaveable { mutableStateOf("") }
+    var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
+    var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val codeEditorState = interpreterUiState.codeEditorState
+    val debuggerState = interpreterUiState.debuggerState
+
 
     //alert when project is empty
     Alert(
         isVisible = isAlertEmptyProjectVisible,
         title = stringResource(R.string.empty_project),
-        content = stringResource(R.string.empty_project_full_text, projectState.actualProjectName),
+        content = stringResource(
+            R.string.empty_project_full_text,
+            projectUiState.actualProjectName
+        ),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
-                projectViewModel.createFile(newFileName)
-//                interpreterViewModel.interpretCode("")
+                onCreateFile(newFileName)
                 isAlertEmptyProjectVisible = false
                 newFileName = ""
             }
         },
         dismissButtonAction = {
             isAlertEmptyProjectVisible = false
-            navController.popBackStack()
+            onBack()
         },
         textField = {
             TextField(
@@ -143,7 +164,7 @@ fun InterpreterApp(
         content = stringResource(R.string.enter_new_file_name_text),
         confirmButtonAction = {
             if (newFileName.isNotEmpty()) {
-                projectViewModel.createFile(newFileName)
+                onCreateFile(newFileName)
                 isAlertNewFileVisible = false
                 newFileName = ""
             }
@@ -164,7 +185,7 @@ fun InterpreterApp(
         title = stringResource(R.string.confirm_delete_file),
         content = stringResource(R.string.confirm_delete_file_full_text, fileToDelete ?: ""),
         confirmButtonAction = {
-            projectViewModel.deleteFile(fileToDelete!!)
+            onDeleteFile(fileToDelete!!)
             fileToDelete = null
         },
         dismissButtonAction = { fileToDelete = null },
@@ -192,12 +213,12 @@ fun InterpreterApp(
                         .height(35.dp)
                         .padding(horizontal = 2.dp, vertical = 0.dp)
                 ) {
-                    projectState.project?.files?.let { files ->
+                    projectUiState.project?.files?.let { files ->
                         items(files) { projectFile ->
                             Box(
                                 modifier = Modifier
                                     .background(
-                                        if (projectState.actualFileName == projectFile.name)
+                                        if (projectUiState.actualFileName == projectFile.name)
                                             inversePrimaryLightMediumContrast
                                         else
                                             secondaryContainerLightMediumContrast,
@@ -209,9 +230,11 @@ fun InterpreterApp(
                                                 visibleMenuFileName = projectFile.name
                                             },
                                             onTap = {
-                                                interpreterViewModel.onTapFileAction(
-                                                    projectFile = projectFile,
-                                                    project = projectState.project
+                                                onEvent(
+                                                    InterpreterEvent.FileTapped(
+                                                        projectFile,
+                                                        projectUiState.project
+                                                    )
                                                 )
                                             }
                                         )
@@ -247,37 +270,41 @@ fun InterpreterApp(
                     }
                 }
                 ErrorsList(
-                    errors = errors.toString(),
-                    isErrorListVisible = errors.isNotEmpty(),
-                    isErrorListExpanded = isErrorListExpanded,
-                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                    errors = interpreterUiState.errors.toString(),
+                    isErrorListVisible = interpreterUiState.errors.isNotEmpty(),
+                    isErrorListExpanded = interpreterUiState.isErrorListExpanded,
+                    onClick = { onEvent(InterpreterEvent.ToggleErrorListVisibility) }
                 )
                 Box {
                     CodeEditor(
-                        code = code,
-                        onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = errors.toString(),
+                        code = codeEditorState.text,
+                        onCodeChange = { newText, newCursorPosition ->
+                            onEvent(InterpreterEvent.OnCodeChange(newText, newCursorPosition))
+                        },
+                        errors = interpreterUiState.errors.toString(),
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
                         fontFamily = config.currentFont.value,
                         fontSize = config.currentFontSize,
                         onSave = {
-                            interpreterViewModel.saveFile(
-                                projectState.actualFileName!!,
-                                projectState.actualProjectName,
-                                it
-                            )
+                            onEvent(InterpreterEvent.SaveFile(projectUiState.actualProjectName))
                         },
                         onToggleBreakpoint = {
-                            interpreterViewModel.toggleBreakpoint(it)
+                            onEvent(InterpreterEvent.ToggleBreakpoint(it))
                         },
-                        isDarkMode = isDarkMode.value
+                        isDarkMode = interpreterUiState.isDarkMode
                     )
                     InterpreterButtons(
-                        viewModel = interpreterViewModel,
                         isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
+                        onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
+                        onContinueExecution = { onEvent(InterpreterEvent.ContinueExecution) },
+                        onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
+                        onNextStep = { onEvent(InterpreterEvent.NextStep) },
+                        onStepIn = { onEvent(InterpreterEvent.StepIn) },
+                        onStepOut = { onEvent(InterpreterEvent.StepOut) },
                     )
                 }
             }
@@ -287,9 +314,9 @@ fun InterpreterApp(
                     .zIndex(1f)
             ) {
                 ImagePanel(
-                    turtleState = turtleState,
-                    image.asImageBitmap(),
-                    arrowImage.asImageBitmap()
+                    turtleState = interpreterUiState.turtleState,
+                    interpreterUiState.canvasBitmap.asImageBitmap(),
+                    interpreterUiState.turtleBitmap.asImageBitmap()
                 )
             }
         }
@@ -306,9 +333,9 @@ fun InterpreterApp(
                         .fillMaxWidth()
                 ) {
                     ImagePanel(
-                        turtleState = turtleState,
-                        image.asImageBitmap(),
-                        arrowImage.asImageBitmap()
+                        turtleState = interpreterUiState.turtleState,
+                        interpreterUiState.canvasBitmap.asImageBitmap(),
+                        interpreterUiState.turtleBitmap.asImageBitmap()
                     )
 
                     LazyRow(
@@ -318,12 +345,12 @@ fun InterpreterApp(
                             .height(35.dp)
                             .padding(horizontal = 2.dp, vertical = 0.dp)
                     ) {
-                        projectState.project?.files?.let { files ->
+                        projectUiState.project?.files?.let { files ->
                             items(files) { projectFile ->
                                 Box(
                                     modifier = Modifier
                                         .background(
-                                            if (actualFileName == projectFile.name)
+                                            if (interpreterUiState.currentFileName == projectFile.name)
                                                 inversePrimaryLightMediumContrast
                                             else
                                                 secondaryContainerLightMediumContrast,
@@ -335,10 +362,12 @@ fun InterpreterApp(
                                                     visibleMenuFileName = projectFile.name
                                                 },
                                                 onTap = {
-                                                    interpreterViewModel.onTapFileAction(
-                                                        projectFile = projectFile,
-                                                        project = projectState.project,
+                                                    onEvent(
+                                                        InterpreterEvent.FileTapped(
+                                                            projectFile,
+                                                            projectUiState.project
                                                         )
+                                                    )
                                                 }
                                             )
                                         }
@@ -379,42 +408,46 @@ fun InterpreterApp(
             }
             item {
                 ErrorsList(
-                    errors = errors.toString(),
-                    isErrorListVisible = errors.isNotEmpty(),
-                    isErrorListExpanded = isErrorListExpanded,
-                    onClick = { interpreterViewModel.toggleErrorListVisibility() }
+                    errors = interpreterUiState.errors.toString(),
+                    isErrorListVisible = interpreterUiState.errors.isNotEmpty(),
+                    isErrorListExpanded = interpreterUiState.isErrorListExpanded,
+                    onClick = { onEvent(InterpreterEvent.ToggleErrorListVisibility) }
                 )
             }
             item {
                 Box {
                     CodeEditor(
-                        code = code,
-                        onCodeChange = interpreterViewModel::onCodeChange,
-                        errors = errors.toString(),
+                        code = codeEditorState.text,
+                        onCodeChange = { newText, newCursorPosition ->
+                            onEvent(InterpreterEvent.OnCodeChange(newText, newCursorPosition))
+                        },
+                        errors = interpreterUiState.errors.toString(),
                         breakpoints = debuggerState.breakpoints,
                         currentLine = debuggerState.currentLine,
                         fontFamily = config.currentFont.value,
                         fontSize = config.currentFontSize,
                         onSave = {
-                            if (actualFileName != null) {
-                                interpreterViewModel.saveFile(
-                                    actualFileName,
-                                    projectState.actualProjectName,
-                                    it
-                                )
+                            if (interpreterUiState.currentFileName != null) {
+                                onEvent(InterpreterEvent.SaveFile(projectUiState.actualProjectName))
                             }
 
                         },
                         onToggleBreakpoint = {
-                            interpreterViewModel.toggleBreakpoint(it)
+                            onEvent(InterpreterEvent.ToggleBreakpoint(it))
                         },
-                        isDarkMode = isDarkMode.value
+                        isDarkMode = interpreterUiState.isDarkMode
                     )
                     InterpreterButtons(
-                        viewModel = interpreterViewModel,
                         isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
+                        onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
+                        onContinueExecution = { onEvent(InterpreterEvent.ContinueExecution) },
+                        onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
+                        onNextStep = { onEvent(InterpreterEvent.NextStep) },
+                        onStepIn = { onEvent(InterpreterEvent.StepIn) },
+                        onStepOut = { onEvent(InterpreterEvent.StepOut) },
                     )
                 }
             }
@@ -423,15 +456,21 @@ fun InterpreterApp(
 }
 
 
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, showSystemUi = true)
-//@Composable
-//fun Preview() {
-//    LogoInterpreterBetaTheme(darkTheme = false) {
-//        InterpreterApp(
-//            interpreterViewModel = hiltViewModel(),
-//            navController = rememberNavController(),
-//            configRepository = null
-//        )
-//    }
-//}
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview() {
+    LogoInterpreterBetaTheme(darkTheme = false) {
+        InterpreterScreen(
+            interpreterUiState = InterpreterUiState(
+                canvasBitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888),
+                turtleBitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888),
+            ),
+            projectUiState = ProjectUiState(),
+            onEvent = { },
+            config = SettingsUiState(),
+            onCreateFile = { },
+            onDeleteFile = { },
+        ) { }
+    }
+}

@@ -29,10 +29,16 @@ import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewMod
 
 @Composable
 fun InterpreterButtons(
-    viewModel: InterpreterViewModel,
     isDebugging: Boolean,
     isStepInButtonVisible: Boolean,
     isStepOutButtonVisible: Boolean,
+    onInterpretCode: () -> Unit,
+    onEnableDebugging: () -> Unit,
+    onContinueExecution: () -> Unit,
+    onDisableDebugging: () -> Unit,
+    onNextStep: () -> Unit,
+    onStepIn: () -> Unit,
+    onStepOut: () -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -42,21 +48,21 @@ fun InterpreterButtons(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!isDebugging) {
-                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.interpretCode() }
-                CodeEditorButton(Icons.Filled.BugReport, size = 30) { viewModel.enableDebugging() }
+                CodeEditorButton(icon = Icons.Filled.PlayArrow) { onInterpretCode() }
+                CodeEditorButton(Icons.Filled.BugReport, size = 30) { onEnableDebugging() }
             } else {
-                CodeEditorButton(icon = Icons.Filled.PlayArrow) { viewModel.continueExecution() }
+                CodeEditorButton(icon = Icons.Filled.PlayArrow) { onContinueExecution() }
                 CodeEditorButton(
                     Icons.Filled.Stop,
                     MaterialTheme.colorScheme.errorContainer
-                ) { viewModel.disableDebugging() }
+                ) { onDisableDebugging() }
 
-                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { viewModel.nextStep() }
+                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { onNextStep() }
                 if (isStepInButtonVisible) {
-                    CodeEditorButton(Icons.Filled.ArrowDownward) { viewModel.stepIn() }
+                    CodeEditorButton(Icons.Filled.ArrowDownward) { onStepIn() }
                 }
                 if (isStepOutButtonVisible) {
-                    CodeEditorButton(Icons.Filled.ArrowUpward) { viewModel.stepOut() }
+                    CodeEditorButton(Icons.Filled.ArrowUpward) { onStepOut() }
                 }
             }
         }

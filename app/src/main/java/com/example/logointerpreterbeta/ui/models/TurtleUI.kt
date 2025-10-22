@@ -3,10 +3,10 @@ package com.example.logointerpreterbeta.ui.models
 import com.example.logointerpreterbeta.domain.models.drawing.PenState
 
 data class TurtleUI(
-    val xPosition: Float,
-    val yPosition: Float,
-    val direction: Float,
-    val isVisible: Boolean,
-    val penState: PenState,
-    val isPenDown: Boolean
+    val xPosition: Float = 0f,
+    val yPosition: Float = 0f,
+    val direction: Float = 90f,
+    val isVisible: Boolean = true,
+    val penState: PenState = PenState(),
+    val isPenDown: Boolean = true
 )

@@ -19,11 +19,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
+import com.example.logointerpreterbeta.domain.enums.ThemeMode
+import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import com.example.logointerpreterbeta.ui.navigation.topBars.InterpreterTopBar
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarViewModel
 import com.example.logointerpreterbeta.ui.navigation.topBars.TopBarWithMenu
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterApp
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterScreenRoot
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.screens.library.LibraryAddProcedureForm
 import com.example.logointerpreterbeta.ui.screens.library.LibraryFormScreen
@@ -39,11 +40,8 @@ import com.example.logointerpreterbeta.ui.screens.start.StartScreenViewModel
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialContentScreen
 import com.example.logointerpreterbeta.ui.screens.tutorial.TutorialScreen
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.domain.enums.ThemeMode
-import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.serialization.Serializable
-import javax.inject.Inject
 
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("NewApi", "StateFlowValueCalledInComposition", "CoroutineCreationDuringComposition")
@@ -88,15 +86,17 @@ fun AppNavHost(
                 Scaffold(
                     topBar = {
                         InterpreterTopBar(
-                            projectViewModel.uiState.value.actualProjectName,
-                            interpreterViewModel,
-                            topBarViewModel,
-                            navController
+                            title = projectViewModel.uiState.value.actualProjectName,
+                            code = interpreterViewModel.uiState.value.codeEditorState.text,
+                            canvasBitmap = interpreterViewModel.uiState.value.canvasBitmap,
+                            onEvent = interpreterViewModel::onEvent,
+                            topBarViewModel = topBarViewModel,
+                            navController = navController
                         )
                     }
                 ) { innerPadding ->
                     Column(Modifier.padding(innerPadding)) {
-                        InterpreterApp(
+                        InterpreterScreenRoot(
                             projectName,
                             interpreterViewModel,
                             projectViewModel,

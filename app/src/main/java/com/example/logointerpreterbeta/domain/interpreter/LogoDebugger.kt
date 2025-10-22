@@ -9,6 +9,7 @@ import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
 import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
+import kotlinx.coroutines.flow.StateFlow
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 
@@ -18,10 +19,7 @@ class LogoDebugger(
     private val debuggerVisitor = DebuggerVisitor(
         drawingDelegate = drawingDelegate
     )
-
-    // W LogoDebugger
-    fun addDebugStateListener(listener: DebugStateListener) = debuggerVisitor.addListener(listener)
-    fun removeDebugStateListener(listener: DebugStateListener) = debuggerVisitor.removeListener(listener)
+    val debuggerState: StateFlow<DebuggerState> = debuggerVisitor.debuggerState
 
     fun debug(
         input: String
@@ -76,7 +74,6 @@ class LogoDebugger(
         debuggerVisitor.nextStep()
     }
 
-    fun getDebuggerState(): DebuggerState = debuggerVisitor.state
     fun clearBreakpoints() = debuggerVisitor.clearBreakpoints()
     fun toggleBreakpoint(lineNumber: Int) = debuggerVisitor.toggleBreakpoint(lineNumber)
     fun nextStep() = debuggerVisitor.nextStep()

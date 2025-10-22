@@ -1,5 +1,6 @@
 package com.example.logointerpreterbeta.ui.navigation.topBars
 
+import android.graphics.Bitmap
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -61,6 +62,7 @@ import com.example.logointerpreterbeta.ui.navigation.Libraries
 import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterEvent
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
@@ -78,7 +80,9 @@ import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 @Composable
 fun InterpreterTopBar(
     title: String,
-    viewModel: InterpreterViewModel,
+    code: String,
+    canvasBitmap: Bitmap,
+    onEvent: (InterpreterEvent) -> Unit,
     topBarViewModel: TopBarViewModel,
     navController: NavHostController
 ) {
@@ -102,7 +106,7 @@ fun InterpreterTopBar(
         ActivityResultContracts.CreateDocument("text/plain")
     ) { uri ->
         uri?.let {
-            topBarViewModel.onWriteFileRequested(context, uri, viewModel.code.value, fileName.text)
+            topBarViewModel.onWriteFileRequested(context, uri, code, fileName.text)
         }
     }
 
@@ -111,9 +115,8 @@ fun InterpreterTopBar(
         ActivityResultContracts.OpenDocument()
     ) { uri ->
         uri?.let {
-            val code = topBarViewModel.onLoadFileRequested(context, uri)
-            viewModel.updateCode(code)
-            //viewModel.colorCode()
+            val loadedCode = topBarViewModel.onLoadFileRequested(context, uri)
+            onEvent(InterpreterEvent.OnCodeChange(loadedCode, 0))            //viewModel.colorCode()
         }
     }
 
@@ -204,7 +207,7 @@ fun InterpreterTopBar(
                     ) {
                         DropdownMenuItem(
                             onClick = {
-                                topBarViewModel.onImageExportJpgRequested(context, viewModel.img.value)
+                                topBarViewModel.onImageExportJpgRequested(context, canvasBitmap)
                                 dropdownExpanded = false
                             },
                             text = { MenuElement(stringResource(R.string.as_jpg), icon = Icons.Filled.Image) }
@@ -212,7 +215,7 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                                topBarViewModel.onImageExportPdfRequested(context, viewModel.img.value)
+                                topBarViewModel.onImageExportPdfRequested(context, canvasBitmap)
                                 dropdownExpanded = false
                             },
                             text = {
@@ -224,7 +227,7 @@ fun InterpreterTopBar(
                         )
                         DropdownMenuItem(
                             onClick = {
-                                topBarViewModel.shareImage(context, viewModel.img.value)
+                                topBarViewModel.shareImage(context, canvasBitmap)
                                 dropdownExpanded = false
                             },
                             text = {
@@ -278,7 +281,7 @@ fun InterpreterTopBar(
 
                         DropdownMenuItem(
                             onClick = {
-                               topBarViewModel.shareCode(viewModel.code.value, context)
+                               topBarViewModel.shareCode(code, context)
                             },
                             text = {
                                 MenuElement(

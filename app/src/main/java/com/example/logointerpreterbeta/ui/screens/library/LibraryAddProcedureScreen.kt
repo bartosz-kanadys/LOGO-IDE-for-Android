@@ -32,6 +32,7 @@ import com.example.logointerpreterbeta.domain.models.Procedure
 import com.example.logointerpreterbeta.ui.screens.library.components.FormButton
 import com.example.logointerpreterbeta.ui.screens.library.components.FormTextField
 import androidx.compose.runtime.collectAsState
+import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterEvent
 
 @Composable
 fun LibraryAddProcedureForm(
@@ -51,6 +52,7 @@ fun LibraryAddProcedureForm(
     }
     val context = LocalContext.current
 
+    val interpreterUiState by interpreterViewModel.uiState.collectAsStateWithLifecycle()
     val uiState by libraryViewModel.uiState.collectAsStateWithLifecycle()
 
     uiState.toastMessage?.let {
@@ -59,7 +61,9 @@ fun LibraryAddProcedureForm(
     }
 
     LaunchedEffect(Unit) {
-        interpreterViewModel.updateCode("\n\n\n\n\n\n\n\n\n\n\n\n")
+        interpreterViewModel.onEvent(
+            InterpreterEvent.OnCodeChange("\n\n\n\n\n\n\n\n\n\n\n\n", 0)
+        )
     }
 
     LazyColumn(
@@ -100,15 +104,17 @@ fun LibraryAddProcedureForm(
                 Modifier.padding(top = 15.dp)
             )
             CodeEditor(
-                code = interpreterViewModel.code.collectAsState().value,
-                onCodeChange = interpreterViewModel::onCodeChange,
-                errors = interpreterViewModel.errors.collectAsStateWithLifecycle().toString(),
+                code = interpreterUiState.codeEditorState.text,
+                onCodeChange = { newText, newCursorPosition ->
+                    interpreterViewModel.onEvent(InterpreterEvent.OnCodeChange(newText, newCursorPosition))
+                },
+                errors = interpreterUiState.errors.toString(),
                 isSaveOnChange = false,
                 modifier = Modifier,
                 breakpoints = emptyList(),
                 currentLine = -1,
                 onSave = {  },
-                isDarkMode =  interpreterViewModel.isDarkMode.collectAsState().value,
+                isDarkMode =  interpreterUiState.isDarkMode,
                 onToggleBreakpoint = { }
             )
         }
@@ -129,7 +135,7 @@ fun LibraryAddProcedureForm(
                     text = stringResource(R.string.confirm),
                     MaterialTheme.colorScheme.primary
                 ) {
-                    val code = interpreterViewModel.code.value
+                    val code = interpreterUiState.codeEditorState.text
                     val procedure = Procedure(
                         procedureName,
                         procedureDescription,
@@ -141,14 +147,10 @@ fun LibraryAddProcedureForm(
                         procedure,
                         author = procedureAuthor,
                         onSuccess = {
-                            interpreterViewModel.updateCode("\n\n\n\n\n\n\n\n\n\n")
+                            interpreterViewModel.onEvent(InterpreterEvent.OnCodeChange("\n\n\n\n\n\n\n\n\n\n", 0))
                             navController.popBackStack()
                         }
                     )
-//                    makeToast(context, procedureResult)
-//                    if (procedureResult == LibraryCodes.OK) {
-//                        navController.popBackStack()
-//                    }
                 }
             }
         }

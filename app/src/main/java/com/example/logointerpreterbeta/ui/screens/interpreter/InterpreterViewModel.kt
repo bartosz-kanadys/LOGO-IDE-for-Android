@@ -1,37 +1,24 @@
 package com.example.logointerpreterbeta.ui.screens.interpreter
 
-import android.graphics.Bitmap
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.domain.interpreter.LogoDebugger
-import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.Project
 import com.example.logointerpreterbeta.domain.models.ProjectFile
-import com.example.logointerpreterbeta.domain.repository.SessionRepository
 import com.example.logointerpreterbeta.domain.usecase.file.ReadFileUseCase
 import com.example.logointerpreterbeta.domain.usecase.file.SaveFileUseCase
 import com.example.logointerpreterbeta.domain.usecase.interpreter.InterpretCodeUseCase
 import com.example.logointerpreterbeta.domain.usecase.interpreter.LoadInitialFileUseCase
 import com.example.logointerpreterbeta.domain.usecase.interpreter.ReadConfigSettingsUseCase
+import com.example.logointerpreterbeta.domain.usecase.interpreter.SaveLastOpenedFileUseCase
 import com.example.logointerpreterbeta.domain.usecase.shared.ObserveThemeUseCase
-import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
-import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
-import com.example.logointerpreterbeta.ui.models.TurtleUI
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -39,214 +26,233 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(
     readConfigSettingsUseCase: ReadConfigSettingsUseCase,
     private val uiDelegate: UIDrawingDelegate,
     private val logoDebugger: LogoDebugger,
-    private val sessionRepository: SessionRepository,
+    private val saveLastOpenedFileUseCase: SaveLastOpenedFileUseCase,
     private val observeThemeUseCase: ObserveThemeUseCase,
     private val interpretCodeUseCase: InterpretCodeUseCase,
     private val saveFileUseCase: SaveFileUseCase,
     private val readFilesUseCase: ReadFileUseCase,
     private val loadInitialFileUseCase: LoadInitialFileUseCase,
-) : ViewModel(), DebugStateListener {
+) : ViewModel() {
 
     companion object {
-        private const val INIT_TURTLE_IMAGE_COMMAND = "st"
+        private const val INIT_TURTLE_IMAGE_COMMAND = "ST"
+        private const val RESET_TURTLE_POSITION_COMMAND = "SETXY 0 0"
+        private val INITIAL_CODE_EDITOR_STATE =
+            CodeEditorState(text = "\n\n\n\n\n\n\n\n\n\n\n", cursorPosition = 0)
     }
 
-    private data class CodeEditorState(
-        val text: String = "\n\n\n\n\n\n\n\n\n\n\n",
-        val cursorPosition: Int = 0
-    )
-    private val _codeEditorState = MutableStateFlow(CodeEditorState())
-
-    val code: StateFlow<String> = _codeEditorState.map { it.text }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), _codeEditorState.value.text)
-
-    val isDarkMode: StateFlow<Boolean> = observeThemeUseCase()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = false
+    private val _uiState = MutableStateFlow(
+        InterpreterUiState(
+            canvasBitmap = uiDelegate.bitmapFlow.value,
+            turtleBitmap = uiDelegate.turtleBitmapFlow.value,
         )
-
-    private val _actualFileName = MutableStateFlow<String?>(null)
-    val actualFileName: StateFlow<String?> = _actualFileName.asStateFlow()
+    )
+    val uiState: StateFlow<InterpreterUiState> = _uiState.asStateFlow()
 
     private val debugMutex = Mutex()
-
-    private val _isErrorListExpanded = MutableStateFlow(false)
-    var isErrorListExpanded = _isErrorListExpanded.asStateFlow()
-
-    private val _debuggerState = MutableStateFlow(DebuggerState())
-    val debuggerState: StateFlow<DebuggerState> = _debuggerState.asStateFlow()
-
-    private val _img = uiDelegate.bitmapFlow
-    val img: StateFlow<Bitmap> = _img
-
-    private val _arrowImg = uiDelegate.turtleBitmapFlow
-    val arrowImg: StateFlow<Bitmap> = _arrowImg
-
-    private val _errors = MutableStateFlow<List<String>>(emptyList())
-    val errors: StateFlow<List<String>> = _errors.asStateFlow()
-
-    private val _turtleState = uiDelegate.turtleUi
-    val turtleState: StateFlow<TurtleUI> = _turtleState
-
-    var config by mutableStateOf(readConfigSettingsUseCase)
-
     private var isInitialCodeLoaded = false
 
     init {
         interpretCodeUseCase(INIT_TURTLE_IMAGE_COMMAND)
-        logoDebugger.addDebugStateListener(this)
 
         viewModelScope.launch {
-            isDarkMode.collect { isDark ->
+            logoDebugger.debuggerState.collect { newState ->
+                _uiState.update { it.copy(debuggerState = newState) }
+            }
+        }
+
+        viewModelScope.launch {
+            readConfigSettingsUseCase().collect { settings ->
+                _uiState.update { it.copy(configSettings = settings) }
+
+            }
+        }
+
+        viewModelScope.launch {
+            uiDelegate.turtleUi.collect { turtleState ->
+                _uiState.update { it.copy(turtleState = turtleState) }
+            }
+        }
+
+        viewModelScope.launch {
+            uiDelegate.bitmapFlow.collect { bitmap ->
+                _uiState.update { it.copy(canvasBitmap = bitmap) }
+            }
+        }
+        viewModelScope.launch {
+            uiDelegate.turtleBitmapFlow.collect { bitmap ->
+                _uiState.update { it.copy(turtleBitmap = bitmap) }
+            }
+        }
+
+        // Obserwacja motywu
+        viewModelScope.launch {
+            observeThemeUseCase().collect { isDark ->
                 uiDelegate.updateTheme(isDark)
+                _uiState.update { it.copy(isDarkMode = isDark) }
             }
         }
     }
 
-    fun updateCode(code: String) {
-        _codeEditorState.update { it.copy(text = code) }
-    }
+    fun onEvent(event: InterpreterEvent) {
+        when (event) {
+            // Zdarzenia edytora
+            is InterpreterEvent.OnCodeChange -> handleCodeChange(
+                event.newText,
+                event.newCursorPosition
+            )
 
-    //Observer method
-    override fun onStateUpdate(newState: DebuggerState) {
-        viewModelScope.launch(Dispatchers.Main) {
-            _debuggerState.value = newState
+            // Zdarzenia interpretera
+            InterpreterEvent.InterpretCode -> handleInterpretCode()
+            InterpreterEvent.ClearErrors -> _uiState.update { it.copy(errors = emptyList()) }
+
+            // Zdarzenia debuggera
+            InterpreterEvent.EnableDebugging -> handleEnableDebugging()
+            InterpreterEvent.DisableDebugging -> logoDebugger.disableDebugging()
+            InterpreterEvent.NextStep -> logoDebugger.nextStep()
+            InterpreterEvent.StepIn -> logoDebugger.stepIn()
+            InterpreterEvent.StepOut -> logoDebugger.stepOut()
+            InterpreterEvent.ContinueExecution -> logoDebugger.continueExecution()
+            is InterpreterEvent.ToggleBreakpoint -> logoDebugger.toggleBreakpoint(event.lineNumber)
+            InterpreterEvent.ClearBreakpoints -> logoDebugger.clearBreakpoints()
+
+            // Zdarzenia UI
+            InterpreterEvent.ToggleErrorListVisibility -> _uiState.update {
+                it.copy(
+                    isErrorListExpanded = !it.isErrorListExpanded
+                )
+            }
+
+            // Zdarzenia plików
+            is InterpreterEvent.LoadInitialCode -> handleLoadInitialCode(event.project)
+            is InterpreterEvent.SaveFile -> handleSaveFile(event.projectName)
+            is InterpreterEvent.FileTapped -> handleTapFileAction(event.file, event.project)
         }
     }
 
-    fun loadInitialCode(project: Project?) {
+    private fun handleCodeChange(newText: String, newCursorPosition: Int) {
+        _uiState.update {
+            it.copy(
+                codeEditorState = it.codeEditorState.copy(
+                    text = newText,
+                    cursorPosition = newCursorPosition
+                )
+            )
+        }
+    }
+
+    private fun handleLoadInitialCode(project: Project?) {
         if (isInitialCodeLoaded || project == null) return
         isInitialCodeLoaded = true
 
-        viewModelScope.launch { // Nie ma potrzeby Dispatchers.IO, UseCase zarządza własnym kontekstem
+        viewModelScope.launch {
             loadInitialFileUseCase(project)
                 .onSuccess { (fileName, code) ->
-                    onCodeChange(code, 0) // Zakładam, że onCodeChange jest na Main
-                    _actualFileName.value = fileName
+                    _uiState.update {
+                        it.copy(
+                            codeEditorState = it.codeEditorState.copy(
+                                text = code,
+                                cursorPosition = 0
+                            ),
+                            currentFileName = fileName
+                        )
+                    }
                 }
                 .onFailure {
                     // Brak plików, pusty edytor
-                    onCodeChange("", 0)
+                    _uiState.update {
+                        it.copy(
+                            codeEditorState = INITIAL_CODE_EDITOR_STATE,
+                            currentFileName = null
+                        )
+                    }
                 }
         }
     }
 
-    fun onCodeChange(newText: String, newCursorPosition: Int) {
-        // Aktualizuj stan tylko jeśli tekst faktycznie się zmienił
-        // (Unikamy zbędnych emisji przy samym ruchu kursora)
-        if (_codeEditorState.value.text != newText) {
-            _codeEditorState.update {
-                it.copy(text = newText, cursorPosition = newCursorPosition)
-            }
-        } else {
-            _codeEditorState.update {
-                it.copy(cursorPosition = newCursorPosition)
-            }
-        }
-    }
-
-    fun toggleErrorListVisibility() {
-        _isErrorListExpanded.update { !_isErrorListExpanded.value  }
-    }
-
-    fun enableDebugging() {
-        _debuggerState.update { it.copy(isDebugging = true) }
-        logoDebugger.enableDebugging()
-        debugCode()
-    }
-
-    fun clearErrors() {
-        _errors.value = emptyList()
-    }
-
-    fun disableDebugging() = logoDebugger.disableDebugging()
-
-    fun nextStep() = logoDebugger.nextStep()
-
-    fun stepIn() = logoDebugger.stepIn()
-
-    fun stepOut() = logoDebugger.stepOut()
-
-    fun continueExecution() = logoDebugger.continueExecution()
-
-    fun toggleBreakpoint(lineNumber: Int) = logoDebugger.toggleBreakpoint(lineNumber)
-
-    fun clearBreakpoints() = logoDebugger.clearBreakpoints()
-
-    fun interpretCode(text: String = code.value) {
+    private fun handleInterpretCode(text: String = _uiState.value.codeEditorState.text) {
         viewModelScope.launch {
-            clearErrors()
+            _uiState.update { it.copy(errors = emptyList()) } // Clear errors first
             val result = interpretCodeUseCase(text)
 
             if (!result.success) {
-                _errors.value = result.errors
+                _uiState.update { it.copy(errors = result.errors) }
             }
         }
+    }
+
+    private fun handleEnableDebugging() {
+        _uiState.update { it.copy(debuggerState = it.debuggerState.copy(isDebugging = true)) }
+        logoDebugger.enableDebugging()
+        debugCode()
     }
 
     private fun debugCode() {
         viewModelScope.launch(Dispatchers.Default) {
             debugMutex.withLock {
-                clearErrors()
-
-                val result = logoDebugger.debug(code.value)
+                _uiState.update { it.copy(errors = emptyList()) }
+                val result = logoDebugger.debug(_uiState.value.codeEditorState.text)
 
                 withContext(Dispatchers.Main) {
                     if (!result.success) {
-                        _errors.value = result.errors
+                        _uiState.update { it.copy(errors = result.errors) }
                     }
                 }
             }
         }
     }
 
-    fun saveFile(actualFileName: String, actualProjectName: String, content: String) {
-        val result = saveFileUseCase(actualFileName, actualProjectName, content)
+    private fun handleSaveFile(actualProjectName: String) {
+        val state = _uiState.value
+        val actualFileName =
+            state.currentFileName ?: return // Nie zapisuj, jeśli nie ma nazwy pliku
+        val content = state.codeEditorState.text
 
-        result.onFailure {
-            Log.e("InterpreterViewModel", "Error saving file", it)
+        // Zapis pliku powinien odbywać się w tle
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = saveFileUseCase(actualFileName, actualProjectName, content)
+            result.onFailure {
+                Log.e("InterpreterViewModel", "Error saving file", it)
+            }
         }
     }
 
-    fun readFileFromRepository(fileName: String, projectName: String): Result<String> {
-        return readFilesUseCase(fileName, projectName)
-    }
-
-    fun onTapFileAction(
-        projectFile: ProjectFile,
-        project: Project?,
-    ) {
+    private fun handleTapFileAction(projectFile: ProjectFile, project: Project?) {
         if (project == null) {
-            _errors.value = listOf("Project not selected.")
+            _uiState.update { it.copy(errors = listOf("Project not selected.")) }
+            return
+        }
+        if (projectFile.name == _uiState.value.currentFileName) {
             return
         }
 
-        clearBreakpoints()
+        logoDebugger.clearBreakpoints()
 
-        // 1. Uruchom operację I/O w tle
         viewModelScope.launch(Dispatchers.IO) {
             readFilesUseCase(projectFile.name, project.name)
                 .onSuccess { codeFromFile ->
-                    // 2. Zaktualizuj stan na wątku głównym
                     withContext(Dispatchers.Main) {
-                        onCodeChange(codeFromFile, 0)
-                        _actualFileName.value = projectFile.name
+                        _uiState.update {
+                            it.copy(
+                                codeEditorState = it.codeEditorState.copy(
+                                    text = codeFromFile,
+                                    cursorPosition = 0
+                                ),
+                                currentFileName = projectFile.name
+                            )
+                        }
                     }
-                    // 3. Zapis sesji (już jest w IO, więc jest OK)
-                    sessionRepository.saveLastOpenedFile(project.name, projectFile.name)
+                    interpretCodeUseCase(RESET_TURTLE_POSITION_COMMAND)
+                    saveLastOpenedFileUseCase(project.name, projectFile.name)
                 }
                 .onFailure { exception ->
-                    // 4. Błędy również na wątku głównym
                     withContext(Dispatchers.Main) {
-                        _errors.value = listOf("Error reading file: ${exception.message}")
+                        _uiState.update { it.copy(errors = listOf("Error reading file: ${exception.message}")) }
                     }
                     Log.e("InterpreterViewModel", "Failed to read file", exception)
                 }
