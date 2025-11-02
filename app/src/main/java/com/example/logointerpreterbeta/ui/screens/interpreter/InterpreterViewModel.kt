@@ -90,7 +90,7 @@ class InterpreterViewModel @Inject constructor(
             }
         }
 
-        // Obserwacja motywu
+        // theme change observer
         viewModelScope.launch {
             observeThemeUseCase().collect { isDark ->
                 uiDelegate.updateTheme(isDark)
@@ -101,19 +101,20 @@ class InterpreterViewModel @Inject constructor(
 
     fun onEvent(event: InterpreterEvent) {
         when (event) {
-            // Zdarzenia edytora
+            // editor events
             is InterpreterEvent.OnCodeChange -> handleCodeChange(
                 event.newText,
                 event.newCursorPosition
             )
 
-            // Zdarzenia interpretera
+            // interpreter events
             InterpreterEvent.InterpretCode -> handleInterpretCode()
             InterpreterEvent.ClearErrors -> _uiState.update { it.copy(errors = emptyList()) }
 
-            // Zdarzenia debuggera
+            // debugger events
             InterpreterEvent.EnableDebugging -> handleEnableDebugging()
             InterpreterEvent.DisableDebugging -> logoDebugger.disableDebugging()
+            InterpreterEvent.StepOverLoop -> logoDebugger.stepOverLoop()
             InterpreterEvent.NextStep -> logoDebugger.nextStep()
             InterpreterEvent.StepIn -> logoDebugger.stepIn()
             InterpreterEvent.StepOut -> logoDebugger.stepOut()
@@ -121,14 +122,14 @@ class InterpreterViewModel @Inject constructor(
             is InterpreterEvent.ToggleBreakpoint -> logoDebugger.toggleBreakpoint(event.lineNumber)
             InterpreterEvent.ClearBreakpoints -> logoDebugger.clearBreakpoints()
 
-            // Zdarzenia UI
+            // ui events
             InterpreterEvent.ToggleErrorListVisibility -> _uiState.update {
                 it.copy(
                     isErrorListExpanded = !it.isErrorListExpanded
                 )
             }
 
-            // Zdarzenia plików
+            // file events
             is InterpreterEvent.LoadInitialCode -> handleLoadInitialCode(event.project)
             is InterpreterEvent.SaveFile -> handleSaveFile(event.projectName)
             is InterpreterEvent.FileTapped -> handleTapFileAction(event.file, event.project)
@@ -164,7 +165,7 @@ class InterpreterViewModel @Inject constructor(
                     }
                 }
                 .onFailure {
-                    // Brak plików, pusty edytor
+                    // no file, empty editor
                     _uiState.update {
                         it.copy(
                             codeEditorState = INITIAL_CODE_EDITOR_STATE,
@@ -210,10 +211,9 @@ class InterpreterViewModel @Inject constructor(
     private fun handleSaveFile(actualProjectName: String) {
         val state = _uiState.value
         val actualFileName =
-            state.currentFileName ?: return // Nie zapisuj, jeśli nie ma nazwy pliku
+            state.currentFileName ?: return // don't save if no file is currently open
         val content = state.codeEditorState.text
 
-        // Zapis pliku powinien odbywać się w tle
         viewModelScope.launch(Dispatchers.IO) {
             val result = saveFileUseCase(actualFileName, actualProjectName, content)
             result.onFailure {

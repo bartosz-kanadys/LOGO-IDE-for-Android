@@ -6,5 +6,6 @@ data class DebuggerState(
     val breakpoints: MutableList<Int> = mutableListOf(),
     val showStepInButton: Boolean = false,
     val showStepOutButton: Boolean = false,
+    val showStepOverLoopButton: Boolean = false,
     val errors: List<String> = emptyList()
 )

@@ -4,10 +4,8 @@ import com.example.logointerpreterbeta.domain.drawing.DrawingDelegate
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoLexer
 import com.example.logointerpreterbeta.domain.interpreter.antlrFIles.logoParser
 import com.example.logointerpreterbeta.domain.interpreter.errors.MyErrorListener
-import com.example.logointerpreterbeta.domain.interpreter.errors.StopException
 import com.example.logointerpreterbeta.domain.models.DebuggerState
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
-import com.example.logointerpreterbeta.domain.visitors.DebugStateListener
 import com.example.logointerpreterbeta.domain.visitors.DebuggerVisitor
 import kotlinx.coroutines.flow.StateFlow
 import org.antlr.v4.runtime.CharStreams
@@ -29,17 +27,8 @@ class LogoDebugger(
 
         return if (errorListener.errors.isEmpty()) {
             debuggerVisitor.resetTurtleState()
-            try {
-                debuggerVisitor.startNewDebugSession()
-                for (line in tree.line()) {
-                    debuggerVisitor.updateCurrentLine(line.start.line + 1)
-                    debuggerVisitor.handleDebugPause(line.start.line) // <- tu czekasz
-                    debuggerVisitor.visit(line)
-                }
-            } catch (e: StopException) {
-            } finally {
-                debuggerVisitor.stopDebuggingSession()
-            }
+            debuggerVisitor.visitProg(tree)
+
             InterpreterResult(
                 success = true,
                 errors = emptyList(),
@@ -81,4 +70,5 @@ class LogoDebugger(
     fun disableDebugging() = debuggerVisitor.stopDebuggingSession()
     fun stepIn() = debuggerVisitor.stepIn()
     fun stepOut() = debuggerVisitor.stepOut()
+    fun stepOverLoop() = debuggerVisitor.stepOverLoop()
 }

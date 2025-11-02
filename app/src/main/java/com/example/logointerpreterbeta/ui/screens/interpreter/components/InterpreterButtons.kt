@@ -8,13 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDownward
-import androidx.compose.material.icons.filled.ArrowUpward
-import androidx.compose.material.icons.filled.BugReport
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,22 +16,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
+import com.example.logointerpreterbeta.R
 
 @Composable
 fun InterpreterButtons(
     isDebugging: Boolean,
     isStepInButtonVisible: Boolean,
     isStepOutButtonVisible: Boolean,
+    isStepOverLoopButtonVisible: Boolean,
     onInterpretCode: () -> Unit,
     onEnableDebugging: () -> Unit,
-    onContinueExecution: () -> Unit,
     onDisableDebugging: () -> Unit,
     onNextStep: () -> Unit,
     onStepIn: () -> Unit,
     onStepOut: () -> Unit,
+    onStepOverLoop: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -48,21 +43,26 @@ fun InterpreterButtons(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             if (!isDebugging) {
-                CodeEditorButton(icon = Icons.Filled.PlayArrow) { onInterpretCode() }
-                CodeEditorButton(Icons.Filled.BugReport, size = 30) { onEnableDebugging() }
+                CodeEditorButton(painterResource(id = R.drawable.baseline_play_arrow_24)) { onInterpretCode() }
+                CodeEditorButton(painterResource(id = R.drawable.outline_bug_report_24)) { onEnableDebugging() }
             } else {
-                CodeEditorButton(icon = Icons.Filled.PlayArrow) { onContinueExecution() }
+                CodeEditorButton(painterResource(id = R.drawable.outline_step_24)) { onNextStep() }
+
                 CodeEditorButton(
-                    Icons.Filled.Stop,
-                    MaterialTheme.colorScheme.errorContainer
+                    icon = painterResource(id = R.drawable.baseline_stop_24),
+                    color =  MaterialTheme.colorScheme.errorContainer
                 ) { onDisableDebugging() }
 
-                CodeEditorButton(Icons.AutoMirrored.Filled.ArrowForward) { onNextStep() }
                 if (isStepInButtonVisible) {
-                    CodeEditorButton(Icons.Filled.ArrowDownward) { onStepIn() }
+                    CodeEditorButton(painterResource(id = R.drawable.outline_step_into_24)) { onStepIn() }
                 }
                 if (isStepOutButtonVisible) {
-                    CodeEditorButton(Icons.Filled.ArrowUpward) { onStepOut() }
+                    CodeEditorButton(painterResource(id = R.drawable.outline_step_out_24)) { onStepOut() }
+                }
+                if (isStepOverLoopButtonVisible) {
+                    CodeEditorButton(painterResource( id = R.drawable.outline_step_over_24)) {
+                        onStepOverLoop()
+                    }
                 }
             }
         }
@@ -71,7 +71,7 @@ fun InterpreterButtons(
 
 @Composable
 fun CodeEditorButton(
-    icon: ImageVector,
+    icon: Painter,
     color: Color = MaterialTheme.colorScheme.secondaryContainer,
     size: Int = 45,
     onClick: () -> Unit
@@ -83,11 +83,11 @@ fun CodeEditorButton(
         colors = ButtonDefaults.buttonColors(color),
         onClick = { onClick() },
         modifier = Modifier
-            .padding(top = 10.dp) // Dodanie odstępu od pierwszego przycisku
+            .padding(top = 10.dp)
             .size(size.dp)
     ) {
         Icon(
-            imageVector = icon, // Icons.Outlined.Build,
+            painter = icon,
             contentDescription = null,
             modifier = Modifier
                 .width(40.dp)

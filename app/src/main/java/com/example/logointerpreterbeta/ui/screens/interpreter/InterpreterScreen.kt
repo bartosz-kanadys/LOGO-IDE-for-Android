@@ -298,13 +298,14 @@ fun InterpreterScreen(
                         isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        isStepOverLoopButtonVisible = debuggerState.showStepOverLoopButton,
                         onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
                         onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
-                        onContinueExecution = { onEvent(InterpreterEvent.ContinueExecution) },
                         onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
                         onNextStep = { onEvent(InterpreterEvent.NextStep) },
                         onStepIn = { onEvent(InterpreterEvent.StepIn) },
                         onStepOut = { onEvent(InterpreterEvent.StepOut) },
+                        onStepOverLoop = { onEvent(InterpreterEvent.StepOverLoop) },
                     )
                 }
             }
@@ -441,13 +442,14 @@ fun InterpreterScreen(
                         isDebugging = debuggerState.isDebugging,
                         isStepInButtonVisible = debuggerState.showStepInButton,
                         isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        isStepOverLoopButtonVisible = debuggerState.showStepOverLoopButton,
                         onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
                         onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
-                        onContinueExecution = { onEvent(InterpreterEvent.ContinueExecution) },
                         onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
                         onNextStep = { onEvent(InterpreterEvent.NextStep) },
                         onStepIn = { onEvent(InterpreterEvent.StepIn) },
                         onStepOut = { onEvent(InterpreterEvent.StepOut) },
+                        onStepOverLoop = { onEvent(InterpreterEvent.StepOverLoop) },
                     )
                 }
             }
