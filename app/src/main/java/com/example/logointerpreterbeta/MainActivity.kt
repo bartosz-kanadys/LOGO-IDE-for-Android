@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi
 import com.example.logointerpreterbeta.ui.drawing.AndroidDrawingDelegate
 import com.example.logointerpreterbeta.ui.navigation.AppNavHost
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {

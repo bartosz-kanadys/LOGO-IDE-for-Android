@@ -13,6 +13,7 @@ import com.example.logointerpreterbeta.domain.usecase.project.DeleteProjectUseCa
 import com.example.logointerpreterbeta.domain.usecase.project.GetProjectUseCase
 import com.example.logointerpreterbeta.domain.usecase.project.GetProjectsMapUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class ProjectUiState(
     val actualProjectName: String = "",

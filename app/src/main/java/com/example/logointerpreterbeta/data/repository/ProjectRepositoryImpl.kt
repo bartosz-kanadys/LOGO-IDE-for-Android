@@ -9,6 +9,8 @@ import com.example.logointerpreterbeta.domain.models.ProjectFile
 import com.example.logointerpreterbeta.domain.repository.FileRepository
 import com.example.logointerpreterbeta.domain.repository.ProjectRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +23,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.Date
 import java.util.Locale
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class ProjectRepositoryImpl @Inject constructor(

@@ -8,12 +8,12 @@ import com.example.logointerpreterbeta.data.dataStore.ConfigKeys.THEME
 import com.example.logointerpreterbeta.domain.enums.ThemeMode
 import com.example.logointerpreterbeta.domain.models.Config
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class ConfigRepositoryImpl @Inject constructor(

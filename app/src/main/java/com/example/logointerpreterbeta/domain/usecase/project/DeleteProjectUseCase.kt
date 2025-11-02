@@ -3,7 +3,7 @@ package com.example.logointerpreterbeta.domain.usecase.project
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.domain.repository.ProjectRepository
 import com.example.logointerpreterbeta.domain.repository.SessionRepository
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 class DeleteProjectUseCase @Inject constructor(
     private val projectRepository: ProjectRepository,

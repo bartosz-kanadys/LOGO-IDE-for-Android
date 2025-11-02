@@ -15,6 +15,7 @@ import com.example.logointerpreterbeta.domain.usecase.interpreter.SaveLastOpened
 import com.example.logointerpreterbeta.domain.usecase.shared.ObserveThemeUseCase
 import com.example.logointerpreterbeta.ui.drawing.UIDrawingDelegate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,7 +25,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class InterpreterViewModel @Inject constructor(

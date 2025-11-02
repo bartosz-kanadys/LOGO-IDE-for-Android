@@ -13,11 +13,11 @@ import com.example.logointerpreterbeta.domain.usecase.library.GetLibrariesUseCas
 import com.example.logointerpreterbeta.domain.usecase.library.LibraryCreateResult
 import com.example.logointerpreterbeta.domain.usecase.library.LibraryValidationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class LibraryUiState(
     val libraries: List<Library> = emptyList(),

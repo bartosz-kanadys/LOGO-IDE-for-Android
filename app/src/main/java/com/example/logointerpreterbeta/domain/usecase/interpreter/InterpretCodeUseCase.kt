@@ -2,8 +2,8 @@ package com.example.logointerpreterbeta.domain.usecase.interpreter
 
 import com.example.logointerpreterbeta.domain.interpreter.LogoInterpreter
 import com.example.logointerpreterbeta.domain.models.InterpreterResult
-import javax.inject.Inject
-import javax.inject.Singleton
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 
 @Singleton
 class InterpretCodeUseCase @Inject constructor(

@@ -1,7 +1,7 @@
 package com.example.logointerpreterbeta.domain.usecase.file
 
 import com.example.logointerpreterbeta.domain.repository.FileRepository
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 class DeleteFileUseCase @Inject constructor(
     private val fileRepository: FileRepository

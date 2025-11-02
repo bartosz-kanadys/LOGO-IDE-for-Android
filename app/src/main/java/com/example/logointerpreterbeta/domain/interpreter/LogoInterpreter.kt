@@ -8,10 +8,10 @@ import com.example.logointerpreterbeta.domain.models.InterpreterResult
 import com.example.logointerpreterbeta.domain.repository.LibraryRepository
 import com.example.logointerpreterbeta.domain.visitors.MyLogoLibraryVisitor
 import com.example.logointerpreterbeta.domain.visitors.MyLogoVisitor
+import jakarta.inject.Inject
+import jakarta.inject.Singleton
 import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class LogoInterpreter @Inject constructor(

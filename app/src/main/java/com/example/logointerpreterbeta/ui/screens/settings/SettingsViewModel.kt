@@ -10,15 +10,12 @@ import com.example.logointerpreterbeta.domain.usecase.settings.UpdateFontSizeUse
 import com.example.logointerpreterbeta.domain.usecase.settings.UpdateFontUseCase
 import com.example.logointerpreterbeta.domain.usecase.settings.UpdateShowSuggestionUseCase
 import com.example.logointerpreterbeta.domain.usecase.settings.UpdateThemeUseCase
-import com.example.logointerpreterbeta.domain.usecase.shared.ThemeModeCheckUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.channels.Channel
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class SettingsUiState(
     val lastModifiedProject: String = "",
@@ -29,10 +26,6 @@ data class SettingsUiState(
     val useAutocorrect: Boolean = false
 )
 
-sealed interface SettingsSideEffect {
-    data class UpdateDrawingTheme(val isDarkTheme: Boolean) : SettingsSideEffect
-}
-
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val readSettingsUseCase: ReadSettingsUseCase,
@@ -41,7 +34,6 @@ class SettingsViewModel @Inject constructor(
     private val updateFontSizeUseCase: UpdateFontSizeUseCase,
     private val updateShowSuggestionUseCase: UpdateShowSuggestionUseCase,
     private val updateAutocorrectUseCase: UpdateAutocorrectUseCase,
-    private val themeModeCheckUseCase: ThemeModeCheckUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())

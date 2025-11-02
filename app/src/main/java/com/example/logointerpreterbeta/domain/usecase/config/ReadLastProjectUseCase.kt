@@ -2,8 +2,8 @@ package com.example.logointerpreterbeta.domain.usecase.config
 
 import com.example.logointerpreterbeta.domain.repository.ConfigRepository
 import com.example.logointerpreterbeta.domain.repository.SessionRepository
+import jakarta.inject.Inject
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 
 class ReadLastProjectUseCase @Inject constructor(
     private val sessionRepository: SessionRepository
