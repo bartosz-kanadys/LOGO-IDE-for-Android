@@ -16,21 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.AddToDrive
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.FileOpen
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.PictureAsPdf
-import androidx.compose.material.icons.filled.SaveAs
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,8 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
@@ -63,7 +50,6 @@ import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.navigation.Settings
 import com.example.logointerpreterbeta.ui.navigation.TutorialScreen
 import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterEvent
-import com.example.logointerpreterbeta.ui.screens.interpreter.InterpreterViewModel
 import com.example.logointerpreterbeta.ui.theme.AppTypography
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
 
@@ -159,19 +145,19 @@ fun InterpreterTopBar(
             ) {
                 DropdownMenuItem(
                     onClick = { navController.navigate(Projects) },
-                    text = { MenuElement(stringResource(R.string.projects), icon = Icons.Filled.Folder) }
+                    text = { MenuElement(stringResource(R.string.projects), icon = painterResource(id = R.drawable.baseline_folder_24)) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(TutorialScreen) },
-                    text = { MenuElement(stringResource(R.string.tutorials), icon = Icons.Filled.School) }
+                    text = { MenuElement(stringResource(R.string.tutorials), icon = painterResource(id = R.drawable.round_school_24)) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Libraries) },
-                    text = { MenuElement(stringResource(R.string.libraries), icon = Icons.AutoMirrored.Filled.MenuBook) }
+                    text = { MenuElement(stringResource(R.string.libraries), icon = painterResource(id = R.drawable.round_menu_book_24)) }
                 )
                 DropdownMenuItem(
                     onClick = { navController.navigate(Settings) },
-                    text = { MenuElement(stringResource(R.string.settings), icon = Icons.Filled.Settings) }
+                    text = { MenuElement(stringResource(R.string.settings), icon = painterResource(id = R.drawable.baseline_settings_24)) }
                 )
                 DropdownMenuItem(
                     onClick = { exportMenuExpanded = !exportMenuExpanded },
@@ -180,17 +166,17 @@ fun InterpreterTopBar(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement(stringResource(R.string.export_image), icon = Icons.Filled.Image)
+                            MenuElement(stringResource(R.string.export_image), icon = painterResource(id = R.drawable.baseline_image_24))
                             if (exportMenuExpanded) {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandLess,
+                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             } else {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandMore,
+                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
@@ -210,7 +196,7 @@ fun InterpreterTopBar(
                                 topBarViewModel.onImageExportJpgRequested(context, canvasBitmap)
                                 dropdownExpanded = false
                             },
-                            text = { MenuElement(stringResource(R.string.as_jpg), icon = Icons.Filled.Image) }
+                            text = { MenuElement(stringResource(R.string.as_jpg), icon = painterResource(id = R.drawable.baseline_image_24)) }
                         )
 
                         DropdownMenuItem(
@@ -221,7 +207,7 @@ fun InterpreterTopBar(
                             text = {
                                 MenuElement(
                                     stringResource(R.string.save_pdf),
-                                    icon = Icons.Filled.PictureAsPdf
+                                    icon = painterResource(id = R.drawable.round_picture_as_pdf_24)
                                 )
                             }
                         )
@@ -233,7 +219,7 @@ fun InterpreterTopBar(
                             text = {
                                 MenuElement(
                                     stringResource(R.string.share),
-                                    icon = Icons.Filled.Share
+                                    icon = painterResource(id = R.drawable.baseline_share_24)
                                 )
                             }
                         )
@@ -247,17 +233,17 @@ fun InterpreterTopBar(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement(stringResource(R.string.save_program), icon = Icons.Filled.SaveAs)
+                            MenuElement(stringResource(R.string.save_program), icon = painterResource(id = R.drawable.baseline_save_as_24))
                             if (saveFileExpanded) {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandLess,
+                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             } else {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandMore,
+                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
@@ -276,7 +262,7 @@ fun InterpreterTopBar(
                             onClick = {
                                 saveFileLauncher.launch(fileName.text)
                             },
-                            text = { MenuElement(stringResource(R.string.save_to_file), icon = Icons.Filled.FileOpen) }
+                            text = { MenuElement(stringResource(R.string.save_to_file), icon = painterResource(id = R.drawable.baseline_file_open_24)) }
                         )
 
                         DropdownMenuItem(
@@ -286,7 +272,7 @@ fun InterpreterTopBar(
                             text = {
                                 MenuElement(
                                     stringResource(R.string.share),
-                                    icon = Icons.Filled.Share
+                                    icon = painterResource(id = R.drawable.baseline_share_24)
                                 )
                             }
                         )
@@ -299,17 +285,17 @@ fun InterpreterTopBar(
                             Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            MenuElement(stringResource(R.string.open_program), icon = Icons.Filled.Download)
+                            MenuElement(stringResource(R.string.open_program), icon = painterResource(id = R.drawable.baseline_download_24))
                             if (openFileExpanded) {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandLess,
+                                    painter = painterResource(id = R.drawable.baseline_expand_less_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
                                 )
                             } else {
                                 Icon(
-                                    imageVector = Icons.Filled.ExpandMore,
+                                    painter = painterResource(id = R.drawable.baseline_expand_more_24),
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.surface,
                                     modifier = Modifier.padding(start = 10.dp)
@@ -336,7 +322,7 @@ fun InterpreterTopBar(
                             text = {
                                 MenuElement(
                                     stringResource(R.string.read_from_file),
-                                    icon = Icons.Filled.UploadFile
+                                    icon = painterResource(id = R.drawable.baseline_upload_file_24)
                                 )
                             }
                         )
@@ -348,7 +334,7 @@ fun InterpreterTopBar(
                             text = {
                                 MenuElement(
                                     stringResource(R.string.read_from_disc),
-                                    icon = Icons.Filled.AddToDrive
+                                    icon = painterResource(id = R.drawable.add_to_drive_24)
                                 )
                             }
                         )
@@ -359,7 +345,7 @@ fun InterpreterTopBar(
         actions = {
             IconButton(onClick = { navController.navigate(Settings) }) {
                 Icon(
-                    imageVector = Icons.Default.Settings,
+                    painter = painterResource(id = R.drawable.baseline_settings_24),
                     contentDescription = "Settings"
                 )
             }
@@ -369,10 +355,10 @@ fun InterpreterTopBar(
 }
 
 @Composable
-fun MenuElement(text: String, icon: ImageVector) {
+fun MenuElement(text: String, icon: Painter) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(
-            imageVector = icon,
+            painter = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.onSecondaryContainer,
             modifier = Modifier.padding(end = 5.dp)
@@ -388,7 +374,7 @@ fun MenuElement(text: String, icon: ImageVector) {
 @Composable
 fun InterpreterTopBarPreview() {
     LogoInterpreterBetaTheme {
-        MenuElement(text = "test", icon = Icons.Filled.SaveAs)
+        MenuElement(text = "test", icon = painterResource(id = R.drawable.baseline_save_as_24))
     }
 }
 

@@ -2,6 +2,7 @@ package com.example.logointerpreterbeta.ui.screens.interpreter.components
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.annotation.DrawableRes
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
@@ -15,13 +16,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CenterFocusStrong
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.LockOpen
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.ZoomIn
-import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -39,11 +33,12 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.example.logointerpreterbeta.R
 import com.example.logointerpreterbeta.ui.models.TurtleUI
 import kotlin.math.roundToInt
 
@@ -120,17 +115,17 @@ fun ImagePanel(
                     .align(Alignment.BottomEnd)
                     .padding(end = 3.dp, bottom = 40.dp)
             ) {
-                ImageButton(Icons.Filled.Info) { isInfoVisible = !isInfoVisible }
-                ImageButton(Icons.Filled.Palette) { isPickerVisible = !isPickerVisible }
+                ImageButton(R.drawable.baseline_info_24) { isInfoVisible = !isInfoVisible }
+                ImageButton(R.drawable.baseline_palette_24) { isPickerVisible = !isPickerVisible }
                 Spacer(modifier = Modifier.weight(1f))
-                ImageButton(Icons.Filled.ZoomIn) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
-                ImageButton(Icons.Filled.ZoomOut) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
+                ImageButton(R.drawable.outline_zoom_in_24) { if (scale + 0.2f in 0.19999985..11.8) scale += 0.2f }
+                ImageButton(R.drawable.outline_zoom_out_24) { if (scale - 0.2f in 0.19999985..11.8) scale -= 0.2f }
                 if (isBlocked) {
-                    ImageButton(Icons.Filled.Lock) { isBlocked = !isBlocked }
+                    ImageButton(R.drawable.outline_lock_24) { isBlocked = !isBlocked }
                 } else {
-                    ImageButton(Icons.Filled.LockOpen) { isBlocked = !isBlocked }
+                    ImageButton(R.drawable.outline_lock_open_right_24) { isBlocked = !isBlocked }
                 }
-                ImageButton(Icons.Filled.CenterFocusStrong) { offset = Offset.Zero }
+                ImageButton(R.drawable.baseline_center_focus_strong_24) { offset = Offset.Zero }
             }
             AnimatedVisibility(
                 visible = isInfoVisible,
@@ -149,7 +144,7 @@ fun ImagePanel(
 
 @Composable
 fun ImageButton(
-    icon: ImageVector,
+    @DrawableRes icon: Int,
     tint: Color = MaterialTheme.colorScheme.onSurface,
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier,
     onClick: () -> Unit
@@ -162,11 +157,11 @@ fun ImageButton(
             .height(40.dp)
     ) {
         Icon(
-            imageVector = icon,
+            painter = painterResource(icon),
             contentDescription = null,
             tint = tint,
             modifier = Modifier
-                .width(50.dp)
+                .width(50.dp),
         )
     }
 }

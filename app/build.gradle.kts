@@ -84,7 +84,7 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.colorpicker.compose)
-    implementation(libs.androidx.material.icons.extended)
+//    implementation(libs.androidx.material.icons.extended)
     implementation(libs.gson)
     implementation (libs.kotlinx.coroutines.android)
     implementation(libs.hilt.android)
