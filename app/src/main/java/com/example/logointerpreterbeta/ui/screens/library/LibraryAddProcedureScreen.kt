@@ -142,8 +142,8 @@ fun LibraryAddProcedureForm(
                         null,
                         code.trim()
                     )
-                    val procedureResult = libraryViewModel.addProcedureToLibrary(
-                        procedureName,
+                   libraryViewModel.addProcedureToLibrary(
+                        uiState.actualLibrary!!,
                         procedure,
                         author = procedureAuthor,
                         onSuccess = {
