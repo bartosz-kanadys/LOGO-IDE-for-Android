@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.logointerpreterbeta.R
-import com.example.logointerpreterbeta.domain.interpreter.LogoTextColorizer
+import com.example.logointerpreterbeta.ui.utils.LogoTextColorizer
 import com.example.logointerpreterbeta.domain.models.readTutorialsFromRaw
 import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.DisplayOnlyCodeEditor
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme

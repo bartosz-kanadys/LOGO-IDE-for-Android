@@ -1,4 +1,4 @@
-package com.example.logointerpreterbeta.domain.interpreter
+package com.example.logointerpreterbeta.ui.utils
 
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
