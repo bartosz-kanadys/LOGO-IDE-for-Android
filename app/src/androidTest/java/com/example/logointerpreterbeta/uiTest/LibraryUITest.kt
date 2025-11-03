@@ -4,11 +4,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.navigation.AppNavHost
-import com.example.logointerpreterbeta.navigation.Libraries
-import com.example.logointerpreterbeta.navigation.MainActivity
+import com.example.logointerpreterbeta.ui.navigation.AppNavHost
+import com.example.logointerpreterbeta.ui.navigation.Libraries
+import com.example.logointerpreterbeta.ui.navigation.MainActivity
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.LibraryViewModel
+import com.example.logointerpreterbeta.ui.screens.library.LibraryViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import org.junit.Before
 import org.junit.Rule

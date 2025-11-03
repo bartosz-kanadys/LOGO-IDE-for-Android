@@ -11,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.example.logointerpreterbeta.viewModels.SettingsViewModel
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsViewModel
 
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
@@ -260,7 +260,6 @@ fun LogoInterpreterBetaTheme(
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    SettingsViewModel.darkMode=darkTheme
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

@@ -12,11 +12,11 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.rememberNavController
-import com.example.logointerpreterbeta.navigation.AppNavHost
-import com.example.logointerpreterbeta.navigation.MainActivity
-import com.example.logointerpreterbeta.navigation.Projects
+import com.example.logointerpreterbeta.ui.navigation.AppNavHost
+import com.example.logointerpreterbeta.ui.navigation.MainActivity
+import com.example.logointerpreterbeta.ui.navigation.Projects
 import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
-import com.example.logointerpreterbeta.viewModels.ProjectViewModel
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Before

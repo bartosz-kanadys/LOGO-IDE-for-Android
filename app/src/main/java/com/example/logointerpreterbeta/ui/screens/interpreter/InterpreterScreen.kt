@@ -1,0 +1,478 @@
+package com.example.logointerpreterbeta.ui.screens.interpreter
+
+import android.content.res.Configuration
+import android.graphics.Bitmap
+import android.graphics.Bitmap.createBitmap
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.logointerpreterbeta.R
+import com.example.logointerpreterbeta.ui.navigation.StartScreen
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.Alert
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.ErrorsList
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.ImagePanel
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.InterpreterButtons
+import com.example.logointerpreterbeta.ui.screens.interpreter.components.codeEditor.CodeEditor
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectUiState
+import com.example.logointerpreterbeta.ui.screens.projects.ProjectViewModel
+import com.example.logointerpreterbeta.ui.screens.settings.SettingsUiState
+import com.example.logointerpreterbeta.ui.theme.LogoInterpreterBetaTheme
+import com.example.logointerpreterbeta.ui.theme.inversePrimaryLightMediumContrast
+import com.example.logointerpreterbeta.ui.theme.onSurfaceLightMediumContrast
+import com.example.logointerpreterbeta.ui.theme.secondaryContainerLightMediumContrast
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun InterpreterScreenRoot(
+    projectName: String?,
+    interpreterViewModel: InterpreterViewModel = viewModel(),
+    projectViewModel: ProjectViewModel = viewModel(),
+    navController: NavController,
+    config: SettingsUiState
+) {
+    val projectState by projectViewModel.uiState.collectAsStateWithLifecycle()
+
+    val interpreterState by interpreterViewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        if (projectName != null) {
+            projectViewModel.updateActualProjectName(projectName)
+            interpreterState.debuggerState.breakpoints.clear()
+        } else {
+            navController.navigate(StartScreen)
+        }
+    }
+
+    LaunchedEffect(projectState.actualProjectName) {
+        if (projectState.actualProjectName.isEmpty()) {
+            navController.navigate(StartScreen)
+            return@LaunchedEffect
+        }
+    }
+
+    LaunchedEffect(projectState.project) {
+        if (projectState.project != null) {
+            interpreterViewModel.onEvent(InterpreterEvent.LoadInitialCode(projectState.project))
+        }
+    }
+
+    InterpreterScreen(
+        interpreterUiState = interpreterState,
+        projectUiState = projectState,
+        onEvent = interpreterViewModel::onEvent,
+        config = config,
+        onCreateFile = projectViewModel::createFile,
+        onDeleteFile = projectViewModel::deleteFile,
+        onBack = { navController.popBackStack() }
+    )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun InterpreterScreen(
+    interpreterUiState: InterpreterUiState,
+    projectUiState: ProjectUiState,
+    onEvent: (InterpreterEvent) -> Unit,
+    config: SettingsUiState,
+    onCreateFile: (String) -> Unit,
+    onDeleteFile: (String) -> Unit,
+    onBack: () -> Unit,
+) {
+    var isAlertEmptyProjectVisible by rememberSaveable { mutableStateOf(false) }
+    var isAlertNewFileVisible by rememberSaveable { mutableStateOf(false) }
+    var newFileName by rememberSaveable { mutableStateOf("") }
+    var visibleMenuFileName by rememberSaveable { mutableStateOf<String?>(null) }
+    var fileToDelete by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val codeEditorState = interpreterUiState.codeEditorState
+    val debuggerState = interpreterUiState.debuggerState
+
+
+    //alert when project is empty
+    Alert(
+        isVisible = isAlertEmptyProjectVisible,
+        title = stringResource(R.string.empty_project),
+        content = stringResource(
+            R.string.empty_project_full_text,
+            projectUiState.actualProjectName
+        ),
+        confirmButtonAction = {
+            if (newFileName.isNotEmpty()) {
+                onCreateFile(newFileName)
+                isAlertEmptyProjectVisible = false
+                newFileName = ""
+            }
+        },
+        dismissButtonAction = {
+            isAlertEmptyProjectVisible = false
+            onBack()
+        },
+        textField = {
+            TextField(
+                value = newFileName,
+                onValueChange = { newValue -> newFileName = newValue }
+            )
+        },
+        confirmButtonText = R.string.continue_step
+    )
+
+    //alert when creating new file
+    Alert(
+        isVisible = isAlertNewFileVisible,
+        title = stringResource(R.string.new_file),
+        content = stringResource(R.string.enter_new_file_name_text),
+        confirmButtonAction = {
+            if (newFileName.isNotEmpty()) {
+                onCreateFile(newFileName)
+                isAlertNewFileVisible = false
+                newFileName = ""
+            }
+        },
+        dismissButtonAction = { isAlertNewFileVisible = false },
+        textField = {
+            TextField(
+                value = newFileName,
+                onValueChange = { newValue -> newFileName = newValue }
+            )
+        },
+        confirmButtonText = R.string.continue_step
+    )
+
+    //alert file to delete
+    Alert(
+        isVisible = fileToDelete != null,
+        title = stringResource(R.string.confirm_delete_file),
+        content = stringResource(R.string.confirm_delete_file_full_text, fileToDelete ?: ""),
+        confirmButtonAction = {
+            onDeleteFile(fileToDelete!!)
+            fileToDelete = null
+        },
+        dismissButtonAction = { fileToDelete = null },
+        confirmButtonText = R.string.delete
+    )
+
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    if (isLandscape) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.55f)
+                    .zIndex(2f)
+                    .background(MaterialTheme.colorScheme.surface)
+            ) {
+                LazyRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(35.dp)
+                        .padding(horizontal = 2.dp, vertical = 0.dp)
+                ) {
+                    projectUiState.project?.files?.let { files ->
+                        items(files) { projectFile ->
+                            Box(
+                                modifier = Modifier
+                                    .background(
+                                        if (projectUiState.actualFileName == projectFile.name)
+                                            inversePrimaryLightMediumContrast
+                                        else
+                                            secondaryContainerLightMediumContrast,
+                                        RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                                    )
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onLongPress = {
+                                                visibleMenuFileName = projectFile.name
+                                            },
+                                            onTap = {
+                                                onEvent(
+                                                    InterpreterEvent.FileTapped(
+                                                        projectFile,
+                                                        projectUiState.project
+                                                    )
+                                                )
+                                            }
+                                        )
+                                    }
+                                    .padding(horizontal = 15.dp, vertical = 6.dp)
+                            ) {
+                                Text(text = projectFile.name)
+                                DropdownMenu(
+                                    expanded = visibleMenuFileName == projectFile.name,
+                                    onDismissRequest = { visibleMenuFileName = null }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text(stringResource(R.string.delete)) },
+                                        onClick = {
+                                            fileToDelete = projectFile.name
+                                            visibleMenuFileName = null
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        TextButton(
+                            onClick = { isAlertNewFileVisible = true },
+                            contentPadding = PaddingValues(0.dp),
+                            modifier = Modifier
+                                .width(30.dp)
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                        }
+                    }
+                }
+                ErrorsList(
+                    errors = interpreterUiState.errors.toString(),
+                    isErrorListVisible = interpreterUiState.errors.isNotEmpty(),
+                    isErrorListExpanded = interpreterUiState.isErrorListExpanded,
+                    onClick = { onEvent(InterpreterEvent.ToggleErrorListVisibility) }
+                )
+                Box {
+                    CodeEditor(
+                        code = codeEditorState.text,
+                        onCodeChange = { newText, newCursorPosition ->
+                            onEvent(InterpreterEvent.OnCodeChange(newText, newCursorPosition))
+                        },
+                        errors = interpreterUiState.errors.toString(),
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont.value,
+                        fontSize = config.currentFontSize,
+                        onSave = {
+                            onEvent(InterpreterEvent.SaveFile(projectUiState.actualProjectName))
+                        },
+                        onToggleBreakpoint = {
+                            onEvent(InterpreterEvent.ToggleBreakpoint(it))
+                        },
+                        isDarkMode = interpreterUiState.isDarkMode
+                    )
+                    InterpreterButtons(
+                        isDebugging = debuggerState.isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        isStepOverLoopButtonVisible = debuggerState.showStepOverLoopButton,
+                        onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
+                        onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
+                        onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
+                        onNextStep = { onEvent(InterpreterEvent.NextStep) },
+                        onStepIn = { onEvent(InterpreterEvent.StepIn) },
+                        onStepOut = { onEvent(InterpreterEvent.StepOut) },
+                        onStepOverLoop = { onEvent(InterpreterEvent.StepOverLoop) },
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    //.fillMaxWidth(0.5f)
+                    .zIndex(1f)
+            ) {
+                ImagePanel(
+                    turtleState = interpreterUiState.turtleState,
+                    interpreterUiState.canvasBitmap.asImageBitmap(),
+                    interpreterUiState.turtleBitmap.asImageBitmap()
+                )
+            }
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+        ) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillParentMaxHeight(0.6f)
+                        .fillMaxWidth()
+                ) {
+                    ImagePanel(
+                        turtleState = interpreterUiState.turtleState,
+                        interpreterUiState.canvasBitmap.asImageBitmap(),
+                        interpreterUiState.turtleBitmap.asImageBitmap()
+                    )
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomStart)
+                            .height(35.dp)
+                            .padding(horizontal = 2.dp, vertical = 0.dp)
+                    ) {
+                        projectUiState.project?.files?.let { files ->
+                            items(files) { projectFile ->
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            if (interpreterUiState.currentFileName == projectFile.name)
+                                                inversePrimaryLightMediumContrast
+                                            else
+                                                secondaryContainerLightMediumContrast,
+                                            RoundedCornerShape(12.dp, 12.dp, 0.dp, 0.dp)
+                                        )
+                                        .pointerInput(Unit) {
+                                            detectTapGestures(
+                                                onLongPress = {
+                                                    visibleMenuFileName = projectFile.name
+                                                },
+                                                onTap = {
+                                                    onEvent(
+                                                        InterpreterEvent.FileTapped(
+                                                            projectFile,
+                                                            projectUiState.project
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                        }
+                                        .padding(horizontal = 15.dp, vertical = 6.dp)
+                                ) {
+                                    Text(
+                                        text = projectFile.name,
+                                        color = onSurfaceLightMediumContrast
+                                    )
+                                    DropdownMenu(
+                                        expanded = visibleMenuFileName == projectFile.name,
+                                        onDismissRequest = { visibleMenuFileName = null }
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text(stringResource(R.string.delete)) },
+                                            onClick = {
+                                                fileToDelete = projectFile.name
+                                                visibleMenuFileName = null
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        item {
+                            TextButton(
+                                onClick = { isAlertNewFileVisible = true },
+                                contentPadding = PaddingValues(0.dp),
+                                modifier = Modifier
+                                    .width(30.dp)
+                            ) {
+                                Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+                            }
+                        }
+                    }
+                }
+            }
+            item {
+                ErrorsList(
+                    errors = interpreterUiState.errors.toString(),
+                    isErrorListVisible = interpreterUiState.errors.isNotEmpty(),
+                    isErrorListExpanded = interpreterUiState.isErrorListExpanded,
+                    onClick = { onEvent(InterpreterEvent.ToggleErrorListVisibility) }
+                )
+            }
+            item {
+                Box {
+                    CodeEditor(
+                        code = codeEditorState.text,
+                        onCodeChange = { newText, newCursorPosition ->
+                            onEvent(InterpreterEvent.OnCodeChange(newText, newCursorPosition))
+                        },
+                        errors = interpreterUiState.errors.toString(),
+                        breakpoints = debuggerState.breakpoints,
+                        currentLine = debuggerState.currentLine,
+                        fontFamily = config.currentFont.value,
+                        fontSize = config.currentFontSize,
+                        onSave = {
+                            if (interpreterUiState.currentFileName != null) {
+                                onEvent(InterpreterEvent.SaveFile(projectUiState.actualProjectName))
+                            }
+
+                        },
+                        onToggleBreakpoint = {
+                            onEvent(InterpreterEvent.ToggleBreakpoint(it))
+                        },
+                        isDarkMode = interpreterUiState.isDarkMode
+                    )
+                    InterpreterButtons(
+                        isDebugging = debuggerState.isDebugging,
+                        isStepInButtonVisible = debuggerState.showStepInButton,
+                        isStepOutButtonVisible = debuggerState.showStepOutButton,
+                        isStepOverLoopButtonVisible = debuggerState.showStepOverLoopButton,
+                        onInterpretCode = { onEvent(InterpreterEvent.InterpretCode) },
+                        onEnableDebugging = { onEvent(InterpreterEvent.EnableDebugging) },
+                        onDisableDebugging = { onEvent(InterpreterEvent.DisableDebugging) },
+                        onNextStep = { onEvent(InterpreterEvent.NextStep) },
+                        onStepIn = { onEvent(InterpreterEvent.StepIn) },
+                        onStepOut = { onEvent(InterpreterEvent.StepOut) },
+                        onStepOverLoop = { onEvent(InterpreterEvent.StepOverLoop) },
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+@RequiresApi(Build.VERSION_CODES.O)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun Preview() {
+    LogoInterpreterBetaTheme(darkTheme = false) {
+        InterpreterScreen(
+            interpreterUiState = InterpreterUiState(
+                canvasBitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888),
+                turtleBitmap = createBitmap(1000, 1000, Bitmap.Config.ARGB_8888),
+            ),
+            projectUiState = ProjectUiState(),
+            onEvent = { },
+            config = SettingsUiState(),
+            onCreateFile = { },
+            onDeleteFile = { },
+        ) { }
+    }
+}

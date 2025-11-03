@@ -1,0 +1,14 @@
+package com.example.logointerpreterbeta.domain.models
+
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+data class Config(
+    val lastModifiedProject: String = "",
+    val currentTheme: String = "System",
+    val currentFont: String = "JetBrains Mono",
+    val currentFontSize: Int = 18,
+    val showSuggestions: Boolean = true,
+    val useAutocorrect: Boolean = true
+): Parcelable
